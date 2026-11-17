@@ -52,7 +52,14 @@ export interface ContextEngine {
     tokenCap: number,
     provenance: ResultProvenance,
   ): Promise<CappedResult>;
-  /** The exact message list to send. Guarantees it fits, compacting as a last resort. */
+  /**
+   * The exact message list to send. Guarantees it fits, compacting as a last resort.
+   *
+   * The list is always the system prompt (index 0) followed by the history as it should now be
+   * kept. The caller writes compaction back by replacing its history with `messages.slice(1)`
+   * after every call; between threshold crossings that slice equals the input history, so the
+   * write-back is a no-op and the prompt prefix stays stable (CTX-9).
+   */
   prepareMessages(input: PrepareMessagesInput): Promise<ChatMessage[]>;
   compact(history: ChatMessage[]): Promise<{ history: ChatMessage[]; report: CompactionReport }>;
   /** Reconcile the ledger with the usage a chat response reported. */

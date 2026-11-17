@@ -48,94 +48,118 @@ afterEach(async () => {
 });
 
 describe("a scripted 50-turn session", () => {
-  it.each([16_384, 8_192])("never overflows a %i-token window", async (contextLength) => {
-    const summary =
-      "Goal: tidy folders\nFacts found:\n- many files\nFiles touched:\nOpen steps:\n- continue";
-    const lm = new ScriptedLmClient(Array.from({ length: turns }, () => respond.text(summary)));
-    const results = new DiskResultStore(temporary.paths.session.results);
-    const config = defaultConfig();
-    const engine = new VixContextEngine({
-      lm,
-      results,
-      config,
-      model: {
-        key: testModel.key,
-        instanceId: "i",
-        contextLength,
-        capabilities: testModel.capabilities,
-      },
-    });
-    const hardLimit = contextLength - engine.budgets().response;
-    const toolTokens = await lm.countTokens([{ role: "system", content: JSON.stringify(tools) }]);
-
-    const history: ChatMessage[] = [];
-    const requestSizes: number[] = [];
-    const compactions = new Set<CompactionReport>();
-    let evictionSeen = false;
-    let firstHandle: string | undefined;
-
-    /** One model call: prepare, check the fit independently, report usage like LM Studio would. */
-    async function callModel(): Promise<void> {
-      const messages = await engine.prepareMessages({ systemPrompt, tools, history });
-      const promptTokens = (await lm.countTokens(messages)) + toolTokens + 3 * messages.length;
-      expect(promptTokens).toBeLessThanOrEqual(hardLimit);
-      requestSizes.push(promptTokens);
-      if (messages.some((message) => String(message.content).startsWith("[Evicted"))) {
-        evictionSeen = true;
-      }
-      engine.recordUsage({ promptTokens, completionTokens: 50 });
-      const report = engine.lastCompaction();
-      if (report) compactions.add(report);
-    }
-
-    for (let turn = 1; turn <= turns; turn++) {
-      history.push({
-        role: "user",
-        content: `Turn ${turn}: ${"please look at this folder ".repeat(4)}`,
+  // "write-back" is how the agent loop runs: session history becomes messages.slice(1) each call.
+  it.each([
+    { contextLength: 16_384, writeBack: true },
+    { contextLength: 8_192, writeBack: true },
+    { contextLength: 16_384, writeBack: false },
+    { contextLength: 8_192, writeBack: false },
+  ])(
+    "never overflows a $contextLength-token window (write-back: $writeBack)",
+    async ({ contextLength, writeBack }) => {
+      const summary =
+        "Goal: tidy folders\nFacts found:\n- many files\nFiles touched:\nOpen steps:\n- continue";
+      const lm = new ScriptedLmClient(Array.from({ length: turns }, () => respond.text(summary)));
+      const results = new DiskResultStore(temporary.paths.session.results);
+      const config = defaultConfig();
+      const engine = new VixContextEngine({
+        lm,
+        results,
+        config,
+        model: {
+          key: testModel.key,
+          instanceId: "i",
+          contextLength,
+          capabilities: testModel.capabilities,
+        },
       });
-      const rounds = turn % 4 === 0 ? 2 : 1;
-      for (let round = 1; round <= rounds; round++) {
+      const hardLimit = contextLength - engine.budgets().response;
+      const toolTokens = await lm.countTokens([{ role: "system", content: JSON.stringify(tools) }]);
+
+      let history: ChatMessage[] = [];
+      const requestSizes: number[] = [];
+      const compactions = new Set<CompactionReport>();
+      let evictionSeen = false;
+      let lastReport: CompactionReport | undefined;
+      let firstHandle: string | undefined;
+
+      /** One model call: prepare, check the fit independently, report usage like LM Studio would. */
+      async function callModel(): Promise<void> {
+        const messages = await engine.prepareMessages({ systemPrompt, tools, history });
+        const promptTokens = (await lm.countTokens(messages)) + toolTokens + 3 * messages.length;
+        expect(promptTokens).toBeLessThanOrEqual(hardLimit);
+        requestSizes.push(promptTokens);
+        if (messages.some((message) => String(message.content).startsWith("[Evicted"))) {
+          evictionSeen = true;
+        }
+        engine.recordUsage({ promptTokens, completionTokens: 50 });
+        const report = engine.lastCompaction();
+        if (report) compactions.add(report);
+        if (writeBack) {
+          const kept = messages.slice(1);
+          // Without a new compaction, write-back changes nothing, so the prefix stays stable.
+          if (report === lastReport) expect(kept).toEqual(history);
+          lastReport = report;
+          history = kept;
+        }
+      }
+
+      for (let turn = 1; turn <= turns; turn++) {
+        history.push({
+          role: "user",
+          content: `Turn ${turn}: ${"please look at this folder ".repeat(4)}`,
+        });
+        const rounds = turn % 4 === 0 ? 2 : 1;
+        for (let round = 1; round <= rounds; round++) {
+          await callModel();
+          const callId = `call_${turn}_${round}`;
+          history.push({
+            role: "assistant",
+            content: "",
+            toolCalls: [
+              {
+                id: callId,
+                name: "find_files",
+                argumentsJson: `{"path":"~/Documents/folder${turn}"}`,
+              },
+            ],
+          });
+          const capped = await engine.capResult(
+            { text: toolOutput(turn, round) },
+            config.context.defaultResultTokenCap,
+            { tool: "find_files", arguments: { path: `~/Documents/folder${turn}` } },
+          );
+          firstHandle ??= capped.handle;
+          history.push({ role: "tool", toolCallId: callId, content: capped.text });
+        }
         await callModel();
-        const callId = `call_${turn}_${round}`;
         history.push({
           role: "assistant",
-          content: "",
-          toolCalls: [
-            {
-              id: callId,
-              name: "find_files",
-              argumentsJson: `{"path":"~/Documents/folder${turn}"}`,
-            },
-          ],
+          content: `Done with turn ${turn}. ${"Summary text. ".repeat(30)}`,
         });
-        const capped = await engine.capResult(
-          { text: toolOutput(turn, round) },
-          config.context.defaultResultTokenCap,
-          { tool: "find_files", arguments: { path: `~/Documents/folder${turn}` } },
-        );
-        firstHandle ??= capped.handle;
-        history.push({ role: "tool", toolCallId: callId, content: capped.text });
       }
-      await callModel();
-      history.push({
-        role: "assistant",
-        content: `Done with turn ${turn}. ${"Summary text. ".repeat(30)}`,
-      });
-    }
 
-    const snapshot = engine.usage();
-    expect(snapshot.usedTokens).toBe(requestSizes.at(-1));
-    expect(Math.max(...requestSizes)).toBeLessThanOrEqual(hardLimit);
-    expect(evictionSeen).toBe(true);
-    expect(lm.requests.length).toBeGreaterThan(0);
-    expect(lm.requests.every((request) => request.reasoning === "off")).toBe(true);
-    const methods = [...compactions].map((report) => report.method);
-    expect(methods).toContain("summarized");
-    expect(methods).toContain("evicted");
+      const snapshot = engine.usage();
+      expect(snapshot.usedTokens).toBe(requestSizes.at(-1));
+      expect(Math.max(...requestSizes)).toBeLessThanOrEqual(hardLimit);
+      expect(evictionSeen).toBe(true);
+      expect(lm.requests.length).toBeGreaterThan(0);
+      expect(lm.requests.every((request) => request.reasoning === "off")).toBe(true);
+      const methods = [...compactions].map((report) => report.method);
+      expect(methods).toContain("summarized");
+      expect(methods).toContain("evicted");
 
-    // A handle from the first turns, long since summarized away, still resolves.
-    expect(firstHandle).toBeDefined();
-    const meta = await results.describe(firstHandle as string);
-    expect(meta.itemCount).toBeGreaterThan(1);
-  });
+      // With write-back the session itself stays compact: it never holds more than fits the window.
+      if (writeBack) {
+        const appendedMessages = turns * 4 + Math.floor(turns / 4) * 2;
+        expect(history.length).toBeLessThan(appendedMessages / 2);
+        expect(await lm.countTokens(history)).toBeLessThanOrEqual(hardLimit);
+      }
+
+      // A handle from the first turns, long since summarized away, still resolves.
+      expect(firstHandle).toBeDefined();
+      const meta = await results.describe(firstHandle as string);
+      expect(meta.itemCount).toBeGreaterThan(1);
+    },
+  );
 });

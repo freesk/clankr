@@ -73,6 +73,14 @@ describe("capResult", () => {
     expect((await results.describe("r1")).arguments).toEqual({ pattern: "invoice" });
   });
 
+  it("passes short corrective error messages through, empty text included", async () => {
+    const { engine, results } = createEngine();
+    const error = "Invalid arguments for find_files: pattern is required. Try again.";
+    expect((await engine.capResult({ text: error }, 800, provenance)).text).toBe(error);
+    expect(await engine.capResult({ text: "" }, 800, provenance)).toEqual({ text: "", tokens: 0 });
+    expect(results.handles()).toEqual([]);
+  });
+
   it("cuts a single enormous line instead of overflowing the cap", async () => {
     const { engine } = createEngine();
     const capped = await engine.capResult({ text: "x".repeat(50_000) }, 100, provenance);
