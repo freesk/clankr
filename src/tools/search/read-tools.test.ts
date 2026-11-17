@@ -62,7 +62,8 @@ describe("list_dir", () => {
     expect(text).toContain("\n  plan.md  ");
     expect(text).toContain("\n  a/  ");
     expect(text).toContain("\n    b/  ");
-    expect(text).not.toContain("c/");
+    // Matched as a tree entry: the header line holds a random temp folder name.
+    expect(text).not.toMatch(/^\s+c\/ /m);
     expect(text).toContain("node_modules/  ");
     expect(text).toMatch(/node_modules\/ {2}\S+ {2}\(skipped\)/);
     expect(text).not.toContain("pkg/");
