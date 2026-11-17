@@ -4,6 +4,7 @@
 
 import { type Row, type Theme, ToolError } from "../contracts/index.ts";
 import { withHarnessData } from "../engines/browser/index.ts";
+import { emptyCategoryNotes } from "./empty-categories.ts";
 import { externalReferenceMessage, findExternalReference } from "./external-references.ts";
 import { findMissingField } from "./field-check.ts";
 import { validateSpec } from "./schema-validation.ts";
@@ -44,10 +45,10 @@ export async function prepareChartSpec(
   if (missingField) throw new ToolError(missingField);
   polishSpec(themed, rows);
 
-  const notes =
-    removedStyling.length > 0
-      ? [`Removed styling (the theme sets it): ${removedStyling.slice(0, 5).join(", ")}.`]
-      : [];
+  const notes = emptyCategoryNotes(themed, rows);
+  if (removedStyling.length > 0) {
+    notes.push(`Removed styling (the theme sets it): ${removedStyling.slice(0, 5).join(", ")}.`);
+  }
   return { spec: themed, notes };
 }
 

@@ -2,6 +2,7 @@
 // layered end labels with transforms, and years on a quantitative axis.
 
 import { describe, expect, it } from "vitest";
+import { emptyCategoryNotes } from "./empty-categories.ts";
 import { findMissingField } from "./field-check.ts";
 import { polishAxes, polishSpec } from "./spec-polish.ts";
 
@@ -146,5 +147,29 @@ describe("polishSpec short category labels", () => {
     };
     polishSpec(spec, [{ year: 2020, n: 1 }]);
     expect((spec.encoding.x as { axis?: { labelAngle?: number } }).axis?.labelAngle).toBe(0);
+  });
+});
+
+describe("emptyCategoryNotes", () => {
+  it("tells the model about rows drawn as a null category, with their total", () => {
+    const spec = {
+      mark: "bar",
+      encoding: {
+        x: { field: "month", type: "ordinal" },
+        y: { field: "amount", type: "quantitative" },
+      },
+    };
+    const notes = emptyCategoryNotes(spec, [
+      { month: "01", amount: 5 },
+      { month: null, amount: 12_000 },
+    ]);
+    expect(notes).toEqual([
+      '1 row has no "month" (amount 12,000) and is drawn as "null". Filter them out in query_sql (WHERE "month" IS NOT NULL) or say what they are in the summary.',
+    ]);
+  });
+
+  it("says nothing when every category has a value", () => {
+    const spec = { mark: "bar", encoding: { x: { field: "month", type: "ordinal" } } };
+    expect(emptyCategoryNotes(spec, [{ month: "01" }])).toEqual([]);
   });
 });
