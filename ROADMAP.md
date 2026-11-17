@@ -22,13 +22,13 @@ Build `vix` as described in [PRD.md](PRD.md), part by part, following the waves 
 | # | Part | Spec | Wave | Owner | Status | Next step |
 |---|---|---|---|---|---|---|
 | 0 | foundation | [foundation.md](specs/foundation.md) | 0 | main session | done (verified) | None. Evidence: lint, 16 tests, and build pass on a clean copy with `npm ci`; `npm run spike` prints a DuckDB result and an isolate result |
-| 1 | cli | [cli.md](specs/cli.md) | 1 | agent-cli | in progress | Argument parsing, one-shot mode, slash dispatcher; Ink REPL after |
+| 1 | cli | [cli.md](specs/cli.md) | 1 | agent-cli | done (verified) | Merged in `9e1f8ef`: 58 cli tests; one-shot never loads Ink (checked by a resolve hook); startup median 249 ms REPL, 81 ms one-shot. Not verified: anything against real parts (`src/cli/composition.ts` is a placeholder), wipe confirmation typed by hand, picker and approval views by eye. Re-measure startup after wiring |
 | 2 | lmstudio | [lmstudio.md](specs/lmstudio.md) | 1 | agent-lmstudio | done (verified) | Merged in `6d1e8c5`; full suite 270 passing + 5 skipped. Verified live: token-missing and token-rejected errors against LM Studio 0.4.20. Not verified live (no `LM_API_TOKEN`): chat stream, usage in stream, SDK token counts, load/switch, reasoning toggle. Run `VIX_LIVE_LMSTUDIO=1 LM_API_TOKEN=… npx vitest run src/lmstudio/live.test.ts` |
 | 3 | agent-loop | [agent-loop.md](specs/agent-loop.md) | 1 | agent-loop | done (verified) | Merged in `59acba2`: 58 agent tests; full suite 328 passing + 5 skipped. Not verified: CTX-5 with the real counter and tools (fake estimate 975 tokens native / 536 prompt), and whether Gemma follows `<tool_call>` |
 | 4 | context | [context.md](specs/context.md) | 1 | agent-context | done (verified) | Merged in `d4792fe` and `dde0d78`: 43 context tests incl. the M2 criterion (scripted 50-turn session within the window at 16k and 8k); full suite 366 passing + 5 skipped. Not verified: real LM Studio token counts and template-overhead calibration, summary quality from a real model |
 | 5 | permissions | [permissions.md](specs/permissions.md) | 1 | agent-storage-permissions | done (verified) | Merged in `dc8f650` with storage; full suite 238 passing then. Not verified: deny-list paths on a real home folder, audit entries written end to end by the agent loop |
 | 6 | storage | [storage.md](specs/storage.md) | 1 | agent-storage-permissions | done (verified) | Merged in `dc8f650`: modes, wipe, resume, ephemeral cleanup on every exit path incl. signals, all tested in temp roots. Not verified: SIGHUP |
-| 7 | search | [search.md](specs/search.md) | 1 | agent-search | in progress | Vendor step for ripgrep; `list_dir` and `read_file` first. Replace the smoke test in `src/tools/search/` |
+| 7 | search | [search.md](specs/search.md) | 1 | agent-search | done (verified) | Merged in `72c88bb`: 59 search tests (ripgrep vendored on main, 522 passing + 5 skipped). Whole-disk name search 160–405 ms for typical queries; content search 1.9–3.0 s warm on 10 GB (O6). Not verified: walk limits, abort, x64 ripgrep, SRCH-8 (P1, not built) |
 | 8 | files | [files.md](specs/files.md) | 1 | agent-files | done (verified) | Merged in `c37d0ea`: 43 files tests; full suite 148 passing + 1 opt-in skipped, lint and build clean on main. Not verified: trashed file visible in `~/.Trash` (no Full Disk Access), cross-volume move fallback (EXDEV never triggered), behaviour against the real `PathPolicy` |
 | 9 | image | [image.md](specs/image.md) | 1 | agent-image | done (verified) | Merged in `03bba17`: 30 image tests, full suite 50 passing, lint and build clean on main. Not verified: live LM Studio check (no `LM_API_TOKEN`), so default max edge and the image token estimate stay open |
 | 10 | inspect | [inspect.md](specs/inspect.md) | 1 | agent-data | in progress | Format detection and the `.docx` parser; tabular profiling waits for task 11's engine module |
@@ -81,6 +81,13 @@ Build `vix` as described in [PRD.md](PRD.md), part by part, following the waves 
 - evals wiring (wave 2): implement `evals/runner/real-harness.ts`: wrap the real client in `UsageRecordingLmClient`, allowed roots = task folder, auto-answer approvals, report registry tool names and slash commands, adapt `runTurn` with `bindRunTurn`, file tools with a private Trash (D54). Switch the runner from `createTemporaryVixPaths` to storage's layout if needed (the fake already uses it). Add `delete` golden tasks. Point `runUnderObservation` at real `vix`. Build the section 9 performance script.
 - `TurnInput`/`RunTurn` now live in `src/contracts/turn.ts` with agent-loop's shape (`string | { text, attachmentPaths? }`); evals had defined a different one.
 
+- **Contract merge:** three `TurnInput` shapes existed (agent-loop, evals, cli). Resolved in `src/contracts/turn.ts` to `string | { text, attachments?: Attachment[] }`, with cli's `Attachment { path, kind, label }`; agent-loop reads `attachments[].path`. The cli's proposed `SessionStore` (open/wipe) is renamed `SessionManager` because storage's `SessionStore` (list/load/newest) already had the name; storage implements the equivalent as `openSession` and `wipe`.
+- cli wiring: everything goes through `src/cli/composition.ts`, which is a placeholder now (also hard-codes `~/.vix`; use storage's `resolveVixRoot`). `Harness.session()` is re-read after each command and turn, so `/model` and `/permissions` must mutate that state. `/model` gets the picker through `context.choose`.
+- cli startup test runs `main.ts` with Node type stripping: no enums or constructor parameter properties in anything reachable from `main.ts`.
+- `resultTokenCap` in search and sandbox comes from `defaultConfig()`, so a user's config override never reaches it. Integration: build tools from the loaded config.
+- search wiring: `searchTools` from `src/tools/search/index.ts`; needs `npm run vendor -- ripgrep` (done on this machine). Its over-cap message says "page through it with read_result" — check the wording matches context's `read_result` parameters.
+- Build excludes `src/**/testing` and `*.test-support.ts`. Search's `fixture-tree.ts` is still built; rename it to `.test-support.ts` in integration.
+
 ## Decisions made along the way
 
 | Date | Decision | Reason |
@@ -99,4 +106,5 @@ Build `vix` as described in [PRD.md](PRD.md), part by part, following the waves 
 | 2026-11-17 | D51 from context | See PRD 13.1 |
 | 2026-11-17 | D52–D54 from evals | See PRD 13.1 |
 | 2026-11-17 | Unified `TurnInput` in the contracts on agent-loop's shape | Two incompatible definitions had been merged |
+| 2026-11-17 | D55–D58 from cli and search; O6 (cold vs warm content-search target) opened | See PRD 13.1 |
 | 2026-11-17 | Config `data.rowCap` is one number for the chart row cap and the isolate helper cap | specs/sandbox.md requires them to be defined once |

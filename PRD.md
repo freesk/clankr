@@ -452,6 +452,10 @@ Milestones give the order in which scenarios must pass. The work itself is split
 | D52 | "Valid on the first attempt" (section 10) | Counts only calls the loop accepted unchanged; calls it repaired are reported as a separate rate | Repair hides model errors the metric is meant to expose |
 | D53 | "Chart requests that render within 3 attempts" | A chart run succeeds if one of its first 3 `make_chart` calls ends without an error; a run with no `make_chart` call fails | Makes the metric computable from events |
 | D54 | `delete` in evals | The eval harness builds the file tools with a private Trash folder (files' injectable `trash`), so golden tasks can cover `delete` without touching the real Trash | The reference Mac is the user's own machine |
+| D55 | One-shot behaviour details | The answer goes to stdout; tool lines, denials, and errors to stderr; reasoning is hidden. Exit 1 when any approval was denied, even if the model then finished; an invalid config exits 2. Stdin is read only when it is a pipe or a file. `--ephemeral` with `--resume`, and `--json` outside one-shot mode, are usage errors | Scriptable output; a stdin left open by a parent must not hang the run |
+| D56 | Approval keys | `o` once, `a` always for the session, `d` deny with feedback, Esc deny. Enter alone does nothing | A stray key must never approve a change |
+| D57 | Search tool details | ripgrep 15.2.0 pinned (extends D31). `search_content` and `list_dir` default to the working folder (D24 covers only `find_files`). ripgrep runs with `--no-ignore --hidden` plus the shared exclude list, so `.gitignore` is not honoured and all three search paths agree (SRCH-7) | One exclude policy across Spotlight, the walk, and ripgrep |
+| D58 | Tool parameter names | snake_case across every tool (`min_size`, `start_line`, …) | One convention for the model to learn |
 
 Decisions internal to one part (limits, cache rules, eviction age) are recorded in that part's spec under [specs/](specs/README.md).
 
@@ -460,6 +464,7 @@ Decisions internal to one part (limits, cache rules, eviction age) are recorded 
 | # | Question | Leaning |
 |---|---|---|
 | O5 | Should `.env` files be on the deny list (D43)? | Undecided; they often hold secrets but are also edited legitimately |
+| O6 | Is the 3 s content-search target (section 9) for a cold or warm cache? Measured warm: 1.9–3.0 s, median 2.2 s on 10 GB | Decide before the M5 metrics run |
 | O3 | Is the `vix` package name free on npm, if the tool is ever published? | Not checked; irrelevant while it is installed locally |
 
 O1, O2, and O4 were resolved by D36, D19, and D23. Questions local to one part are listed in [specs/README.md](specs/README.md).
