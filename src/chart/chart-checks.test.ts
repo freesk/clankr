@@ -64,6 +64,22 @@ describe("polishAxes", () => {
     expect(spec.encoding.y).toEqual({ field: "indexed", type: "quantitative" });
   });
 
+  it("draws axes over large numbers as 24B or 350M", () => {
+    const spec = {
+      mark: "bar",
+      encoding: {
+        x: { field: "total", type: "quantitative" },
+        y: { field: "ministry", type: "nominal" },
+      },
+    };
+    polishAxes(spec, [
+      { ministry: "Health", total: 25_857_200_000 },
+      { ministry: "Education", total: 6_747_800_000 },
+    ]);
+    const axis = (spec.encoding.x as { axis?: { labelExpr?: string } }).axis;
+    expect(axis?.labelExpr).toContain("'B'");
+  });
+
   it("keeps a format the model chose", () => {
     const spec = {
       mark: "line",

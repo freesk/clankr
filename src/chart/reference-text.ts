@@ -5,6 +5,8 @@ export const chartReferenceText = `## make_chart reference (Vega-Lite)
 Write JavaScript that builds a Vega-Lite spec and ends with render(spec, data("rN")).
 - data("rN") returns the rows of a stored result. Use the handle from query_sql.
 - Do the maths in query_sql, not JavaScript: totals (GROUP BY), shares, growth, and indexes to a base year (window functions), and new groupings (CASE WHEN). Then chart that result as it is.
+- Counting things (licences, people, orders): COUNT(DISTINCT id_column). A file often has several rows per thing; the inspect_data profile shows each column's distinct count.
+- Averages over time: when rows are finer than the question (per site per day), total them to the question's level first (per city per day), then average.
 - Do not set colours, fonts, background, or config. The user's theme does that.
 - Do not put "data" or "url" in the spec. Rows are attached by render.
 - "field" must be a column of the rows, exactly (case matters).

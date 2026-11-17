@@ -91,8 +91,16 @@ export function themeConfig(theme: Theme): SpecObject {
     mark: { color: theme.palette[0] },
     view: { stroke: "transparent" },
     title: { fontSize: 16, anchor: "start", offset: 12 },
-    axis: { labelFontSize: 11, titleFontSize: 12, gridColor: "#e6e6e6", domainColor: "#888888" },
-    legend: { labelFontSize: 11, titleFontSize: 12 },
+    // labelLimit: category names such as ministry names run past Vega's 180 px default.
+    axis: {
+      labelFontSize: 11,
+      titleFontSize: 12,
+      gridColor: "#e6e6e6",
+      domainColor: "#888888",
+      labelLimit: 300,
+    },
+    legend: { labelFontSize: 11, titleFontSize: 12, labelLimit: 300 },
+    header: { labelFontSize: 13, titleFontSize: 13 },
   };
 }
 
