@@ -1,0 +1,9 @@
+node_modules/
+dist/
+coverage/
+*.log
+.DS_Store
+
+# Vendored assets are installed by `npm run vendor`, not committed.
+vendor/*
+!vendor/README.md

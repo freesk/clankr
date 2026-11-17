@@ -46,7 +46,7 @@ Two tools use the isolate: `run_js` for reshaping data, and `make_chart` for bui
 - **Console output** is captured and returned as part of the tool result, subject to the cap. It is the model's only debugging aid.
 - **Errors are short.** Message and line number in the model's own code. No host stack frames.
 - **The addon is loaded lazily**, on first use.
-- **Start-up flag.** If `isolated-vm` needs a Node flag on Node 22, that is settled in the [foundation](foundation.md) spike and affects how `vix` starts.
+- **Start-up flag.** `vix` runs Node with `--no-node-snapshot` (D35). Tests that load the addon run under vitest, which does not pass the flag; the spike saw no failure without it, but a crash seen only in tests should be checked against this first.
 
 ## Not in this part
 
@@ -73,6 +73,7 @@ Settled 2026-11-17. A D-number means the decision is also recorded in PRD sectio
 | Row-set format | JSON Lines, shared with [context](context.md) and [sql](sql.md) (D16). |
 | Default limits | 5 s, 128 MB, and 50,000 rows, each configurable. The row limit is the same number as the chart row cap in DATA-17, defined once. |
 | Helper style | Synchronous. `data`, `save`, and `render` return values directly, with no `await`. |
+| Addon version | `isolated-vm` 6.2.0, pinned (D37). |
 
 ## Open questions
 

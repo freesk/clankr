@@ -72,7 +72,8 @@ Settled 2026-11-17. A D-number means the decision is also recorded in PRD sectio
 | Who reads the file | Tabular files are profiled through the DuckDB engine in [sql](sql.md). `.docx` files get a direct OOXML parser (D17). |
 | Where `.docx` tables go | The session's result store, as JSON Lines row sets (D17). |
 | Profile caching | A profile is reused while the file's size and modification time are unchanged, and recomputed when either differs. |
+| Legacy `.xls` | Read with SheetJS 0.20.3 and stored as a row set that DuckDB reads (D36, resolves O1). Check date columns: the spike saw local-midnight dates read back with an offset. |
 
 ## Open questions
 
-- O1 from the PRD: the reader for legacy `.xls`. Answered by the foundation spike.
+None.

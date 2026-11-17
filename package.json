@@ -1,0 +1,39 @@
+{
+  "name": "vix",
+  "version": "0.0.0",
+  "description": "A local-only CLI agent harness for LM Studio models",
+  "private": true,
+  "type": "module",
+  "license": "UNLICENSED",
+  "engines": {
+    "node": ">=22.12"
+  },
+  "os": [
+    "darwin"
+  ],
+  "bin": {
+    "vix": "bin/vix.js"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "biome check . && tsc -p tsconfig.json --noEmit",
+    "format": "biome format --write .",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "vendor": "node scripts/vendor.ts",
+    "spike": "node --no-node-snapshot scripts/spike/native-addons.ts"
+  },
+  "dependencies": {
+    "@duckdb/node-api": "1.4.5-r.1",
+    "isolated-vm": "6.2.0",
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.6.8",
+    "@types/node": "^22.20.5",
+    "typescript": "^7.0.2",
+    "vitest": "^5.1.0"
+  }
+}

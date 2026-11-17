@@ -46,11 +46,11 @@ No single check is trusted on its own.
 3. **Extensions.** Install and autoload are off. The vendored Excel reader is loaded from disk by the harness before the configuration is locked.
 4. **Locked configuration.** After setup, the configuration is locked so a query cannot turn any of the above back on.
 
-Verify each layer against the pinned DuckDB version during the foundation spike, since the available settings differ between versions.
+Each layer was verified against DuckDB 1.4.5 in the foundation spike; the results are in [foundation.md](foundation.md#spike-findings-2026-11-17). Two findings shape the design: configuration alone does not stop `COPY ... TO` an allowed directory or `CREATE TABLE`, so the statement check is required, and stored row sets must be allowed file by file, not by directory.
 
 ### Everything else
 
-- **One connection per session.** It is opened and locked down on first use and reused for every query. A file inspected later in the session has to be added to a connection whose configuration is already locked, so the lockdown design must allow registering a new input file without unlocking anything else. Settle how in the spike.
+- **One connection per session.** It is opened and locked down on first use and reused for every query. A file inspected later in the session has to be added to a connection whose configuration is already locked, so the lockdown design must allow registering a new input file without unlocking anything else. A locked configuration cannot be extended, so the instance is rebuilt with the new file added (D38).
 - **The engine has two callers.** `query_sql` runs the model's SQL through it, and [inspect](inspect.md) runs its own fixed profiling queries through it. Only the model's SQL goes through the statement check.
 - **The model uses table names, not paths.** The names come from the profile printed by [inspect](inspect.md).
 - **Limits.** A query has a timeout that actually interrupts it, a memory limit, and a row limit on what is stored.
@@ -82,9 +82,10 @@ Settled 2026-11-17. A D-number means the decision is also recorded in PRD sectio
 | Topic | Decision |
 |---|---|
 | Row-set format | JSON Lines, shared with [context](context.md) and [sandbox](sandbox.md) (D16). |
-| Connection lifetime | One connection per session: opened and locked down on first use, closed when the session ends. |
+| Connection lifetime | One connection per session: opened and locked down on first use, rebuilt when a file is registered (D38), closed when the session ends. |
+| Binding and version | `@duckdb/node-api` 1.4.5-r.1, DuckDB 1.4.5 (LTS), pinned (D37). |
 | How often a query prompts | Once per data file per session (D19). The rule lives in [permissions](permissions.md). |
 
 ## Open questions
 
-- Which Node binding for DuckDB, and which version is pinned? Answered by the foundation spike.
+None.

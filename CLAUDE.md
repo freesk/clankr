@@ -54,3 +54,15 @@ A very large source file is a sign of poor design, not a formatting problem.
 - Treat about 300 lines as the point where a source file must be split by responsibility.
 - Split along real boundaries (one tool, one engine, one concern per module). Do not split arbitrarily just to get under the number.
 - If a file cannot be split cleanly, stop and raise the design problem with the user instead of letting it grow.
+
+### 7. Load heavy modules lazily
+
+DuckDB, `isolated-vm`, `sharp`, Playwright, and Ink are imported with `await import()` at the point of use, never at the top level of a module the CLI reaches at startup. A top-level import of any of them breaks the 500 ms startup target (PRD section 9).
+
+## Working in the code
+
+- `npm run lint` (Biome, then `tsc --noEmit`), `npm test` (vitest), `npm run build` (to `dist/`). Run all three before calling a change done.
+- Shared types live in `src/contracts/`. Wave 1 parts import contracts and the fakes in `src/testing/`, never each other's code ([specs/README.md](specs/README.md)).
+- Every config default is defined once, in `src/config/schema.ts`.
+- Third-party run-time assets go in `vendor/` through a step in `scripts/vendor/` ([vendor/README.md](vendor/README.md)).
+- Imports use `.ts` extensions; the build rewrites them.

@@ -143,10 +143,27 @@ Settled 2026-11-17. A D-number means the decision is also recorded in PRD sectio
 |---|---|
 | Test runner | `vitest` (D34). |
 | Vendored assets | Everything vendored lives in the project's `vendor/` directory, not under `~/.vix/` and not in a shared cache (D31). |
+| Lint and format | Biome, one tool for both. |
+| Node start-up flag | `--no-node-snapshot`, passed in the shebang of `bin/vix.js`, so Node is never re-launched (D35). |
+| `.xls` reader | SheetJS 0.20.3 from the SheetJS CDN (D36, resolves O1). |
+| Native addon versions | `isolated-vm` 6.2.0 and `@duckdb/node-api` 1.4.5-r.1, pinned exactly (D37). |
+
+## Spike findings (2026-11-17)
+
+Reproduce with `npm run spike` (`scripts/spike/native-addons.ts`). Node 22.22.2, macOS 26.6, Apple M3 Pro.
+
+- **`isolated-vm` 6.2.0** installs from a prebuilt binary and runs with and without `--no-node-snapshot`. A loop of 50 isolates with injected references, copied data, a timeout, and a memory-limit kill showed no crash without the flag. `require`, `process`, and `fetch` are all undefined inside an isolate. A runaway loop fails with "Script execution timed out"; a runaway allocation disposes the isolate. 7.x requires Node 24 or later.
+- **The flag** adds about 18 ms to Node startup (23 ms to 41 ms for `node -e 0`).
+- **DuckDB 1.4.5** through `@duckdb/node-api` 1.4.5-r.1 runs a 1,000,000-row group-by. `@duckdb/node-api` 2.0.0-r.1 also exists; the 1.4 line was chosen as DuckDB's LTS.
+- **`.xlsx`** is read by DuckDB's `excel` extension (`read_xlsx`), loaded from a file path with `LOAD '<path>'`. The extension file for this version is `v1.4.5/osx_arm64/excel.duckdb_extension`; the sql part vendors it.
+- **`.xls`** is not read by DuckDB. SheetJS 0.20.3 reads a 65,535-row `.xls` in 130 to 420 ms. Dates written as local midnight read back with an offset, so inspect must test date columns explicitly.
+- **DuckDB lockdown**, the layers in [sql.md](sql.md), with `allowed_paths`, `enable_external_access = false`, extension autoload and autoinstall off, and `lock_configuration = true`:
+  - Rejected: a file not in `allowed_paths` (also through globs, `../`, and `glob()`), URLs, `SET`/`RESET`, `INSTALL`, `LOAD` of another extension, `ATTACH`.
+  - Not rejected by configuration alone: `COPY ... TO` a path inside `allowed_directories`, and `CREATE TABLE` in the in-memory database. The statement check is what stops these, so row sets must be allowed per file (`allowed_paths`), not by directory.
+  - The parser check works: `extractStatements` counts statements, and a prepared statement's `statementType` distinguishes `SELECT` from everything else. `PRAGMA version` reports as `SELECT`.
+  - Error messages contain absolute paths, including the home folder, so the sql part must strip them.
+  - A locked configuration cannot be extended, so a newly registered file needs a rebuilt instance. Opening and locking one takes 10 to 20 ms (D38).
 
 ## Open questions
 
-Both are answered by the spike, not by choice.
-
-- Is `--no-node-snapshot` required, and if so, does the bin re-launch Node or use a wrapper script?
-- O1 from the PRD: the `.xls` reader.
+None. Both were answered by the spike (D35, D36).

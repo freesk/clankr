@@ -113,9 +113,6 @@ The first round of open questions was settled on 2026-11-17. What remains:
 
 | Spec | Question | Settled by |
 |---|---|---|
-| [foundation.md](foundation.md) | Does `isolated-vm` need a Node start-up flag on Node 22? | The spike |
-| [foundation.md](foundation.md), [inspect.md](inspect.md) | Which reader handles legacy `.xls` (PRD O1)? | The spike |
-| [sql.md](sql.md) | Which DuckDB Node binding and version? | The spike |
 | [image.md](image.md) | What is the default maximum image edge? | A measurement in M3 |
 | [search.md](search.md) | Which text extractors does the SRCH-8 fallback use, and what bounds it? | A choice |
 | [chart.md](chart.md) | Where does a chart built from several data files go, and does the automatic retry count as an attempt? | A choice |

@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Status** | Draft v0.3 (workstream specs added; their open questions resolved) |
+| **Status** | Draft v0.4 (foundation built; native-addon spike findings recorded) |
 | **Last updated** | 2026-11-17 |
 | **CLI name** | `vix` (after Vixen, Santa's smartest reindeer) |
 
@@ -277,7 +277,8 @@ The V8 isolate was chosen over an OS-level sandbox because Apple's `sandbox-exec
 
 | Area | Choice | Notes |
 |---|---|---|
-| Runtime | Node.js 22 LTS+, TypeScript, ESM | |
+| Runtime | Node.js 22 LTS+, TypeScript, ESM | Started with `--no-node-snapshot` (D35) |
+| Lint and format | Biome | One tool for both |
 | Schema validation | zod | Also used to generate tool schemas |
 | Terminal UI | Ink | Loaded for the REPL only, to protect startup time |
 | Tests | vitest | |
@@ -285,8 +286,9 @@ The V8 isolate was chosen over an OS-level sandbox because Apple's `sandbox-exec
 | Content search | ripgrep, bundled | Pinned binary in `vendor/` |
 | Trash | `trash` npm package | |
 | Images | `sharp` | Resize and convert |
-| Query engine | DuckDB, embedded | Reads CSV/TSV natively; Excel reader vendored |
-| JS sandbox | `isolated-vm` | Native addon |
+| Query engine | DuckDB 1.4.5, embedded, through `@duckdb/node-api` 1.4.5-r.1 | Reads CSV/TSV natively; Excel reader vendored (D37) |
+| Legacy `.xls` | SheetJS 0.20.3, from the SheetJS CDN | Converted to a row set, then read by DuckDB (D36) |
+| JS sandbox | `isolated-vm` 6.2.0 | Native addon; 7.x needs Node 24 (D37) |
 | Word documents | `mammoth` or direct OOXML parsing | Tables are extracted and loaded into DuckDB |
 | Chart library | Vega-Lite, vendored | Spec validated before render |
 | Headless browser | Playwright with Chromium | Installed up front in `vendor/`; started only for rendering, closed 60 s after the last render |
@@ -372,7 +374,7 @@ A golden task suite of roughly 40 scripted tasks, covering each scenario in sect
 | **M4 Data and charts** | `inspect_data`, `query_sql`, `run_js`, `make_chart`, theme file, PDF export | Scenarios S7–S9 pass on a 1M-row file |
 | **M5 Hardening** | Golden suite, session resume, undo, audit log, `vix wipe` | Metrics in section 10 are met |
 
-An early spike in M0 confirms that `isolated-vm` and DuckDB build and run on Node 22 on Apple silicon, since M4 depends on both.
+An early spike in M0 confirms that `isolated-vm` and DuckDB build and run on Node 22 on Apple silicon, since M4 depends on both. Done 2026-11-17 (`npm run spike`); findings are D35 to D38.
 
 Milestones give the order in which scenarios must pass. The work itself is split into parts that can be built in parallel, each with its own spec in [specs/](specs/README.md).
 
@@ -430,6 +432,10 @@ Milestones give the order in which scenarios must pass. The work itself is split
 | D32 | Sessions | `/clear` starts a new session; `--resume` opens the most recent; sessions are kept until wiped; `vix wipe` confirms unless `--yes` | Extends D12 |
 | D33 | Evals | 3 runs per task, run by hand before a release; the network test uses a recording proxy and a socket monitor together | A local model cannot run in hosted CI; neither observer is complete alone |
 | D34 | Test runner | vitest | Native TypeScript and ESM |
+| D35 | Node start-up flag | `vix` runs Node with `--no-node-snapshot`, set in the bin's shebang so Node is never re-launched | `isolated-vm` documents the flag as required on Node 20+. The spike ran fine without it, but it cannot rule out an intermittent crash, and the flag costs about 18 ms at startup |
+| D36 | Legacy `.xls` reader | SheetJS 0.20.3, installed from the SheetJS CDN (the npm registry copy is stale). The sheet is converted to a stored row set that DuckDB reads (resolves O1) | DuckDB's Excel reader handles `.xlsx` only. SheetJS is not streaming, but the `.xls` format caps a sheet at 65,536 rows, so memory is bounded; the spike read a full-size sheet in under 200 ms |
+| D37 | Native addon versions | `isolated-vm` 6.2.0 and `@duckdb/node-api` 1.4.5-r.1 (DuckDB 1.4.5, the LTS line), pinned exactly | `isolated-vm` 7.x needs Node 24+. Both versions passed the spike on Node 22.22 on Apple silicon |
+| D38 | Files added to a locked DuckDB session | The in-memory DuckDB instance is rebuilt, with the new file added to `allowed_paths`, whenever a file is registered | A locked configuration cannot be extended. A rebuild takes 10 to 20 ms and the instance holds no state worth keeping, since inputs are views over files |
 
 Decisions internal to one part (limits, cache rules, eviction age) are recorded in that part's spec under [specs/](specs/README.md).
 
@@ -437,10 +443,9 @@ Decisions internal to one part (limits, cache rules, eviction age) are recorded 
 
 | # | Question | Leaning |
 |---|---|---|
-| O1 | Which reader handles legacy `.xls` files? DuckDB's Excel reader may cover `.xlsx` only. | Convert through a streaming reader chosen in the M0 spike |
 | O3 | Is the `vix` package name free on npm, if the tool is ever published? | Not checked; irrelevant while it is installed locally |
 
-O2 and O4 were resolved by D19 and D23. Questions local to one part are listed in [specs/README.md](specs/README.md).
+O1, O2, and O4 were resolved by D36, D19, and D23. Questions local to one part are listed in [specs/README.md](specs/README.md).
 
 ## Appendix A: Environment facts (2026-11-17)
 
