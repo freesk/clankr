@@ -15,6 +15,8 @@ export interface ClankrPaths {
   logsDirectory: string;
   auditLog: string;
   sessionsDirectory: string;
+  /** The semantic search indexes (SRCH-9). They hold document text, so wipe deletes them. */
+  indexDirectory: string;
   session: SessionPaths;
 }
 
@@ -81,6 +83,11 @@ export interface SlashCommandContext {
    * while it is typed. Absent outside the REPL.
    */
   ask?(prompt: string, options?: { secret?: boolean }): Promise<string | undefined>;
+  /**
+   * Aborted when the user presses Ctrl+C while the command runs, for commands that take a
+   * while (`/index`). Absent outside the REPL.
+   */
+  signal?: AbortSignal;
 }
 
 export interface SlashCommand {

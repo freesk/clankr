@@ -208,6 +208,27 @@ describe("ReplController", () => {
     expect(entryTexts(state).at(-1)).toBe("info: Cancelled.");
   });
 
+  it("cancels a long slash command with Ctrl+C, without exiting", async () => {
+    const index: SlashCommand = {
+      name: "index",
+      summary: "Index a folder",
+      run: (_argumentText, context) =>
+        new Promise((resolve) => {
+          context.signal?.addEventListener("abort", () => {
+            context.print("Indexing cancelled.");
+            resolve();
+          });
+        }),
+    };
+    const { controller } = setUp({ slashCommands: [index] });
+    typeLine(controller, "/index ~/notes");
+    await waitFor(controller, (state) => state.busy);
+    ctrlC(controller);
+    const state = await waitFor(controller, idle);
+    expect(entryTexts(state).at(-1)).toBe("info: Indexing cancelled.");
+    expect(state.exited).toBe(false);
+  });
+
   it("offers a picker to slash commands and dispatches /clear and /exit", async () => {
     const model: SlashCommand = {
       name: "model",

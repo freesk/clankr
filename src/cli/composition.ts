@@ -4,10 +4,10 @@
 
 import type { LmConnection } from "../app/lm-connection.ts";
 import { loadConfig } from "../config/index.ts";
-import type { Config, WipeReport } from "../contracts/index.ts";
+import type { Config, IndexOutcome, IndexRequest, WipeReport } from "../contracts/index.ts";
 import { buildRootPaths, resolveClankrRoot, wipe } from "../storage/index.ts";
 import type { FileToolDependencies } from "../tools/fs/index.ts";
-import type { CliComposition, Harness, HarnessOptions } from "./harness.ts";
+import type { CliComposition, Harness, HarnessOptions, IndexCommandOptions } from "./harness.ts";
 
 /** What tests replace. Every field defaults to the real thing. */
 export interface CompositionOverrides {
@@ -36,7 +36,25 @@ export function createComposition(overrides: CompositionOverrides = {}): CliComp
       }),
     openHarness: (options) => openRealHarness(options, root(), overrides),
     wipe: () => wipeEverything(root()),
+    runIndexRequest: (request, options) => runRealIndexRequest(request, options, root(), overrides),
   };
+}
+
+async function runRealIndexRequest(
+  request: IndexRequest,
+  options: IndexCommandOptions,
+  root: string,
+  overrides: CompositionOverrides,
+): Promise<IndexOutcome> {
+  const [{ runSearchIndexRequest }, { createLmStudioConnection }] = await Promise.all([
+    import("../app/search-index.ts"),
+    import("../app/lm-connection.ts"),
+  ]);
+  return runSearchIndexRequest(request, options, {
+    root,
+    createConnection: overrides.createLmConnection ?? createLmStudioConnection,
+    ...(overrides.homeDirectory ? { homeDirectory: overrides.homeDirectory } : {}),
+  });
 }
 
 async function openRealHarness(

@@ -1,5 +1,6 @@
 // `clankr wipe` (CLI-6, SEC-6): permanently deletes sessions, stored results, snapshots,
-// scratch files, and logs. Keeps the settings files. Never moves anything to the Trash,
+// scratch files, logs, and the semantic search indexes, which hold the text of the user's
+// documents (SRCH-9). Keeps the settings files. Never moves anything to the Trash,
 // since a Trash full of transcripts would defeat the purpose.
 
 import { lstat, readdir, rm } from "node:fs/promises";

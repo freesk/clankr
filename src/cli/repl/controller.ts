@@ -189,18 +189,23 @@ export class ReplController {
 
   private async runSlashCommand(line: string): Promise<void> {
     this.appendEntry("user", line);
+    // Ctrl+C reaches a long command (`/index`) the same way it reaches a turn.
+    const abort = new AbortController();
+    this.turnAbort = abort;
     this.update({ busy: true });
     try {
-      await this.dispatcher.dispatch(line, this.slashCommandContext());
+      await this.dispatcher.dispatch(line, this.slashCommandContext(abort.signal));
     } catch (error) {
       this.appendEntry("error", errorMessage(error));
     } finally {
+      this.turnAbort = undefined;
       this.update({ busy: false, statusLine: this.statusLine() });
     }
   }
 
-  private slashCommandContext(): SlashCommandContext {
+  private slashCommandContext(signal: AbortSignal): SlashCommandContext {
     return {
+      signal,
       session: this.harness.session(),
       config: this.harness.config,
       lm: this.harness.lm,

@@ -3,6 +3,7 @@
 clankr is a local AI assistant that runs entirely on your Mac. You use it through the **clankr CLI** (`clankr`), which talks to a model served by [LM Studio](https://lmstudio.ai) and can:
 
 - find files by name, date, size, or content;
+- search folders you have indexed by meaning, when you do not know the exact words;
 - read, create, edit, move, copy, and trash text files and folders, with your approval;
 - describe images and transcribe text from screenshots and scans;
 - profile spreadsheets, CSV/TSV files, and Word documents, query them with SQL, and save the results as charts or tables in the format you choose: PDF, Word, Excel, PNG, SVG, or CSV.
@@ -112,6 +113,7 @@ Example requests:
 | `/format [name\|ask]` | Show or set the format charts and tables are saved in (`xlsx`, `docx`, `pdf`, `png`, `svg`, `csv`); `ask` goes back to asking |
 | `/undo` | Undo the last file change made in this session |
 | `/config` | Run the setup again |
+| `/index [--rebuild \| --remove] [folder]` | Index a folder for search by meaning, or list the indexed folders |
 | `/clear` | Start a new session with an empty context (the old one stays saved) |
 | `/help` | List the slash commands |
 | `/exit` | Quit |
@@ -155,7 +157,29 @@ Exit status: `0` done, `1` failed or something was refused, `2` usage error, `13
 | `--base-url <url>` | LM Studio address for this run |
 | `--ephemeral` | Leave nothing on disk when the session ends |
 | `--resume` | Reopen the most recent saved session |
-| `clankr wipe [--yes]` | Delete all saved sessions, stored results, and logs |
+| `clankr wipe [--yes]` | Delete all saved sessions, stored results, search indexes, and logs |
+| `clankr index <folder>` | Index a folder for search by meaning, or bring its index up to date |
+| `clankr index [--status]` | List the indexed folders |
+| `clankr index --rebuild <folder>` | Index a folder again from nothing |
+| `clankr index --remove <folder>` | Delete a folder's index |
+
+## Search by meaning
+
+`find_files` and `search_content` need a name or the exact words. To ask "which documents talk about ending the contract early?", index the folder first:
+
+```sh
+clankr index ~/Documents/contracts
+```
+
+This needs an embedding model in LM Studio. The default is `text-embedding-nomic-embed-text-v1.5`; set `search.embeddingModel` in `~/.clankr/config.json` to use another one. Indexing reads plain text files, Word-like documents (`.docx`, `.doc`, `.rtf`, `.odt`), and the text layer of PDFs, cuts them into passages, and stores the passages with their vectors under `~/.clankr/index/`. Spreadsheets, images, and scanned PDFs are not indexed. Protected places (see [Permissions](#permissions)) and folders such as `node_modules` and `.git` are left out.
+
+- Run the same command again after files change: only new and changed files are read, and files that are gone are dropped.
+- `Ctrl+C` stops between files. What was indexed is kept, and the next run continues.
+- Once a folder is indexed, the model gets one more tool, `search_meaning`. It cannot index anything itself.
+- Results say how old the index is and mark files edited since.
+- If you change the embedding model, rebuild with `clankr index --rebuild <folder>`.
+
+Inside clankr, `/index` takes the same arguments. The text of your documents goes to LM Studio on `localhost` to be embedded, and nowhere else.
 
 ## Permissions
 
@@ -214,12 +238,13 @@ clankr -p "What were total units sold per region in samples/sales_2025.csv? Use 
   config.json        settings (from clankr config)
   theme.json         chart styling (optional)
   logs/audit.jsonl   one line per tool call
+  index/             search indexes: the text and vectors of folders you indexed
   sessions/<id>/     transcript, stored results, undo snapshots, scratch files
 ```
 
-Everything under `~/.clankr` is readable only by you. Sessions are saved so `--resume` works. Transcripts and stored results can contain real values from your files, so:
+Everything under `~/.clankr` is readable only by you. Sessions are saved so `--resume` works. Transcripts and stored results can contain real values from your files, and a search index holds the text of the documents you indexed, so:
 
-- `clankr wipe` deletes all sessions, stored results, snapshots, and logs (it keeps `config.json` and `theme.json`);
+- `clankr wipe` deletes all sessions, stored results, snapshots, search indexes, and logs (it keeps `config.json` and `theme.json`);
 - `--ephemeral` runs a session that leaves nothing on disk.
 
 Set `CLANKR_HOME` to use a folder other than `~/.clankr`.

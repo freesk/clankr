@@ -67,11 +67,13 @@ async function* runRounds(
   const registry = new ToolRegistry(dependencies.tools);
   const refusedCalls = new Set<string>();
   let consecutiveInvalidCalls = 0;
+  // Asked once per turn, not per round, so the tool list cannot change mid-turn (CTX-9).
+  const availableGroups = (await dependencies.availableToolGroups?.()) ?? [];
 
   for (let round = 1; ; round++) {
     // Checked every round, so a data path in the last tool result switches the group on now.
     activateGroupsFromHistory(session);
-    const plan = planRound(dependencies, registry, model, session);
+    const plan = planRound(dependencies, registry, model, session, availableGroups);
     // Compaction can shorten history (D51), so fallback call ids come from a process-wide count.
     const callIdPrefix = `call_${nextRoundNumber()}`;
     const reply = yield* askModel(dependencies, plan, session, model, callIdPrefix, signal);

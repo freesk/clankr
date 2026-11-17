@@ -28,6 +28,7 @@ Interfaces and file paths in these specs are proposals until the code exists. On
 | [output.md](output.md) | Output formats, how the user chooses one, the Word and Excel writers, `export_table`, `/format` | `src/output/`, `src/tools/data/export-table.ts` | M4 | 4 |
 | [evals.md](evals.md) | Golden task suite, metrics, and the no-network test | `evals/`, `test/network/` | M5 | 1 |
 | [subagents.md](subagents.md) | `delegate` and the sub-agent runner | `src/subagent/` | M2 | 2 |
+| [semantic-search.md](semantic-search.md) | `clankr index`, `/index`, and `search_meaning`: search by meaning over indexed folders | `src/semantic/` | after M5 | 4 |
 
 Milestones in the PRD describe the order in which scenarios must pass. Waves describe the order in which work can start. A part in wave 1 can be built and unit-tested long before its milestone's exit criteria are checked end to end.
 
@@ -75,6 +76,9 @@ Each row is a place where two parts meet. The contract named here is defined in 
 | Printing a table, drawing a picture for a document | `renderTable`, `renderChartImage` | pdf | output, chart |
 | Where a session writes | `ClankrPaths` | storage | context, permissions, files, sql |
 | Registering a slash command | `SlashCommand` | lmstudio, context, permissions, files, agent-loop | cli |
+| Turning text into vectors | `LmClient.embed` | lmstudio | semantic-search |
+| Building or removing a search index | `IndexRequest`, `IndexRunOptions` | semantic-search | cli |
+| Offering a tool group from outside the session | `AgentDependencies.availableToolGroups` | semantic-search (through app) | agent-loop |
 
 ## Requirements that span parts
 
@@ -87,6 +91,7 @@ Most requirement IDs belong to one spec. These are split, and each spec states i
 | MOD-6 | lmstudio reports capabilities; agent-loop gates tools and picks the tool-calling style |
 | MOD-7 | lmstudio announces the model change; context recalculates budgets and compacts |
 | SRCH-6 | search ranks and formats; context stores the full set behind a handle |
+| SRCH-9 | semantic-search indexes and queries; lmstudio embeds; storage owns the index location and wipes it; agent-loop offers the tool only while an index exists; cli parses `clankr index` and `/index` |
 | FS-7 | files builds the preview; permissions decides whether to show it; cli draws it |
 | CTX-7 | lmstudio sends the reasoning setting; agent-loop strips reasoning from history and owns `/think` |
 | DATA-9 | sql and sandbox each enforce their own limits; context stores the result |
@@ -120,6 +125,7 @@ The first round of open questions was settled on 2026-11-17. What remains:
 |---|---|---|
 | [image.md](image.md) | What is the default maximum image edge? | A measurement in M3 |
 | [search.md](search.md) | Which text extractors does the SRCH-8 fallback use, and what bounds it? | A choice |
+| [semantic-search.md](semantic-search.md) | The embedding model's real key and speed, and whether Gemma 12B picks `search_meaning` | The live test and a live turn |
 | [chart.md](chart.md) | Where does a chart built from several data files go, and does the automatic retry count as an attempt? | A choice |
 
 ## Before starting parallel agents

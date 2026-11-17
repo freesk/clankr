@@ -6,6 +6,7 @@ import type {
   ChatEvent,
   ChatMessage,
   ChatRequest,
+  EmbeddingRequest,
   LmClient,
   LoadedModel,
   ModelInfo,
@@ -47,6 +48,10 @@ export class UsageRecordingLmClient implements LmClient {
 
   countTokens(messages: ChatMessage[]): Promise<number> {
     return this.inner.countTokens(messages);
+  }
+
+  embed(request: EmbeddingRequest, signal: AbortSignal): Promise<number[][]> {
+    return this.inner.embed(request, signal);
   }
 
   async *chat(request: ChatRequest, signal: AbortSignal): AsyncIterable<ChatEvent> {

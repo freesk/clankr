@@ -4,11 +4,13 @@ import type {
   ChatEvent,
   ChatMessage,
   ChatRequest,
+  EmbeddingRequest,
   LmClient,
   LoadedModel,
   ModelInfo,
 } from "../contracts/index.ts";
 import { estimateTokens } from "../shared/index.ts";
+import { fakeEmbedding, fakeEmbeddingDimensions } from "./fake-embeddings.ts";
 
 /** A fixed list of events, or a function that builds them from the request it answers. */
 export type ScriptedResponse = ChatEvent[] | ((request: ChatRequest) => ChatEvent[]);
@@ -28,6 +30,9 @@ export class ScriptedLmClient implements LmClient {
   readonly requests: ChatRequest[] = [];
   readonly loads: { key: string; contextLength: number }[] = [];
   readonly unloads: string[] = [];
+  readonly embeddingRequests: EmbeddingRequest[] = [];
+  /** Size of the vectors `embed` returns; change it to imitate another embedding model. */
+  embeddingDimensions = fakeEmbeddingDimensions;
   private readonly pending: ScriptedResponse[];
   private readonly models: ModelInfo[];
 
@@ -79,6 +84,13 @@ export class ScriptedLmClient implements LmClient {
   /** A character-based estimate, deterministic so tests can assert exact numbers. */
   async countTokens(messages: ChatMessage[]): Promise<number> {
     return estimateTokens(messages);
+  }
+
+  /** Deterministic bag-of-words vectors, so texts that share words rank close together. */
+  async embed(request: EmbeddingRequest, signal: AbortSignal): Promise<number[][]> {
+    signal.throwIfAborted();
+    this.embeddingRequests.push(request);
+    return request.inputs.map((input) => fakeEmbedding(input, this.embeddingDimensions));
   }
 }
 

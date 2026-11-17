@@ -32,6 +32,7 @@ Own every byte the harness writes under `~/.clankr/`. Transcripts and stored res
   config.json
   theme.json
   logs/audit.jsonl
+  index/<hash>.duckdb     one semantic search index per indexed folder (semantic-search)
   sessions/<session-id>/
     transcript.jsonl      messages, appended as they happen
     results/              the result store (context)
@@ -66,7 +67,8 @@ The root is `$CLANKR_HOME` when that variable is set, otherwise `~/.clankr`. Tes
 - **Nobody else builds a path under `~/.clankr/`.** Other parts ask `ClankrPaths`. This is the rule that makes wipe and ephemeral trustworthy.
 - **Permissions.** Directories are created as `0700` and files as `0600`, set explicitly and not left to the umask.
 - **Transcripts are append-only** JSON Lines, so a crash loses at most the line being written.
-- **Wipe** removes sessions, stored results, snapshots, scratch files, and logs. It keeps `config.json` and `theme.json`, which are settings, not session data. It deletes permanently: the Trash rule (FS-6) is about the model's `delete` tool, and moving sensitive data to the Trash would defeat the purpose.
+- **The search index is not session data, but it is wiped.** `index/` (`ClankrPaths.indexDirectory`) outlives sessions and is read by every session, ephemeral ones included (read-only, so nothing is written). It holds the text of the user's documents, so wipe deletes it like everything else ([semantic-search.md](semantic-search.md), D91).
+- **Wipe** removes sessions, stored results, snapshots, scratch files, logs, and the search indexes. It keeps `config.json` and `theme.json`, which are settings, not session data. It deletes permanently: the Trash rule (FS-6) is about the model's `delete` tool, and moving sensitive data to the Trash would defeat the purpose.
 - **Ephemeral** still needs somewhere to put large results while the session runs. Proposed: a private session directory that is removed on every exit path, including signals, plus a sweep at the next startup for anything a crash left behind. No transcript and no audit log are written.
 - **Scratch files count.** A query engine can spill data to disk. That scratch space lives inside the session directory so wipe and ephemeral cover it.
 - **Resume.** Load the transcript and reopen the result directory so old handles still resolve. Do not restore the `ReadTracker`: files may have changed since, so an overwrite must be preceded by a fresh read. If the saved model is no longer available, fall back to the default and say so.
@@ -111,7 +113,7 @@ Internal to this part, settled while building it (2026-11-17):
 | Ephemeral location | `ephemeral/<pid>-<id>/` under the root. Parents that did not exist before are removed again, so the tree ends up byte-for-byte as it was. The process id lets the startup sweep leave a running session alone. |
 | Ephemeral exit paths | Removed synchronously on `exit` (normal exit, `process.exit`, uncaught exception) and on SIGINT, SIGTERM, and SIGHUP, after which the signal is re-raised so the exit status is unchanged. If another listener owns the signal (the cli cancelling a turn on Ctrl-C), storage leaves it to that listener and cleans up on `exit`. SIGKILL and power loss are covered by the sweep. |
 | Resume and ephemeral | Cannot be combined; `openSession` refuses. |
-| Wipe scope | Everything at the top of the root except `config.json` and `theme.json`, including leftover ephemeral directories. The plan counts saved and leftover ephemeral sessions and their total size. With nothing to delete it does not ask. |
+| Wipe scope | Everything at the top of the root except `config.json` and `theme.json`, including leftover ephemeral directories and the semantic search indexes in `index/`. The plan counts saved and leftover ephemeral sessions and their total size. With nothing to delete it does not ask. |
 
 ## Open questions
 
