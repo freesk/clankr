@@ -460,6 +460,8 @@ Milestones give the order in which scenarios must pass. The work itself is split
 | D60 | Self-check retry and the chart metric | The automatic retry after a failed self-check (D29) counts as an attempt toward "render within 3 attempts" (D53) | The metric measures what the user waits for |
 | D61 | Default theme font and browser isolation | Helvetica Neue (specifies D31). Each render gets a fresh browser context, not only a fresh page | No state carries between charts |
 | D62 | Vendored chart assets | Chrome headless shell 156.0.8078.4 for mac-arm64 (the build `playwright-core` 1.64.1 expects; 207 MB installed), vega 6.4.0, vega-lite 6.5.0, vega-interpreter 2.3.2. x64 is not pinned and the vendor step says so | Extends D31; Apple silicon is the reference hardware |
+| D63 | Data profiling details | The DuckDB Excel extension loads only when an `.xlsx` table is registered, so CSV-only use works without vendoring. Masking (DATA-5) is the config list `data.sensitiveColumns`. Distinct counts are exact up to 100,000 rows and approximate (`~`) above. `.xls` dates are read as serial numbers and converted in UTC | Fewer moving parts; exact dates |
+| D64 | SQL table names | File stem, plus sheet or table label when a file has several; `t_` before a leading digit, `_data` after an SQL keyword, `_2` on a clash; stable within a session. `PIVOT` is rejected because DuckDB prepares it as `CREATE` | Names the model can type without quoting |
 
 Decisions internal to one part (limits, cache rules, eviction age) are recorded in that part's spec under [specs/](specs/README.md).
 

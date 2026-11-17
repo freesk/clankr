@@ -31,8 +31,8 @@ Build `vix` as described in [PRD.md](PRD.md), part by part, following the waves 
 | 7 | search | [search.md](specs/search.md) | 1 | agent-search | done (verified) | Merged in `72c88bb`: 59 search tests (ripgrep vendored on main, 522 passing + 5 skipped). Whole-disk name search 160–405 ms for typical queries; content search 1.9–3.0 s warm on 10 GB (O6). Not verified: walk limits, abort, x64 ripgrep, SRCH-8 (P1, not built) |
 | 8 | files | [files.md](specs/files.md) | 1 | agent-files | done (verified) | Merged in `c37d0ea`: 43 files tests; full suite 148 passing + 1 opt-in skipped, lint and build clean on main. Not verified: trashed file visible in `~/.Trash` (no Full Disk Access), cross-volume move fallback (EXDEV never triggered), behaviour against the real `PathPolicy` |
 | 9 | image | [image.md](specs/image.md) | 1 | agent-image | done (verified) | Merged in `03bba17`: 30 image tests, full suite 50 passing, lint and build clean on main. Not verified: live LM Studio check (no `LM_API_TOKEN`), so default max edge and the image token estimate stay open |
-| 10 | inspect | [inspect.md](specs/inspect.md) | 1 | agent-data | in progress | Format detection and the `.docx` parser; tabular profiling waits for task 11's engine module |
-| 11 | sql | [sql.md](specs/sql.md) | 1 | agent-data | in progress | Vendor step for the DuckDB excel extension; locked engine module first, since inspect needs it |
+| 10 | inspect | [inspect.md](specs/inspect.md) | 1 | agent-data | done (verified) | Merged in the sql+inspect merge: fixtures for every format, title-block headers, exact `.xls` dates, caching. 1M-row CSV profiled in 298 ms (peak 252 MB; 2M rows 283 MB); 107 MB `.xlsx` in 7.7 s. Not verified: an Excel-written 100 MB `.xlsx`, a large mixed-type sheet (likely over 10 s), UTF-16 CSV (refused) |
+| 11 | sql | [sql.md](specs/sql.md) | 1 | agent-data | done (verified) | Merged with inspect; DuckDB Excel extension vendored on main; full suite 661 passing + 7 skipped. Every rejection case tested, 0 connections to a URL target, timeout and memory limits, spill into session scratch, rebuild on registration. 1M-row group-by 138 ms |
 | 12 | sandbox | [sandbox.md](specs/sandbox.md) | 1 | agent-sandbox | done (verified) | Merged in `d537642`: 55 sandbox tests incl. every escape, timeout, memory, and no-network case; full suite 105 passing, lint and build clean on main. Not verified: run through the real loop/permissions/model (wave 2) |
 | 13 | chart | [chart.md](specs/chart.md) | 1 | agent-chart-pdf | done (verified) | Merged in `65c20f5`: validation, theme, naming, row cap, self-check retry all tested with a fake isolate. Not verified: S8 end to end with the real isolate, reference-text budget with the real tokenizer, self-check with a real vision model |
 | 14 | pdf | [pdf.md](specs/pdf.md) | 1 | agent-chart-pdf | done (verified) | Merged in `65c20f5`; vega and Chromium vendored on main, full suite 591 passing + 5 skipped. Offline proven (blocked requests logged, 0 leak connections, no sockets via `lsof`). Chart to PDF 853 ms cold, about 100 ms warm. Flaky under load: three browser tests timed out at 5 s while the machine was busy, passed in 0.1–1 s otherwise |
@@ -92,6 +92,10 @@ Build `vix` as described in [PRD.md](PRD.md), part by part, following the waves 
 - Fresh checkouts need `npm run vendor` (ripgrep, vega, chromium) or those tests skip themselves silently.
 - Browser tests use vitest's 5 s default timeout; under load three of them timed out. Give browser tests a longer timeout in integration.
 
+- sql/inspect wiring: register `querySqlTool` (`src/tools/data/query-sql.ts`) and `inspectDataTool` (`src/tools/data/inspect`); use `SessionDataSourceRegistry` from `src/data`, one per session (the engine is found by a `WeakMap` on it); call `closeSessionEngine(registry)` at session end; the real `ResultStore` (context's `DiskResultStore`) must implement `rowsFilePath`. Move `src/engines/duckdb/testing/on-disk-result-store.ts` to `src/testing/`.
+- New add-only contract fields: `DataTable.layout` (`TableLayout`), `ResultProvenance.dataSourcePaths` (chart can use it for its output folder; sandbox's `save` lineage gap can use it too).
+- Load-sensitive tests: three browser tests and one isolate test failed only while the machine was busy. The isolate test now gets a 10 s limit; browser tests still need longer timeouts.
+
 ## Decisions made along the way
 
 | Date | Decision | Reason |
@@ -113,4 +117,5 @@ Build `vix` as described in [PRD.md](PRD.md), part by part, following the waves 
 | 2026-11-17 | D55–D58 from cli and search; O6 (cold vs warm content-search target) opened | See PRD 13.1 |
 | 2026-11-17 | D59–D62 from chart and pdf | See PRD 13.1 |
 | 2026-11-17 | Build also excludes `src/**/test-support.ts` | chart and browser test helpers use that exact name |
+| 2026-11-17 | D63–D64 from sql and inspect. Wave 1 complete: all 15 parts merged | See PRD 13.1 |
 | 2026-11-17 | Config `data.rowCap` is one number for the chart row cap and the isolate helper cap | specs/sandbox.md requires them to be defined once |
