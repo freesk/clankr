@@ -16,6 +16,7 @@
   },
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
+    "dev": "node --no-node-snapshot src/cli/main.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "lint": "biome check . && tsc -p tsconfig.json --noEmit",
     "format": "biome format --write .",

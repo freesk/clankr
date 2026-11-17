@@ -198,8 +198,32 @@ Set `CLANKR_HOME` to use a folder other than `~/.clankr`.
 
 ## Development
 
+### Running from source
+
+No build step is needed: Node 24 runs the TypeScript sources directly.
+
+```sh
+nvm use                       # Node 24, from .nvmrc
+npm ci && npm run vendor      # once
+npm run dev                   # the REPL, from src/
+npm run dev -- -p "List the files here" --ephemeral
+npm run dev -- config         # the setup flow
+```
+
+Everything after `--` goes to clankr. To keep development sessions apart from your real `~/.clankr`, point `CLANKR_HOME` somewhere else and run the setup once there:
+
+```sh
+export CLANKR_HOME=~/.clankr-dev
+npm run dev -- config
+```
+
+`./bin/clankr.js` (and `clankr` after `npm link`) runs the built copy in `dist/`, so run `npm run build` first when you want to try that.
+
+### Commands
+
 | Command | What it does |
 |---|---|
+| `npm run dev [-- <args>]` | Run clankr from `src/` |
 | `npm run lint` | Biome, then a TypeScript type check |
 | `npm test` | vitest |
 | `npm run build` | Compile to `dist/` |
