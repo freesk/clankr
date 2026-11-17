@@ -48,6 +48,10 @@ const contextSchema = z.object({
     .prefault({}),
   defaultResultTokenCap: z.number().int().positive().default(800),
   compactionThreshold: z.number().min(0.1).max(0.95).default(0.7),
+  /** Share of the context length that compaction aims to get back under, so it does not re-run every turn. */
+  compactionTarget: z.number().min(0.05).max(0.9).default(0.5),
+  /** Most of the context length a compaction summary note may take. */
+  summaryShare: z.number().min(0.01).max(0.3).default(0.08),
   evictToolResultsAfterTurns: z.number().int().positive().default(3),
 });
 

@@ -74,6 +74,21 @@ Settled 2026-11-17. A D-number means the decision is also recorded in PRD sectio
 | Eviction age | A tool result is replaced by its stub after 3 turns. Configurable. |
 | Summary call | Reasoning is off. |
 
+Settled while building (2026-11-17), internal to this part:
+
+| Topic | Decision |
+|---|---|
+| Entry points | `VixContextEngine` (implements `ContextEngine`), `DiskResultStore` (implements `ResultStore`), `createReadResultTool(config)`, `createContextCommands(engine)`. The tool and commands are factories: the tool's cap comes from config, and a slash command's context does not carry the engine. |
+| On-disk layout | `results/r12.txt` (text) or `results/r12.jsonl` (row set), plus `results/r12.meta.json` written last. A result without its metadata file was interrupted and is never served. Files 0600, directory 0700. |
+| Handle numbering | The next number is one past the highest already in the results directory, so handles survive resume. A handle must match `r<number>`; anything else is rejected before a path is built. |
+| Compacted view | The caller's history is never edited by automatic compaction. The engine remembers "the first N messages read as this shorter list" (checked by a hash of those N messages) and appends what came after. The view changes only at a threshold crossing, which keeps the prompt prefix stable (CTX-9). If the caller replaces its history (for example after `/compact`), the view resets. |
+| Compaction steps | Above `compactionThreshold`: evict results older than `evictToolResultsAfterTurns`; if still above `compactionTarget`, summarize the oldest turns, keeping as many recent turns as fit under the target. If the request is still over the hard limit (window minus the response budget): evict all results but the latest round, then cut the largest messages in the middle. Only a system prompt plus tool definitions that alone exceed the window raises an error. |
+| Note placement | The structured note is prepended to the first kept user message, not added as its own message, so roles still alternate for strict chat templates and the system prompt is never rewritten. |
+| Note contents | The model writes goal, facts, and open steps. Files touched (paths from tool-call arguments) and stored handles (verified against the store) are added mechanically, so a handle survives compaction even if the model drops it. If the summary call fails, a mechanical note is used. |
+| Token counting | Per-message counts from `LmClient.countTokens`, cached by message. Template overhead per message starts at 4 tokens and is replaced by the value measured from each reported usage. After a report, `/context` scales the categories to the reported total exactly. |
+| `read_result` parameters | `handle`, `start_line`, `line_count`, `search` (case-insensitive substring). A page fills only up to the tool's own cap, measured with the real counter, so it is never stored again. A row set reads as one JSON row per line. |
+| New config fields | `context.compactionTarget` (0.5) and `context.summaryShare` (0.08), both shares of the context length. |
+
 ## Open questions
 
 None.
