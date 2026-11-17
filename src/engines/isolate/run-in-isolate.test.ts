@@ -1,3 +1,5 @@
+import { createReadStream } from "node:fs";
+import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import { type IsolateLimits, ToolError } from "../../contracts/index.ts";
 import { runInIsolate } from "./index.ts";
@@ -102,6 +104,28 @@ describe("runInIsolate errors", () => {
 });
 
 describe("runInIsolate helpers", () => {
+  // On Node 26 with isolated-vm 7.0.2, stream I/O on the host never completes while the
+  // isolate waits in a helper, so every data() on a stored row set timed out. That is why
+  // clankr targets Node 24 (D77). This test catches the stall on any future upgrade.
+  it("lets a helper finish when it waits on a real file stream", async () => {
+    const thisFile = fileURLToPath(import.meta.url);
+    const readLength = () =>
+      new Promise<number>((resolve, reject) => {
+        let length = 0;
+        createReadStream(thisFile)
+          .on("data", (chunk) => {
+            length += chunk.length;
+          })
+          .on("end", () => resolve(length))
+          .on("error", reject);
+      });
+    const started = Date.now();
+    const result = await runInIsolate("fileLength()", { fileLength: readLength }, limits);
+    expect(result).toMatchObject({ ok: true });
+    expect(result.ok && typeof result.value === "number" && result.value > 0).toBe(true);
+    expect(Date.now() - started).toBeLessThan(900);
+  });
+
   it("calls an async host helper synchronously from the model's side", async () => {
     const helpers = {
       double: async (value: unknown) => {

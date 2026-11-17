@@ -278,7 +278,7 @@ The V8 isolate was chosen over an OS-level sandbox because Apple's `sandbox-exec
 
 | Area | Choice | Notes |
 |---|---|---|
-| Runtime | Node.js 22 LTS+, TypeScript, ESM | Started with `--no-node-snapshot` (D35) |
+| Runtime | Node.js 24 LTS (24.22+), TypeScript, ESM | Pinned by `.nvmrc`; started with `--no-node-snapshot` (D35); see D77 |
 | Lint and format | Biome | One tool for both |
 | Schema validation | zod | Also used to generate tool schemas |
 | Terminal UI | Ink | Loaded for the REPL only, to protect startup time |
@@ -289,7 +289,7 @@ The V8 isolate was chosen over an OS-level sandbox because Apple's `sandbox-exec
 | Images | `sharp` | Resize and convert |
 | Query engine | DuckDB 1.4.5, embedded, through `@duckdb/node-api` 1.4.5-r.1 | Reads CSV/TSV natively; Excel reader vendored (D37) |
 | Legacy `.xls` | SheetJS 0.20.3, from the SheetJS CDN | Converted to a row set, then read by DuckDB (D36) |
-| JS sandbox | `isolated-vm` 6.2.0 | Native addon; 7.x needs Node 24 (D37) |
+| JS sandbox | `isolated-vm` 7.0.2 | Native addon, prebuilt for Node 24; install script not run (D77) |
 | Word documents | `mammoth` or direct OOXML parsing | Tables are extracted and loaded into DuckDB |
 | Chart library | Vega-Lite, vendored | Spec validated before render |
 | Headless browser | Playwright with Chromium | Installed up front in `vendor/`; started only for rendering, closed 60 s after the last render |
@@ -475,6 +475,7 @@ Milestones give the order in which scenarios must pass. The work itself is split
 | D74 | Data tools in one-shot mode | `clankr -p … --allow-data` grants the execute-class tools (`query_sql`, `run_js`, `make_chart`) for that run only, on data files inside the allowed folders. Without it they are denied, and the denial names `--allow-data`, not `--permission-mode`. Write and delete rules are unchanged | User decision. One-shot cannot ask (D14), and PERM-5 allows an explicit session grant |
 | D75 | Setup flow details (D73) | Six questions only. A rejected token can be retried or skipped; skipping keeps the saved token, so a known-bad token is never saved. Allowed folders are saved as absolute paths. A non-loopback host gets a warning, not an offer to override. On first run with no or a rejected token, a terminal is offered the setup; afterwards the user starts clankr again. Ctrl+C in `clankr config` exits 0 and writes nothing | Keeps setup short and never stores a bad secret |
 | D76 | Name | The project is **clankr** and its command-line program is the **clankr CLI**, run as `clankr`. Everything named after the old name moved with it: the bin (`bin/clankr.js`), the settings folder (`~/.clankr`), environment variables (`CLANKR_HOME`, `CLANKR_LIVE_LMSTUDIO`, …), and code identifiers (`ClankrPaths`, `ClankrContextEngine`, …) | User decision, 2026-11-17. No `~/.vix` folder existed on the development machine, so nothing needed migrating |
+| D77 | Node version | Node 24 LTS (24.22+), pinned by `.nvmrc`, with `isolated-vm` 7.0.2 (replaces D37's 6.2.0) and `@types/node` 24. Not Node 26 yet: with `isolated-vm` 7.0.2, stream and file I/O on the host never completes while the isolate waits in a helper, so `data()` on a stored row set timed out on 40 of 40 runs (0 of 40 on Node 24). A regression test catches it. npm's install scripts for `isolated-vm` and `fsevents` are declined in `allowScripts`; prebuilt binaries are used (D31) | User asked for the latest LTS; Node 26 fails the sandbox, Node 24 is supported until April 2028. Revisit when `isolated-vm` fixes the stall |
 
 Decisions internal to one part (limits, cache rules, eviction age) are recorded in that part's spec under [specs/](specs/README.md).
 

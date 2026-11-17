@@ -57,6 +57,23 @@ export class TerminalPrompter implements SetupPrompter {
   async ask(question: string, options: { secret?: boolean } = {}): Promise<string | undefined> {
     if (this.pendingLines.length === 0 && this.ended) return undefined;
     const secret = options.secret === true;
+    if (this.ended) {
+      // Input has ended but answers typed ahead are still queued. Node 26's readline throws
+      // on any call once its input has closed, so the question is written directly.
+      this.output.write(question);
+    } else {
+      this.showQuestion(question, secret);
+    }
+    try {
+      return await this.nextLine();
+    } finally {
+      this.muted = true;
+      // A terminal echoed the answer and its Enter; muted or piped input did not.
+      if (options.secret || !this.terminal) this.output.write("\n");
+    }
+  }
+
+  private showQuestion(question: string, secret: boolean): void {
     this.readline.setPrompt(question);
     if (secret) {
       // readline's own prompt would redraw any text typed ahead, so the question goes out
@@ -66,13 +83,6 @@ export class TerminalPrompter implements SetupPrompter {
     } else {
       this.muted = false;
       this.readline.prompt();
-    }
-    try {
-      return await this.nextLine();
-    } finally {
-      this.muted = true;
-      // A terminal echoed the answer and its Enter; muted or piped input did not.
-      if (options.secret || !this.terminal) this.output.write("\n");
     }
   }
 

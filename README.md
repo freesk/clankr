@@ -12,7 +12,7 @@ Nothing leaves your machine. `clankr` connects only to LM Studio on `localhost`,
 ## Requirements
 
 - macOS on Apple silicon. Intel Macs are not supported yet, because the vendored chart browser is pinned for arm64 only.
-- Node.js 22.12 or later.
+- Node.js 24 LTS (24.22 or later). The repo's `.nvmrc` pins it, so with [nvm](https://github.com/nvm-sh/nvm) run `nvm install` once and `nvm use` in the project folder. Node 26 is not supported yet: the JavaScript sandbox stalls on it (see PRD decision D77).
 - LM Studio 0.4.0 or later, with its local server running and API token authentication enabled.
 - A downloaded model. The default is `google/gemma-4-12b-qat`, which needs about 9.4 GB of free memory to load at the default 16,384-token context. If another model is loaded, LM Studio may refuse to load it until you unload the other one.
 
@@ -29,13 +29,14 @@ Nothing leaves your machine. `clankr` connects only to LM Studio on `localhost`,
 ```sh
 git clone <this repository> clankr
 cd clankr
+nvm use           # Node 24, from .nvmrc
 npm ci            # dependencies
 npm run vendor    # pinned ripgrep, DuckDB Excel reader, Vega-Lite, and Chromium (about 210 MB)
 npm run build     # compiles to dist/
 npm link          # optional: puts `clankr` on your PATH
 ```
 
-`npm run vendor` is the only step that downloads anything. Every file is pinned to a version and checked against a SHA-256 checksum, and nothing is fetched while `clankr` runs. Without `npm link`, run `./bin/clankr.js` instead of `clankr`.
+`npm ci` runs no package install scripts: native modules ship prebuilt binaries, and `package.json` lists the scripts it declines (`allowScripts`). `npm run vendor` is the only step that downloads anything. Every file is pinned to a version and checked against a SHA-256 checksum, and nothing is fetched while `clankr` runs. Without `npm link`, run `./bin/clankr.js` instead of `clankr`.
 
 ### 3. Configure
 
