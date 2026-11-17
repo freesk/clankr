@@ -1,0 +1,79 @@
+[
+  {
+    "id": "s6-receipt-total",
+    "scenario": "S6",
+    "title": "Read the total from a receipt",
+    "requires": ["view_image"],
+    "fixtures": [
+      {
+        "kind": "generated",
+        "generator": "png-text",
+        "path": "receipt.png",
+        "options": {
+          "lines": [
+            "CEDAR CAFE",
+            "COFFEE      3.50",
+            "BAGEL       4.00",
+            "SALAD      35.00",
+            "TOTAL     $42.50"
+          ]
+        }
+      }
+    ],
+    "steps": [{ "prompt": "What does receipt.png say the total is?" }],
+    "assertions": [{ "kind": "answer-number", "value": 42.5, "tolerance": 0.001 }]
+  },
+  {
+    "id": "s6-receipt-vendor",
+    "scenario": "S6",
+    "title": "Read the vendor name from a receipt",
+    "requires": ["view_image"],
+    "fixtures": [
+      {
+        "kind": "generated",
+        "generator": "png-text",
+        "path": "scans/receipt-0412.png",
+        "options": { "lines": ["BIRCH HARDWARE", "NAILS        6.20", "TOTAL        6.20"] }
+      }
+    ],
+    "steps": [{ "prompt": "Which shop is the receipt in scans/receipt-0412.png from?" }],
+    "assertions": [{ "kind": "answer-contains", "anyOf": ["birch hardware"] }]
+  },
+  {
+    "id": "s6-sign-text",
+    "scenario": "S6",
+    "title": "Read a short sign",
+    "requires": ["view_image"],
+    "fixtures": [
+      {
+        "kind": "generated",
+        "generator": "png-text",
+        "path": "photos/door-sign.png",
+        "options": { "lines": ["MEETING ROOM 4B", "FLOOR 2"] }
+      }
+    ],
+    "steps": [{ "prompt": "Look at photos/door-sign.png. Which room is it?" }],
+    "assertions": [{ "kind": "answer-contains", "anyOf": ["4B"] }]
+  },
+  {
+    "id": "s6-shape-colour",
+    "scenario": "S6",
+    "title": "Describe a simple picture",
+    "requires": ["view_image"],
+    "fixtures": [
+      {
+        "kind": "generated",
+        "generator": "png-shape",
+        "path": "shape.png",
+        "options": { "color": "yellow", "shape": "circle" }
+      }
+    ],
+    "steps": [
+      { "prompt": "What colour is the shape in shape.png, and is it a circle or a square?" }
+    ],
+    "assertions": [
+      { "kind": "answer-contains", "anyOf": ["yellow"] },
+      { "kind": "answer-contains", "anyOf": ["circle"] }
+    ]
+  }
+]

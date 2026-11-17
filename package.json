@@ -22,7 +22,9 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "vendor": "node scripts/vendor.ts",
-    "spike": "node --no-node-snapshot scripts/spike/native-addons.ts"
+    "spike": "node --no-node-snapshot scripts/spike/native-addons.ts",
+    "evals": "node --no-node-snapshot evals/run.ts",
+    "evals:fixtures": "node evals/generate-fixtures.ts"
   },
   "dependencies": {
     "@duckdb/node-api": "1.4.5-r.1",

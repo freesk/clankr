@@ -1,0 +1,115 @@
+[
+  {
+    "id": "s1-lease-pdf-last-spring",
+    "scenario": "S1",
+    "title": "Find a PDF by name and modification date",
+    "requires": ["find_files"],
+    "fixtures": [
+      {
+        "kind": "generated",
+        "generator": "pdf",
+        "path": "Downloads/lease-agreement-2025.pdf",
+        "options": { "lines": ["Residential lease agreement", "Synthetic fixture"] },
+        "modifiedAt": "2025-04-12T10:00:00Z"
+      },
+      {
+        "kind": "generated",
+        "generator": "pdf",
+        "path": "Downloads/lease-template-2022.pdf",
+        "options": { "lines": ["Lease template"] },
+        "modifiedAt": "2022-11-02T10:00:00Z"
+      },
+      {
+        "kind": "generated",
+        "generator": "pdf",
+        "path": "Downloads/concert-tickets.pdf",
+        "options": { "lines": ["Tickets"] },
+        "modifiedAt": "2025-05-01T10:00:00Z"
+      },
+      { "kind": "text", "path": "Downloads/notes.txt", "content": "nothing here\n" }
+    ],
+    "steps": [
+      {
+        "prompt": "Find the lease PDF I downloaded last spring (spring 2025). Answer with its file name."
+      }
+    ],
+    "assertions": [{ "kind": "answer-contains", "anyOf": ["lease-agreement-2025.pdf"] }]
+  },
+  {
+    "id": "s1-all-csv-files",
+    "scenario": "S1",
+    "title": "List every file of one type in a tree",
+    "requires": ["find_files"],
+    "fixtures": [
+      { "kind": "text", "path": "projects/alpha/data/visits.csv", "content": "day,visits\n1,10\n" },
+      { "kind": "text", "path": "projects/beta/exports/orders.csv", "content": "id,total\n1,5\n" },
+      { "kind": "text", "path": "projects/beta/README.md", "content": "# Beta\n" },
+      {
+        "kind": "text",
+        "path": "projects/gamma/notes.txt",
+        "content": "csv files live elsewhere\n"
+      }
+    ],
+    "steps": [{ "prompt": "List every .csv file under the projects folder." }],
+    "assertions": [
+      { "kind": "answer-contains", "anyOf": ["visits.csv"] },
+      { "kind": "answer-contains", "anyOf": ["orders.csv"] },
+      { "kind": "answer-not-contains", "noneOf": ["notes.txt"] }
+    ]
+  },
+  {
+    "id": "s1-most-recent-note",
+    "scenario": "S1",
+    "title": "Find the most recently modified file in a folder",
+    "requires": ["find_files"],
+    "fixtures": [
+      {
+        "kind": "text",
+        "path": "Notes/groceries.md",
+        "content": "- eggs\n",
+        "modifiedAt": "2025-01-05T09:00:00Z"
+      },
+      {
+        "kind": "text",
+        "path": "Notes/trip-ideas.md",
+        "content": "- coast\n",
+        "modifiedAt": "2025-09-20T09:00:00Z"
+      },
+      {
+        "kind": "text",
+        "path": "Notes/books.md",
+        "content": "- novel\n",
+        "modifiedAt": "2024-12-30T09:00:00Z"
+      }
+    ],
+    "steps": [{ "prompt": "Which file in the Notes folder did I change most recently?" }],
+    "assertions": [{ "kind": "answer-contains", "anyOf": ["trip-ideas"] }]
+  },
+  {
+    "id": "s1-passport-scan",
+    "scenario": "S1",
+    "title": "Find an image by a word in its name",
+    "requires": ["find_files"],
+    "fixtures": [
+      {
+        "kind": "generated",
+        "generator": "png-text",
+        "path": "Documents/scans/passport-scan-2024.png",
+        "options": { "lines": ["PASSPORT", "SPECIMEN"] }
+      },
+      {
+        "kind": "generated",
+        "generator": "png-text",
+        "path": "Documents/scans/utility-bill.png",
+        "options": { "lines": ["UTILITY BILL"] }
+      },
+      {
+        "kind": "text",
+        "path": "Documents/travel.md",
+        "content": "Remember to renew the passport.\n"
+      }
+    ],
+    "steps": [{ "prompt": "Where is my passport scan? Give me the path." }],
+    "assertions": [{ "kind": "answer-contains", "anyOf": ["scans/passport-scan-2024.png"] }]
+  }
+]

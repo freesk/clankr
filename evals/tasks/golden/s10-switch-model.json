@@ -1,0 +1,33 @@
+[
+  {
+    "id": "s10-switch-then-chat",
+    "scenario": "S10",
+    "title": "Switch model, then answer",
+    "requires": ["command:model"],
+    "fixtures": [],
+    "steps": [
+      { "command": "/model google/gemma-4-12b-qat" },
+      { "prompt": "Reply with the word ready and nothing else." }
+    ],
+    "assertions": [
+      { "kind": "active-model", "key": "google/gemma-4-12b-qat" },
+      { "kind": "answer-contains", "anyOf": ["ready"] }
+    ]
+  },
+  {
+    "id": "s10-history-survives-switch",
+    "scenario": "S10",
+    "title": "The conversation survives a model switch (MOD-7)",
+    "requires": ["command:model"],
+    "fixtures": [],
+    "steps": [
+      { "prompt": "Remember this codeword for later: heron-417. Just acknowledge it." },
+      { "command": "/model google/gemma-4-12b-qat" },
+      { "prompt": "What was the codeword I gave you?" }
+    ],
+    "assertions": [
+      { "kind": "active-model", "key": "google/gemma-4-12b-qat" },
+      { "kind": "answer-contains", "anyOf": ["heron-417"] }
+    ]
+  }
+]

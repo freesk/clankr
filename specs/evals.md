@@ -94,6 +94,21 @@ Settled 2026-11-17. All three are recorded together as D33 in PRD section 13.1.
 | Repetitions | 3 runs per task. A task passes when at least 2 of 3 succeed. The per-run pass rate is reported as well. |
 | When the suite runs | By hand, with `npm run evals` on the reference machine before each release. The report is saved in the repository. Unit tests and the network test run on every change. |
 
+Settled 2026-11-17 while building wave 1. Internal to this part unless marked.
+
+| Topic | Decision |
+|---|---|
+| Layout | `evals/tasks/` (format, loader, `golden/*.json`, tool inventory), `evals/fixtures/` (datasets, generators, materialize), `evals/runner/` (harness seam, runs, transcript, token tally), `evals/checks/` (assertions, PERM-6), `evals/metrics/` (metrics, report), `evals/testing/` (scripted harness for the runner's own tests), `test/network/` (proxy, socket monitor, observed run). |
+| The harness seam | The runner takes a `HarnessFactory` that builds a fresh `EvalHarness` per run. It adapts the contract's `RunTurn` (`src/contracts/turn.ts`) through `bindRunTurn`. The real factory is `evals/runner/real-harness.ts`, wired in wave 2. |
+| Tokens and overflow | A `UsageRecordingLmClient` wraps the real client: it sums `promptTokens` from usage events and counts errors whose message reads as a context overflow. No product hook is needed. |
+| First-attempt validity | The headline rate counts only `validity: "valid"`. Calls the loop repaired are reported separately as "valid or repaired". Calls without a validity are left out of both and counted. Needs a PRD row (section 10 does not say whether a repaired call counts). |
+| Chart attempts | A chart run succeeds when one of its first three `make_chart` calls ends without an error. A run with no `make_chart` call counts as a failure. |
+| Saved chart spec | Any `.json` file under the asserted folder that reads as a Vega-Lite spec counts, so the chart part keeps its own file naming. |
+| Large fixtures | CSVs of 100,000 rows or more are generated once into `$TMPDIR/vix-evals-fixtures/` and copied into each run with an APFS clone. `npm run evals:fixtures` builds the 1,000,000-row file ahead of time. Unit tests never build it. |
+| Deleting in tasks | No golden task calls `delete`, because it moves files to the real Trash. S5 covers move, rename, and copy instead. |
+| Shell-tool check (PERM-6) | By tool name: names are split into words, and a word such as `shell`, `bash`, `exec`, `terminal`, or `spawn` fails the check. The runner checks every harness's registry and stops the suite on a match. |
+| Network test "outside" | The deliberate violation in the tests is a second loopback server. Any destination other than the LM Studio address counts, so nothing has to leave the machine to prove the observers work. |
+
 ## Open questions
 
 None.

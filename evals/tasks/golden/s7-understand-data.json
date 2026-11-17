@@ -1,0 +1,123 @@
+[
+  {
+    "id": "s7-payroll-overview",
+    "scenario": "S7",
+    "title": "Describe a spreadsheet",
+    "requires": ["inspect_data"],
+    "fixtures": [
+      {
+        "kind": "generated",
+        "generator": "xlsx",
+        "path": "payroll_2025.xlsx",
+        "options": { "dataset": "payroll" }
+      }
+    ],
+    "steps": [
+      { "prompt": "What's in payroll_2025.xlsx? Tell me the columns and how many rows it has." }
+    ],
+    "assertions": [
+      { "kind": "answer-number", "value": 24 },
+      { "kind": "answer-contains", "anyOf": ["annual_salary", "salary"] },
+      { "kind": "answer-contains", "anyOf": ["department"] },
+      { "kind": "tool-called", "tool": "inspect_data" }
+    ]
+  },
+  {
+    "id": "s7-engineering-headcount",
+    "scenario": "S7",
+    "title": "Count rows matching a condition",
+    "requires": ["inspect_data", "query_sql"],
+    "fixtures": [
+      {
+        "kind": "generated",
+        "generator": "xlsx",
+        "path": "payroll_2025.xlsx",
+        "options": { "dataset": "payroll" }
+      }
+    ],
+    "steps": [{ "prompt": "How many employees in payroll_2025.xlsx work in Engineering?" }],
+    "assertions": [{ "kind": "answer-number", "value": 10 }]
+  },
+  {
+    "id": "s7-total-payroll",
+    "scenario": "S7",
+    "title": "Sum a column",
+    "requires": ["inspect_data", "query_sql"],
+    "fixtures": [
+      {
+        "kind": "generated",
+        "generator": "xlsx",
+        "path": "payroll_2025.xlsx",
+        "options": { "dataset": "payroll" }
+      }
+    ],
+    "steps": [
+      { "prompt": "What is the total annual salary across everyone in payroll_2025.xlsx?" }
+    ],
+    "assertions": [{ "kind": "answer-number", "value": 1812000 }]
+  },
+  {
+    "id": "s7-highest-paid",
+    "scenario": "S7",
+    "title": "Find the row with the largest value",
+    "requires": ["inspect_data", "query_sql"],
+    "fixtures": [
+      {
+        "kind": "generated",
+        "generator": "xlsx",
+        "path": "payroll_2025.xlsx",
+        "options": { "dataset": "payroll" }
+      }
+    ],
+    "steps": [
+      { "prompt": "Who is the highest-paid person in payroll_2025.xlsx, and what is their salary?" }
+    ],
+    "assertions": [
+      { "kind": "answer-contains", "anyOf": ["Casey Elm"] },
+      { "kind": "answer-number", "value": 99000 }
+    ]
+  },
+  {
+    "id": "s7-million-row-aggregate",
+    "scenario": "S7",
+    "title": "Aggregate over a 1,000,000-row file (M4 exit criterion)",
+    "requires": ["inspect_data", "query_sql"],
+    "fixtures": [
+      {
+        "kind": "generated",
+        "generator": "csv",
+        "path": "sales.csv",
+        "options": { "dataset": "sales", "rows": 1000000 }
+      }
+    ],
+    "steps": [
+      {
+        "prompt": "How many orders are in sales.csv, and what is the total quantity sold in the North region?"
+      }
+    ],
+    "assertions": [
+      { "kind": "answer-number", "value": 1000000 },
+      { "kind": "answer-number", "value": 750000 },
+      { "kind": "tool-called", "tool": "query_sql" }
+    ]
+  },
+  {
+    "id": "s7-docx-tables",
+    "scenario": "S7",
+    "title": "Describe the tables in a document",
+    "requires": ["inspect_data"],
+    "fixtures": [
+      {
+        "kind": "generated",
+        "generator": "docx",
+        "path": "board-report.docx",
+        "options": { "document": "board-report" }
+      }
+    ],
+    "steps": [{ "prompt": "What tables are in board-report.docx?" }],
+    "assertions": [
+      { "kind": "answer-contains", "anyOf": ["revenue"] },
+      { "kind": "answer-contains", "anyOf": ["office"] }
+    ]
+  }
+]
