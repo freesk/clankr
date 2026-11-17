@@ -48,6 +48,10 @@ async function runSession(command: SessionCommand, environment: CliEnvironment):
   if (command.json && !oneShot) {
     return usageError(environment, "--json applies to one-shot mode (-p or piped stdin).");
   }
+  // The REPL asks for each data file instead (D19), so the flag only means something here.
+  if (command.allowData && !oneShot) {
+    return usageError(environment, "--allow-data applies to one-shot mode (-p or piped stdin).");
+  }
   const config = await loadConfigOrReport(command, environment);
   if (!config) return exitCodes.usage;
   if (oneShot) return runOneShotSession(command, config, environment);
@@ -65,6 +69,7 @@ async function runOneShotSession(
     .openHarness({
       config,
       approvalPrompter: prompter,
+      allowData: command.allowData,
       ephemeral: command.ephemeral,
       resume: command.resume,
       workingDirectory: environment.workingDirectory,

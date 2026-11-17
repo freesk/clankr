@@ -11,7 +11,13 @@ import type {
   PermissionGate,
   SessionState,
 } from "../contracts/index.ts";
-import { addGrants, type ClassifiedChange, decide, type Verdict } from "./decision.ts";
+import {
+  addGrants,
+  type ClassifiedChange,
+  decide,
+  type RunGrants,
+  type Verdict,
+} from "./decision.ts";
 import {
   cannotAskMessage,
   deniedPathMessage,
@@ -25,6 +31,8 @@ export interface SessionPermissionGateOptions {
   paths: PathPolicy;
   /** Absent in one-shot mode: anything that would ask is denied (D14). */
   prompter?: ApprovalPrompter;
+  /** Grants from the command line, such as `--allow-data` (D74). */
+  runGrants?: RunGrants;
 }
 
 export class SessionPermissionGate implements PermissionGate {
@@ -42,7 +50,7 @@ export class SessionPermissionGate implements PermissionGate {
   ): Promise<GateDecision> {
     const change = await this.classify(tool, preview);
     const { permissionMode, grants } = this.options.session;
-    const verdict = decide(tool, permissionMode, grants, change);
+    const verdict = decide(tool, permissionMode, grants, change, this.options.runGrants);
     if (verdict.kind === "ask") return this.ask(tool, preview, change, verdict);
     return decisionFor(tool, verdict);
   }
@@ -57,6 +65,19 @@ export class SessionPermissionGate implements PermissionGate {
     };
   }
 
+  /** Which run flag would have allowed this call, so a refusal can name it. */
+  private wouldAllow(
+    tool: GatedTool,
+    change: ClassifiedChange,
+  ): "auto-edit" | "allow-data" | undefined {
+    const { grants } = this.options.session;
+    if (decide(tool, "auto-edit", grants, change).kind === "allow") return "auto-edit";
+    const withData = decide(tool, this.options.session.permissionMode, grants, change, {
+      dataInAllowedFolders: true,
+    });
+    return withData.kind === "allow" ? "allow-data" : undefined;
+  }
+
   private async ask(
     tool: GatedTool,
     preview: ChangePreview | undefined,
@@ -65,8 +86,7 @@ export class SessionPermissionGate implements PermissionGate {
   ): Promise<GateDecision> {
     const { prompter, session } = this.options;
     if (!prompter) {
-      const autoEdit = decide(tool, "auto-edit", session.grants, change);
-      const feedback = cannotAskMessage(tool.name, verdict.reasons, autoEdit.kind === "allow");
+      const feedback = cannotAskMessage(tool, verdict.reasons, this.wouldAllow(tool, change));
       return { allowed: false, feedback };
     }
     const answer = await prompter.ask({

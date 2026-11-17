@@ -82,6 +82,20 @@ describe("one-shot mode", () => {
     expect(environment.errors()).toMatch(/Usage:/);
   });
 
+  it("rejects --allow-data outside one-shot mode and passes it through in one-shot (D74)", async () => {
+    const repl = createTestEnvironment({
+      argv: ["--allow-data"],
+      stdinMode: "terminal",
+      composition: createFakeComposition(),
+    });
+    expect(await runCli(repl)).toBe(exitCodes.usage);
+    expect(repl.errors()).toMatch(/--allow-data applies to one-shot mode/);
+
+    const composition = createFakeComposition();
+    await runCli(createTestEnvironment({ argv: ["-p", "x", "--allow-data"], composition }));
+    expect(composition.openedWith[0]?.allowData).toBe(true);
+  });
+
   it("exits 130 when Ctrl+C cancels the turn, and a second press forces the exit", async () => {
     const environment = createTestEnvironment({
       argv: ["-p", "x"],
@@ -164,9 +178,11 @@ describe("one-shot mode", () => {
     });
     expect(await runCli(environment)).toBe(exitCodes.failed);
     expect(environment.errors()).toContain(
-      `✗ write_file notes.md · Denied: ${oneShotDenialFeedback.slice(0, 20)}`,
+      `✗ write_file notes.md · Denied: ${oneShotDenialFeedback("write").slice(0, 20)}`,
     );
-    expect(environment.errors()).toContain("pass --permission-mode auto-edit to allow changes");
+    expect(environment.errors()).toContain(
+      "pass --permission-mode auto-edit to allow file changes",
+    );
   });
 
   it("applies the write with --permission-mode auto-edit", async () => {
@@ -216,7 +232,7 @@ describe("one-shot mode", () => {
         preview: { summary: "Trash a", targetPaths: ["/work/a"] },
         reason: "delete always asks",
       }),
-    ).toEqual({ kind: "deny", feedback: oneShotDenialFeedback });
+    ).toEqual({ kind: "deny", feedback: oneShotDenialFeedback("write") });
     expect(composition.opened[0]?.closed).toBe(true);
   });
 });

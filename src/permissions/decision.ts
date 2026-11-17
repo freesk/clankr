@@ -34,11 +34,20 @@ export type Verdict =
   | { kind: "refuse-read-only" }
   | { kind: "ask"; reasons: string[]; grantable: GrantKeys };
 
+/** Grants the user gave on the command line for the whole run, not through a prompt. */
+export interface RunGrants {
+  /** D74 (`--allow-data`): execute-class calls on data files inside the allowed folders. */
+  dataInAllowedFolders: boolean;
+}
+
+const noRunGrants: RunGrants = { dataInAllowedFolders: false };
+
 export function decide(
   tool: GatedTool,
   mode: PermissionMode,
   grants: SessionGrants,
   change: ClassifiedChange,
+  runGrants: RunGrants = noRunGrants,
 ): Verdict {
   const denied = [...change.targets, ...change.dataSources].find(
     (path) => path.pathClass === "denied",
@@ -55,7 +64,7 @@ export function decide(
     ask.reasons.push(`writes outside the allowed folders: ${listPaths(outside)}`);
   }
   if (tool.permission === "write") addWriteReasons(tool, mode, grants, outside.length > 0, ask);
-  else addExecuteReasons(tool, grants, change.dataSources, ask);
+  else addExecuteReasons(tool, grants, change.dataSources, runGrants, ask);
 
   if (ask.reasons.length > 0) return { kind: "ask", ...ask };
   return { kind: "allow", basis: allowedByMode(tool, mode) ? "mode" : "grant" };
@@ -85,6 +94,7 @@ function addExecuteReasons(
   tool: GatedTool,
   grants: SessionGrants,
   dataSources: PathClassification[],
+  runGrants: RunGrants,
   ask: { reasons: string[]; grantable: GrantKeys },
 ): void {
   if (dataSources.length === 0) {
@@ -93,7 +103,11 @@ function addExecuteReasons(
     ask.grantable.tools.push(tool.name);
     return;
   }
-  const ungranted = dataSources.filter((source) => !hasDataFileGrant(grants, source.realPath));
+  const ungranted = dataSources.filter(
+    (source) =>
+      !hasDataFileGrant(grants, source.realPath) &&
+      !(runGrants.dataInAllowedFolders && source.pathClass === "allowed"),
+  );
   if (ungranted.length === 0) return;
   ask.reasons.push(`runs code on ${listPaths(ungranted)}`);
   ask.grantable.dataFiles.push(...ungranted.map((source) => source.realPath));

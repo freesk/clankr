@@ -175,10 +175,32 @@ describe("one-shot mode, with no prompter (D14)", () => {
     expect((await gate.check(writeFile, {}, writePreview("/work/a.md"))).allowed).toBe(true);
   });
 
-  it("says when the flag would not help", async () => {
+  it("points a refused query at --allow-data, not --permission-mode (D74)", async () => {
     const gate = new SessionPermissionGate({ session: session("auto-edit"), paths });
     const decision = await gate.check(querySql, {}, codePreview("/work/payroll.xlsx"));
     if (decision.allowed) throw new Error("expected a denial");
-    expect(decision.feedback).toMatch(/--permission-mode auto-edit does not cover/);
+    expect(decision.feedback).toMatch(/rerun with --allow-data/);
+    expect(decision.feedback).not.toMatch(/--permission-mode/);
+  });
+
+  it("allows a query on a data file inside the allowed folders with --allow-data", async () => {
+    const gate = new SessionPermissionGate({
+      session: session("ask"),
+      paths,
+      runGrants: { dataInAllowedFolders: true },
+    });
+    const decision = await gate.check(querySql, {}, codePreview("/work/payroll.xlsx"));
+    expect(decision).toEqual({ allowed: true, basis: "grant" });
+  });
+
+  it("still refuses a data file outside the allowed folders with --allow-data", async () => {
+    const gate = new SessionPermissionGate({
+      session: session("ask"),
+      paths,
+      runGrants: { dataInAllowedFolders: true },
+    });
+    const decision = await gate.check(querySql, {}, codePreview("/elsewhere/payroll.xlsx"));
+    if (decision.allowed) throw new Error("expected a denial");
+    expect(decision.feedback).toMatch(/run vix interactively/);
   });
 });

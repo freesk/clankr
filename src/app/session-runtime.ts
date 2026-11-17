@@ -32,6 +32,8 @@ export interface SessionRuntimeOptions {
   session: SessionState;
   model?: LoadedModel;
   approvalPrompter: ApprovalPrompter;
+  /** D74: grant execute-class calls on data files inside the allowed folders. */
+  allowData?: boolean;
   fileTools: FileToolDependencies;
   homeDirectory?: string;
 }
@@ -82,6 +84,7 @@ export async function openSessionRuntime(options: SessionRuntimeOptions): Promis
     session: options.session,
     paths: pathPolicy,
     prompter: options.approvalPrompter,
+    runGrants: { dataInAllowedFolders: options.allowData === true },
   });
   return {
     paths,

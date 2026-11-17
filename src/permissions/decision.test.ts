@@ -101,6 +101,38 @@ describe("session grants", () => {
   });
 });
 
+describe("run grants (D74, --allow-data)", () => {
+  const allowData = { dataInAllowedFolders: true };
+
+  it("allows execute on a data file inside the allowed folders", () => {
+    const verdict = decide(executeTool, "ask", noGrants(), change(undefined, "allowed"), allowData);
+    expect(verdict).toEqual({ kind: "allow", basis: "grant" });
+  });
+
+  it("still asks for a data file outside the allowed folders", () => {
+    const verdict = decide(executeTool, "ask", noGrants(), change(undefined, "outside"), allowData);
+    expect(verdict.kind).toBe("ask");
+  });
+
+  it("does not cover writes or delete", () => {
+    expect(decide(writeTool, "ask", noGrants(), change("allowed"), allowData).kind).toBe("ask");
+    expect(decide(deleteTool, "auto-edit", noGrants(), change("allowed"), allowData).kind).toBe(
+      "ask",
+    );
+  });
+
+  it("does not override read-only", () => {
+    const verdict = decide(
+      executeTool,
+      "read-only",
+      noGrants(),
+      change(undefined, "allowed"),
+      allowData,
+    );
+    expect(verdict.kind).toBe("refuse-read-only");
+  });
+});
+
 describe("missing preview", () => {
   it("asks even in auto-edit mode, since the targets are unknown", () => {
     const classified = { ...change(undefined), previewMissing: true };

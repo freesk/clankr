@@ -16,20 +16,23 @@ export function readOnlyMessage(toolName: string): string {
 }
 
 /**
- * One-shot mode has no one to ask (D14). The message names `--permission-mode` either
- * way, and says whether that flag would actually have allowed this call.
+ * One-shot mode has no one to ask (D14). The message names the run flag that would have
+ * allowed this call (D74), or says that none would.
  */
 export function cannotAskMessage(
-  toolName: string,
+  tool: { name: string },
   reasons: string[],
-  allowedInAutoEdit: boolean,
+  allowingFlag: "auto-edit" | "allow-data" | undefined,
 ): string {
-  const why = `Refused: ${toolName} needs approval (${reasons.join("; ")}), and this run cannot ask.`;
-  if (allowedInAutoEdit) {
+  const why = `Refused: ${tool.name} needs approval (${reasons.join("; ")}), and this run cannot ask.`;
+  if (allowingFlag === "auto-edit") {
     return `${why} The user can rerun with --permission-mode auto-edit to allow changes inside the allowed folders.`;
   }
+  if (allowingFlag === "allow-data") {
+    return `${why} The user can rerun with --allow-data to allow SQL, scripts, and charts on data files inside the allowed folders.`;
+  }
   return (
-    `${why} --permission-mode auto-edit does not cover this kind of call; ` +
+    `${why} No run flag covers this kind of call; ` +
     "the user must run vix interactively to approve it. Tell the user what you would do."
   );
 }

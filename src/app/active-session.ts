@@ -69,6 +69,7 @@ export async function openActiveSession(
     session: state,
     ...(state.model ? { model: state.model } : {}),
     approvalPrompter: options.approvalPrompter,
+    allowData: options.allowData === true,
     fileTools: seams.fileTools,
     ...(seams.homeDirectory ? { homeDirectory: seams.homeDirectory } : {}),
   });

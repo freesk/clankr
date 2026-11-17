@@ -19,6 +19,8 @@ export interface HarnessOptions {
   config: Config;
   /** The REPL's prompt, or the one-shot prompter that always denies (D14). */
   approvalPrompter: ApprovalPrompter;
+  /** D74: one-shot `--allow-data`. Absent means false. */
+  allowData?: boolean;
   ephemeral: boolean;
   resume: boolean;
   workingDirectory: string;

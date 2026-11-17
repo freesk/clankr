@@ -9,6 +9,8 @@ export interface SessionCommand {
   /** Set by `-p`. Without it, the REPL starts unless stdin is piped. */
   prompt: string | undefined;
   json: boolean;
+  /** D74: SQL, scripts, and charts on data files inside the allowed folders, for this run. */
+  allowData: boolean;
   ephemeral: boolean;
   resume: boolean;
   configFlags: ConfigFlags;
@@ -34,6 +36,8 @@ export const usageText = `Usage:
 Options:
   -p, --print <prompt>       One-shot mode: print the result and exit
       --json                 One-shot output as JSON, for scripts
+      --allow-data           One-shot: allow SQL, scripts, and charts on data files
+                             inside the allowed folders
       --model <key>          Model to use instead of the configured default
       --permission-mode <m>  ask | auto-edit | read-only, for this run
       --base-url <url>       LM Studio address instead of the configured one
@@ -48,6 +52,7 @@ Exit status: 0 done, 1 failed or denied, 2 usage error, 130 cancelled.`;
 const optionSpecification = {
   print: { type: "string", short: "p" },
   json: { type: "boolean" },
+  "allow-data": { type: "boolean" },
   model: { type: "string" },
   "permission-mode": { type: "string" },
   "base-url": { type: "string" },
@@ -121,6 +126,7 @@ function parseSession(values: ParsedValues): ParseResult {
       kind: "session",
       prompt: values.print,
       json: values.json === true,
+      allowData: values["allow-data"] === true,
       ephemeral: values.ephemeral === true,
       resume: values.resume === true,
       configFlags: {

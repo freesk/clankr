@@ -17,6 +17,7 @@ describe("parseCliArguments", () => {
         kind: "session",
         prompt: undefined,
         json: false,
+        allowData: false,
         ephemeral: false,
         resume: false,
         configFlags: { model: undefined, permissionMode: undefined, baseUrl: undefined },
@@ -34,6 +35,7 @@ describe("parseCliArguments", () => {
       "--permission-mode",
       "auto-edit",
       "--ephemeral",
+      "--allow-data",
     ]);
     expect(result).toMatchObject({
       ok: true,
@@ -41,6 +43,7 @@ describe("parseCliArguments", () => {
         kind: "session",
         prompt: "sum the column",
         json: true,
+        allowData: true,
         ephemeral: true,
         configFlags: { model: "qwen/qwen3-8b", permissionMode: "auto-edit" },
       },
