@@ -1,0 +1,75 @@
+Bramblewood Outfitters - warehouse stock report
+Counted 2025-12-31. Fictional data.
+sku	product	category	warehouse	on_hand	reorder_point	unit_cost	last_counted
+BW-101	Trail Lantern	Lighting	Reno	293	40	8.18	2025-12-31
+BW-101	Trail Lantern	Lighting	Columbus	292	20	8.18	2025-12-29
+BW-101	Trail Lantern	Lighting	Savannah	0	40	8.18	2025-12-31
+BW-102	Headlamp	Lighting	Reno	222	25	54.18	2025-12-31
+BW-102	Headlamp	Lighting	Columbus	170	40	54.18	2025-12-31
+BW-102	Headlamp	Lighting	Savannah	326	50	54.18	2025-12-30
+BW-103	String Lights	Lighting	Reno	6	75	12.5	2025-12-29
+BW-103	String Lights	Lighting	Columbus	322	25	12.5	2025-12-30
+BW-103	String Lights	Lighting	Savannah	0	50	12.5	2025-12-29
+BW-104	Candle Lantern	Lighting	Reno	228	25	41.69	2025-12-30
+BW-104	Candle Lantern	Lighting	Columbus	371	50	41.69	2025-12-31
+BW-104	Candle Lantern	Lighting	Savannah	255	20	41.69	2025-12-31
+BW-105	Canvas Tote	Bags	Reno	83	25	34.24	2025-12-31
+BW-105	Canvas Tote	Bags	Columbus	390	40	34.24	2025-12-29
+BW-105	Canvas Tote	Bags	Savannah	91	25	34.24	2025-12-29
+BW-106	Day Pack	Bags	Reno	179	75	5.76	2025-12-31
+BW-106	Day Pack	Bags	Columbus	368	40	5.76	2025-12-29
+BW-106	Day Pack	Bags	Savannah	385	50	5.76	2025-12-30
+BW-107	Dry Bag	Bags	Reno	394	50	4.89	2025-12-31
+BW-107	Dry Bag	Bags	Columbus	395	75	4.89	2025-12-30
+BW-107	Dry Bag	Bags	Savannah	0	40	4.89	2025-12-30
+BW-108	Hip Pack	Bags	Reno	263	25	55.24	2025-12-30
+BW-108	Hip Pack	Bags	Columbus	39	25	55.24	2025-12-30
+BW-108	Hip Pack	Bags	Savannah	261	20	55.24	2025-12-31
+BW-109	Duffel	Bags	Reno	221	25	20.52	2025-12-31
+BW-109	Duffel	Bags	Columbus	198	75	20.52	2025-12-30
+BW-109	Duffel	Bags	Savannah	139	20	20.52	2025-12-29
+BW-110	Camp Mug	Kitchen	Reno	98	40	40.04	2025-12-31
+BW-110	Camp Mug	Kitchen	Columbus	282	40	40.04	2025-12-31
+BW-110	Camp Mug	Kitchen	Savannah	47	40	40.04	2025-12-30
+BW-111	Enamel Plate	Kitchen	Reno	197	20	22.69	2025-12-30
+BW-111	Enamel Plate	Kitchen	Columbus	183	25	22.69	2025-12-29
+BW-111	Enamel Plate	Kitchen	Savannah	39	75	22.69	2025-12-31
+BW-112	Spork Set	Kitchen	Reno	378	20	25.79	2025-12-31
+BW-112	Spork Set	Kitchen	Columbus	122	40	25.79	2025-12-29
+BW-112	Spork Set	Kitchen	Savannah	105	50	25.79	2025-12-30
+BW-113	Kettle	Kitchen	Reno	60	20	3.39	2025-12-31
+BW-113	Kettle	Kitchen	Columbus	12	40	3.39	2025-12-31
+BW-113	Kettle	Kitchen	Savannah	80	20	3.39	2025-12-30
+BW-114	Cutting Board	Kitchen	Reno	335	50	53.8	2025-12-29
+BW-114	Cutting Board	Kitchen	Columbus	369	50	53.8	2025-12-30
+BW-114	Cutting Board	Kitchen	Savannah	288	50	53.8	2025-12-30
+BW-115	Rain Shell	Apparel	Reno	259	25	35.68	2025-12-30
+BW-115	Rain Shell	Apparel	Columbus	386	20	35.68	2025-12-31
+BW-115	Rain Shell	Apparel	Savannah	62	50	35.68	2025-12-31
+BW-116	Wool Beanie	Apparel	Reno	91	75	21.76	2025-12-30
+BW-116	Wool Beanie	Apparel	Columbus	345	40	21.76	2025-12-29
+BW-116	Wool Beanie	Apparel	Savannah	307	50	21.76	2025-12-30
+BW-117	Fleece Vest	Apparel	Reno	159	75	50.41	2025-12-31
+BW-117	Fleece Vest	Apparel	Columbus	400	50	50.41	2025-12-31
+BW-117	Fleece Vest	Apparel	Savannah	105	75	50.41	2025-12-29
+BW-118	Sun Hat	Apparel	Reno	251	50	59.4	2025-12-30
+BW-118	Sun Hat	Apparel	Columbus	0	50	59.4	2025-12-31
+BW-118	Sun Hat	Apparel	Savannah	70	20	59.4	2025-12-30
+BW-119	Hiking Socks	Apparel	Reno	107	25	9.53	2025-12-31
+BW-119	Hiking Socks	Apparel	Columbus	219	25	9.53	2025-12-30
+BW-119	Hiking Socks	Apparel	Savannah	167	40	9.53	2025-12-29
+BW-120	Gaiters	Apparel	Reno	69	40	4.48	2025-12-31
+BW-120	Gaiters	Apparel	Columbus	105	75	4.48	2025-12-31
+BW-120	Gaiters	Apparel	Savannah	6	25	4.48	2025-12-31
+BW-121	Folding Stool	Furniture	Reno	250	20	35.76	2025-12-29
+BW-121	Folding Stool	Furniture	Columbus	99	40	35.76	2025-12-31
+BW-121	Folding Stool	Furniture	Savannah	0	20	35.76	2025-12-31
+BW-122	Camp Chair	Furniture	Reno	368	75	48.81	2025-12-29
+BW-122	Camp Chair	Furniture	Columbus	108	40	48.81	2025-12-29
+BW-122	Camp Chair	Furniture	Savannah	392	40	48.81	2025-12-30
+BW-123	Roll Table	Furniture	Reno	357	20	53.56	2025-12-31
+BW-123	Roll Table	Furniture	Columbus	16	25	53.56	2025-12-30
+BW-123	Roll Table	Furniture	Savannah	355	20	53.56	2025-12-30
+BW-124	Hammock	Furniture	Reno	291	40	35.19	2025-12-30
+BW-124	Hammock	Furniture	Columbus	80	25	35.19	2025-12-29
+BW-124	Hammock	Furniture	Savannah	335	75	35.19	2025-12-31

@@ -24,7 +24,8 @@
     "vendor": "node scripts/vendor.ts",
     "spike": "node --no-node-snapshot scripts/spike/native-addons.ts",
     "evals": "node --no-node-snapshot evals/run.ts",
-    "evals:fixtures": "node evals/generate-fixtures.ts"
+    "evals:fixtures": "node evals/generate-fixtures.ts",
+    "samples": "node scripts/generate-samples.ts"
   },
   "dependencies": {
     "@duckdb/node-api": "1.4.5-r.1",

@@ -1,0 +1,2001 @@
+order_id,order_date,region,product,units,unit_price,discount_pct,customer_segment
+SO-10001,2025-01-01,West,Camp Mug,3,9.75,10,Consumer
+SO-10002,2025-01-01,East,Rain Shell,5,89,10,Consumer
+SO-10003,2025-01-01,West,Folding Stool,12,34.4,0,Enterprise
+SO-10004,2025-01-01,South,Camp Mug,5,9.75,0,Enterprise
+SO-10005,2025-01-01,East,Trail Lantern,1,24.99,10,Enterprise
+SO-10006,2025-01-01,East,Rain Shell,5,89,0,Enterprise
+SO-10007,2025-01-02,Central,Rain Shell,8,89,0,Enterprise
+SO-10008,2025-01-02,East,Trail Lantern,12,24.99,0,Consumer
+SO-10009,2025-01-02,East,Folding Stool,10,34.4,0,Consumer
+SO-10010,2025-01-02,North,Wool Beanie,11,21.25,0,Education
+SO-10011,2025-01-02,Central,Rain Shell,9,89,15,Consumer
+SO-10012,2025-01-03,South,Trail Lantern,5,24.99,15,Consumer
+SO-10013,2025-01-03,South,Trail Lantern,11,24.99,0,Enterprise
+SO-10014,2025-01-03,South,Wool Beanie,9,21.25,0,Education
+SO-10015,2025-01-03,South,Canvas Tote,5,18.5,0,Enterprise
+SO-10016,2025-01-03,Central,Folding Stool,2,34.4,15,Small Business
+SO-10017,2025-01-03,East,Trail Lantern,7,24.99,5,Enterprise
+SO-10018,2025-01-04,North,Trail Lantern,5,24.99,0,Enterprise
+SO-10019,2025-01-04,Central,Camp Mug,5,9.75,5,Consumer
+SO-10020,2025-01-04,North,Trail Lantern,4,24.99,5,Small Business
+SO-10021,2025-01-04,West,Canvas Tote,12,18.5,5,Consumer
+SO-10022,2025-01-04,South,Folding Stool,4,34.4,0,Small Business
+SO-10023,2025-01-05,South,Trail Lantern,4,24.99,15,Consumer
+SO-10024,2025-01-05,East,Canvas Tote,1,18.5,0,Enterprise
+SO-10025,2025-01-05,North,Trail Lantern,11,24.99,0,Consumer
+SO-10026,2025-01-05,West,Camp Mug,9,9.75,0,Small Business
+SO-10027,2025-01-05,East,Canvas Tote,8,18.5,0,Consumer
+SO-10028,2025-01-05,North,Canvas Tote,9,18.5,15,Consumer
+SO-10029,2025-01-06,West,Camp Mug,11,9.75,0,Small Business
+SO-10030,2025-01-06,South,Folding Stool,7,34.4,0,Small Business
+SO-10031,2025-01-06,North,Camp Mug,5,9.75,0,Education
+SO-10032,2025-01-06,Central,Wool Beanie,1,21.25,0,Consumer
+SO-10033,2025-01-06,West,Camp Mug,8,9.75,0,Education
+SO-10034,2025-01-07,Central,Folding Stool,6,34.4,10,Enterprise
+SO-10035,2025-01-07,South,Rain Shell,10,89,5,Small Business
+SO-10036,2025-01-07,West,Wool Beanie,8,21.25,0,Small Business
+SO-10037,2025-01-07,West,Rain Shell,1,89,5,Education
+SO-10038,2025-01-07,North,Wool Beanie,8,21.25,0,Small Business
+SO-10039,2025-01-07,East,Canvas Tote,10,18.5,0,Consumer
+SO-10040,2025-01-08,East,Trail Lantern,12,24.99,5,Education
+SO-10041,2025-01-08,South,Wool Beanie,9,21.25,0,Small Business
+SO-10042,2025-01-08,South,Canvas Tote,1,18.5,n/a,Consumer
+SO-10043,2025-01-08,North,Wool Beanie,4,21.25,0,Enterprise
+SO-10044,2025-01-08,North,Rain Shell,1,89,0,Consumer
+SO-10045,2025-01-09,South,Canvas Tote,9,18.5,5,Enterprise
+SO-10046,2025-01-09,South,Camp Mug,5,9.75,0,Education
+SO-10047,2025-01-09,West,Trail Lantern,10,24.99,5,Enterprise
+SO-10048,2025-01-09,Central,Canvas Tote,11,18.5,0,Enterprise
+SO-10049,2025-01-09,West,Folding Stool,7,34.4,15,Small Business
+SO-10050,2025-01-09,West,Camp Mug,5,9.75,0,Consumer
+SO-10051,2025-01-10,East,Camp Mug,6,9.75,5,Education
+SO-10052,2025-01-10,West,Rain Shell,2,89,15,Consumer
+SO-10053,2025-01-10,Central,Trail Lantern,6,24.99,0,Small Business
+SO-10054,2025-01-10,North,Trail Lantern,1,24.99,5,Education
+SO-10055,2025-01-10,North,Rain Shell,10,89,15,Consumer
+SO-10056,2025-01-11,Central,Camp Mug,9,9.75,10,Small Business
+SO-10057,2025-01-11,South,Trail Lantern,2,24.99,0,Small Business
+SO-10058,2025-01-11,North,Canvas Tote,6,18.5,10,Small Business
+SO-10059,2025-01-11,South,Canvas Tote,5,18.5,0,Consumer
+SO-10060,2025-01-11,West,Canvas Tote,8,18.5,5,Consumer
+SO-10061,2025-01-11,Central,Canvas Tote,12,18.5,n/a,Consumer
+SO-10062,2025-01-12,East,Canvas Tote,9,18.5,10,Small Business
+SO-10063,2025-01-12,West,Canvas Tote,10,18.5,0,Enterprise
+SO-10064,2025-01-12,East,Canvas Tote,10,18.5,5,Education
+SO-10065,2025-01-12,East,Canvas Tote,9,18.5,0,Consumer
+SO-10066,2025-01-12,South,Folding Stool,4,34.4,10,Education
+SO-10067,2025-01-13,North,Trail Lantern,8,24.99,0,Education
+SO-10068,2025-01-13,South,Wool Beanie,3,21.25,10,Education
+SO-10069,2025-01-13,North,Rain Shell,10,89,5,Small Business
+SO-10070,2025-01-13,North,Trail Lantern,3,24.99,15,Consumer
+SO-10071,2025-01-13,East,Folding Stool,6,34.4,0,Small Business
+SO-10072,2025-01-13,South,Wool Beanie,6,21.25,0,Small Business
+SO-10073,2025-01-14,East,Rain Shell,9,89,0,Education
+SO-10074,2025-01-14,West,Canvas Tote,9,18.5,5,Small Business
+SO-10075,2025-01-14,Central,Canvas Tote,10,18.5,0,Education
+SO-10076,2025-01-14,South,Trail Lantern,4,24.99,5,Education
+SO-10077,2025-01-14,North,Canvas Tote,7,18.5,0,Small Business
+SO-10078,2025-01-15,East,Wool Beanie,2,21.25,0,Enterprise
+SO-10079,2025-01-15,North,Folding Stool,3,34.4,0,Enterprise
+SO-10080,2025-01-15,South,Folding Stool,11,34.4,10,Consumer
+SO-10081,2025-01-15,Central,Folding Stool,10,34.4,0,Education
+SO-10082,2025-01-15,West,Rain Shell,8,89,10,Enterprise
+SO-10083,2025-01-15,East,Camp Mug,1,9.75,0,Consumer
+SO-10084,2025-01-16,North,Canvas Tote,1,18.5,15,Education
+SO-10085,2025-01-16,Central,Wool Beanie,5,21.25,10,Education
+SO-10086,2025-01-16,South,Folding Stool,6,34.4,10,Enterprise
+SO-10087,2025-01-16,Central,Camp Mug,10,9.75,15,Small Business
+SO-10088,2025-01-16,West,Folding Stool,6,34.4,0,Small Business
+SO-10089,2025-01-17,South,Folding Stool,7,34.4,15,Enterprise
+SO-10090,2025-01-17,South,Camp Mug,1,9.75,5,Education
+SO-10091,2025-01-17,North,Camp Mug,8,9.75,0,Consumer
+SO-10092,2025-01-17,West,Rain Shell,10,89,0,Enterprise
+SO-10093,2025-01-17,West,Wool Beanie,3,21.25,0,Consumer
+SO-10094,2025-01-17,West,Rain Shell,4,89,0,Education
+SO-10095,2025-01-18,Central,Wool Beanie,12,21.25,15,Enterprise
+SO-10096,2025-01-18,West,Wool Beanie,6,21.25,15,Enterprise
+SO-10097,2025-01-18,South,Camp Mug,2,9.75,10,Consumer
+SO-10098,2025-01-18,Central,Wool Beanie,4,21.25,0,Small Business
+SO-10099,2025-01-18,West,Rain Shell,12,89,0,Small Business
+SO-10100,2025-01-19,Central,Camp Mug,6,9.75,n/a,Small Business
+SO-10101,2025-01-19,West,Canvas Tote,10,18.5,5,Enterprise
+SO-10102,2025-01-19,Central,Trail Lantern,7,24.99,15,Education
+SO-10103,2025-01-19,North,Canvas Tote,3,18.5,0,Education
+SO-10104,2025-01-19,South,Folding Stool,6,34.4,0,Enterprise
+SO-10105,2025-01-19,Central,Folding Stool,5,34.4,0,Consumer
+SO-10106,2025-01-20,South,Folding Stool,3,34.4,5,Consumer
+SO-10107,2025-01-20,North,Rain Shell,6,89,10,Enterprise
+SO-10108,2025-01-20,Central,Folding Stool,2,34.4,n/a,Enterprise
+SO-10109,2025-01-20,West,Canvas Tote,12,18.5,10,Education
+SO-10110,2025-01-20,Central,Canvas Tote,4,18.5,0,Education
+SO-10111,2025-01-21,South,Camp Mug,12,9.75,0,Education
+SO-10112,2025-01-21,West,Wool Beanie,9,21.25,15,Enterprise
+SO-10113,2025-01-21,Central,Trail Lantern,5,24.99,0,Consumer
+SO-10114,2025-01-21,Central,Wool Beanie,2,21.25,0,Consumer
+SO-10115,2025-01-21,East,Camp Mug,3,9.75,0,Education
+SO-10116,2025-01-21,Central,Camp Mug,8,9.75,10,Education
+SO-10117,2025-01-22,West,Folding Stool,9,34.4,0,Enterprise
+SO-10118,2025-01-22,West,Camp Mug,1,9.75,n/a,Consumer
+SO-10119,2025-01-22,West,Canvas Tote,11,18.5,0,Consumer
+SO-10120,2025-01-22,West,Trail Lantern,7,24.99,15,Enterprise
+SO-10121,2025-01-22,South,Canvas Tote,12,18.5,10,Consumer
+SO-10122,2025-01-23,North,Rain Shell,7,89,0,Small Business
+SO-10123,2025-01-23,North,Trail Lantern,9,24.99,15,Education
+SO-10124,2025-01-23,North,Trail Lantern,6,24.99,10,
+SO-10125,2025-01-23,West,Rain Shell,9,89,0,Education
+SO-10126,2025-01-23,East,Rain Shell,3,89,15,Enterprise
+SO-10127,2025-01-23,West,Wool Beanie,5,21.25,5,Education
+SO-10128,2025-01-24,North,Rain Shell,12,89,0,Education
+SO-10129,2025-01-24,West,Camp Mug,2,9.75,10,Small Business
+SO-10130,2025-01-24,East,Canvas Tote,1,18.5,15,Enterprise
+SO-10131,2025-01-24,Central,Trail Lantern,1,24.99,0,Small Business
+SO-10132,2025-01-24,East,Camp Mug,8,9.75,0,Small Business
+SO-10133,2025-01-25,North,Wool Beanie,12,21.25,0,Education
+SO-10134,2025-01-25,East,Trail Lantern,3,24.99,5,Small Business
+SO-10135,2025-01-25,South,Wool Beanie,2,21.25,0,Consumer
+SO-10136,2025-01-25,South,Folding Stool,5,34.4,0,Small Business
+SO-10137,2025-01-25,North,Rain Shell,11,89,n/a,Enterprise
+SO-10138,2025-01-26,Central,Rain Shell,12,89,0,Consumer
+SO-10139,2025-01-26,East,Camp Mug,3,9.75,15,Enterprise
+SO-10140,2025-01-26,Central,Rain Shell,5,89,15,Education
+SO-10141,2025-01-26,North,Rain Shell,3,89,0,Enterprise
+SO-10142,2025-01-26,South,Rain Shell,12,89,10,Consumer
+SO-10143,2025-01-26,North,Camp Mug,2,9.75,10,Enterprise
+SO-10144,2025-01-27,Central,Camp Mug,9,9.75,10,Enterprise
+SO-10145,2025-01-27,South,Rain Shell,1,89,10,Enterprise
+SO-10146,2025-01-27,North,Rain Shell,5,89,n/a,Consumer
+SO-10147,2025-01-27,Central,Canvas Tote,11,18.5,0,Consumer
+SO-10148,2025-01-27,East,Trail Lantern,4,24.99,0,Enterprise
+SO-10149,2025-01-28,South,Camp Mug,6,9.75,0,Enterprise
+SO-10150,2025-01-28,East,Wool Beanie,11,21.25,10,Enterprise
+SO-10151,2025-01-28,Central,Trail Lantern,9,24.99,0,Education
+SO-10152,2025-01-28,South,Wool Beanie,5,21.25,10,Enterprise
+SO-10153,2025-01-28,Central,Wool Beanie,2,21.25,15,Consumer
+SO-10154,2025-01-28,North,Camp Mug,1,9.75,10,Consumer
+SO-10155,2025-01-29,North,Trail Lantern,2,24.99,10,Enterprise
+SO-10156,2025-01-29,North,Wool Beanie,3,21.25,0,Enterprise
+SO-10157,2025-01-29,South,Wool Beanie,5,21.25,0,Enterprise
+SO-10158,2025-01-29,East,Canvas Tote,8,18.5,0,Small Business
+SO-10159,2025-01-29,East,Folding Stool,8,34.4,15,Consumer
+SO-10160,2025-01-30,North,Camp Mug,10,9.75,15,Education
+SO-10161,2025-01-30,South,Canvas Tote,5,18.5,0,Small Business
+SO-10162,2025-01-30,Central,Canvas Tote,7,18.5,0,
+SO-10163,2025-01-30,North,Camp Mug,5,9.75,10,Enterprise
+SO-10164,2025-01-30,North,Folding Stool,10,34.4,10,Consumer
+SO-10165,2025-01-30,North,Rain Shell,4,89,15,Small Business
+SO-10166,2025-01-31,East,Rain Shell,7,89,15,Small Business
+SO-10167,2025-01-31,East,Trail Lantern,2,24.99,n/a,Consumer
+SO-10168,2025-01-31,Central,Rain Shell,5,89,5,Enterprise
+SO-10169,2025-01-31,West,Wool Beanie,12,21.25,15,Enterprise
+SO-10170,2025-01-31,Central,Trail Lantern,10,24.99,10,Education
+SO-10171,2025-02-01,West,Rain Shell,3,89,0,Enterprise
+SO-10172,2025-02-01,Central,Folding Stool,8,34.4,n/a,Education
+SO-10173,2025-02-01,West,Rain Shell,1,89,0,Consumer
+SO-10174,2025-02-01,North,Folding Stool,1,34.4,0,Consumer
+SO-10175,2025-02-01,South,Canvas Tote,9,18.5,10,Small Business
+SO-10176,2025-02-01,North,Wool Beanie,9,21.25,5,Consumer
+SO-10177,2025-02-02,East,Camp Mug,5,9.75,15,Education
+SO-10178,2025-02-02,East,Canvas Tote,7,18.5,0,Enterprise
+SO-10179,2025-02-02,North,Canvas Tote,10,18.5,5,Enterprise
+SO-10180,2025-02-02,South,Canvas Tote,6,18.5,15,Education
+SO-10181,2025-02-02,East,Trail Lantern,6,24.99,15,Education
+SO-10182,2025-02-03,North,Wool Beanie,8,21.25,5,Enterprise
+SO-10183,2025-02-03,East,Trail Lantern,7,24.99,15,Education
+SO-10184,2025-02-03,South,Folding Stool,1,34.4,0,Small Business
+SO-10185,2025-02-03,East,Trail Lantern,3,24.99,0,Enterprise
+SO-10186,2025-02-03,West,Trail Lantern,9,24.99,0,Enterprise
+SO-10187,2025-02-03,South,Rain Shell,8,89,n/a,Enterprise
+SO-10188,2025-02-04,West,Rain Shell,1,89,0,Enterprise
+SO-10189,2025-02-04,Central,Wool Beanie,2,21.25,0,Education
+SO-10190,2025-02-04,East,Camp Mug,1,9.75,15,Small Business
+SO-10191,2025-02-04,West,Trail Lantern,7,24.99,0,Enterprise
+SO-10192,2025-02-04,South,Folding Stool,7,34.4,0,Enterprise
+SO-10193,2025-02-05,Central,Wool Beanie,5,21.25,0,Education
+SO-10194,2025-02-05,South,Wool Beanie,11,21.25,0,Small Business
+SO-10195,2025-02-05,South,Camp Mug,7,9.75,0,Enterprise
+SO-10196,2025-02-05,Central,Canvas Tote,5,18.5,0,Small Business
+SO-10197,2025-02-05,South,Camp Mug,9,9.75,15,Enterprise
+SO-10198,2025-02-05,East,Rain Shell,5,89,5,Education
+SO-10199,2025-02-06,West,Folding Stool,7,34.4,0,Consumer
+SO-10200,2025-02-06,South,Trail Lantern,1,24.99,0,Education
+SO-10201,2025-02-06,North,Camp Mug,11,9.75,0,Small Business
+SO-10202,2025-02-06,North,Folding Stool,7,34.4,10,Enterprise
+SO-10203,2025-02-06,North,Canvas Tote,5,18.5,0,Education
+SO-10204,2025-02-07,East,Trail Lantern,9,24.99,0,Consumer
+SO-10205,2025-02-07,South,Camp Mug,6,9.75,5,Small Business
+SO-10206,2025-02-07,North,Rain Shell,4,89,5,Enterprise
+SO-10207,2025-02-07,North,Canvas Tote,5,18.5,15,Enterprise
+SO-10208,2025-02-07,South,Rain Shell,6,89,0,Small Business
+SO-10209,2025-02-07,South,Wool Beanie,6,21.25,0,Enterprise
+SO-10210,2025-02-08,West,Folding Stool,10,34.4,0,Education
+SO-10211,2025-02-08,East,Camp Mug,8,9.75,0,Small Business
+SO-10212,2025-02-08,Central,Trail Lantern,1,24.99,0,Enterprise
+SO-10213,2025-02-08,West,Canvas Tote,7,18.5,15,Consumer
+SO-10214,2025-02-08,North,Rain Shell,4,89,15,Education
+SO-10215,2025-02-09,Central,Camp Mug,12,9.75,5,Consumer
+SO-10216,2025-02-09,East,Camp Mug,1,9.75,10,Consumer
+SO-10217,2025-02-09,East,Rain Shell,1,89,5,Small Business
+SO-10218,2025-02-09,North,Canvas Tote,9,18.5,0,Small Business
+SO-10219,2025-02-09,Central,Rain Shell,5,89,n/a,Education
+SO-10220,2025-02-09,North,Rain Shell,6,89,5,Small Business
+SO-10221,2025-02-10,West,Folding Stool,3,34.4,5,Consumer
+SO-10222,2025-02-10,Central,Folding Stool,11,34.4,5,Enterprise
+SO-10223,2025-02-10,South,Folding Stool,3,34.4,0,Education
+SO-10224,2025-02-10,North,Wool Beanie,6,21.25,15,Consumer
+SO-10225,2025-02-10,North,Wool Beanie,7,21.25,5,Small Business
+SO-10226,2025-02-11,North,Camp Mug,1,9.75,0,Enterprise
+SO-10227,2025-02-11,South,Folding Stool,11,34.4,0,Consumer
+SO-10228,2025-02-11,West,Camp Mug,7,9.75,0,Education
+SO-10229,2025-02-11,East,Wool Beanie,9,21.25,15,Education
+SO-10230,2025-02-11,West,Wool Beanie,7,21.25,0,Consumer
+SO-10231,2025-02-11,Central,Canvas Tote,11,18.5,0,Consumer
+SO-10232,2025-02-12,South,Canvas Tote,7,18.5,15,Consumer
+SO-10233,2025-02-12,North,Trail Lantern,10,24.99,0,Small Business
+SO-10234,2025-02-12,Central,Camp Mug,1,9.75,0,Education
+SO-10235,2025-02-12,East,Camp Mug,10,9.75,15,Small Business
+SO-10236,2025-02-12,East,Trail Lantern,9,24.99,0,Small Business
+SO-10237,2025-02-13,South,Folding Stool,9,34.4,5,Enterprise
+SO-10238,2025-02-13,Central,Folding Stool,8,34.4,0,Education
+SO-10239,2025-02-13,West,Wool Beanie,10,21.25,0,Consumer
+SO-10240,2025-02-13,Central,Camp Mug,3,9.75,0,Small Business
+SO-10241,2025-02-13,Central,Folding Stool,11,34.4,5,Enterprise
+SO-10242,2025-02-13,West,Rain Shell,4,89,0,Education
+SO-10243,2025-02-14,Central,Camp Mug,3,9.75,0,Education
+SO-10244,2025-02-14,North,Folding Stool,6,34.4,15,Small Business
+SO-10245,2025-02-14,East,Camp Mug,8,9.75,0,Education
+SO-10246,2025-02-14,West,Trail Lantern,5,24.99,5,Enterprise
+SO-10247,2025-02-14,North,Trail Lantern,2,24.99,0,Consumer
+SO-10248,2025-02-15,West,Camp Mug,8,9.75,5,Small Business
+SO-10249,2025-02-15,North,Trail Lantern,6,24.99,15,Small Business
+SO-10250,2025-02-15,East,Wool Beanie,4,21.25,5,Enterprise
+SO-10251,2025-02-15,South,Camp Mug,1,9.75,10,Enterprise
+SO-10252,2025-02-15,South,Trail Lantern,12,24.99,0,Consumer
+SO-10253,2025-02-15,Central,Trail Lantern,3,24.99,5,Consumer
+SO-10254,2025-02-16,West,Wool Beanie,2,21.25,0,Consumer
+SO-10255,2025-02-16,East,Rain Shell,2,89,0,Consumer
+SO-10256,2025-02-16,North,Trail Lantern,4,24.99,10,Consumer
+SO-10257,2025-02-16,Central,Canvas Tote,5,18.5,10,Consumer
+SO-10258,2025-02-16,Central,Rain Shell,1,89,15,Small Business
+SO-10259,2025-02-17,West,Camp Mug,3,9.75,0,Education
+SO-10260,2025-02-17,South,Trail Lantern,9,24.99,5,Enterprise
+SO-10261,2025-02-17,West,Rain Shell,11,89,0,Enterprise
+SO-10262,2025-02-17,West,Wool Beanie,3,21.25,10,Enterprise
+SO-10263,2025-02-17,North,Folding Stool,10,34.4,0,Enterprise
+SO-10264,2025-02-17,South,Trail Lantern,10,24.99,0,Education
+SO-10265,2025-02-18,Central,Wool Beanie,4,21.25,10,Education
+SO-10266,2025-02-18,South,Wool Beanie,6,21.25,0,Consumer
+SO-10267,2025-02-18,East,Folding Stool,12,34.4,n/a,Small Business
+SO-10268,2025-02-18,North,Trail Lantern,11,24.99,0,Small Business
+SO-10269,2025-02-18,South,Canvas Tote,2,18.5,0,Small Business
+SO-10270,2025-02-19,Central,Camp Mug,5,9.75,0,Consumer
+SO-10271,2025-02-19,West,Trail Lantern,8,24.99,10,Small Business
+SO-10272,2025-02-19,Central,Rain Shell,1,89,15,Education
+SO-10273,2025-02-19,North,Folding Stool,6,34.4,0,Enterprise
+SO-10274,2025-02-19,South,Trail Lantern,10,24.99,10,Consumer
+SO-10275,2025-02-20,North,Rain Shell,11,89,15,Enterprise
+SO-10276,2025-02-20,South,Wool Beanie,4,21.25,0,Enterprise
+SO-10277,2025-02-20,East,Rain Shell,3,89,5,Enterprise
+SO-10278,2025-02-20,Central,Rain Shell,12,89,0,Education
+SO-10279,2025-02-20,Central,Folding Stool,5,34.4,15,Consumer
+SO-10280,2025-02-20,Central,Folding Stool,6,34.4,10,Small Business
+SO-10281,2025-02-21,West,Canvas Tote,3,18.5,5,Enterprise
+SO-10282,2025-02-21,North,Trail Lantern,2,24.99,5,Enterprise
+SO-10283,2025-02-21,South,Folding Stool,5,34.4,0,Consumer
+SO-10284,2025-02-21,North,Canvas Tote,7,18.5,15,Consumer
+SO-10285,2025-02-21,East,Folding Stool,2,34.4,0,Education
+SO-10286,2025-02-22,North,Folding Stool,2,34.4,10,Small Business
+SO-10287,2025-02-22,South,Canvas Tote,10,18.5,5,Enterprise
+SO-10288,2025-02-22,North,Camp Mug,12,9.75,0,Enterprise
+SO-10289,2025-02-22,West,Rain Shell,6,89,15,Consumer
+SO-10290,2025-02-22,Central,Wool Beanie,9,21.25,10,Small Business
+SO-10291,2025-02-22,Central,Camp Mug,7,9.75,5,Enterprise
+SO-10292,2025-02-23,Central,Folding Stool,2,34.4,0,Consumer
+SO-10293,2025-02-23,East,Canvas Tote,6,18.5,0,Consumer
+SO-10294,2025-02-23,Central,Wool Beanie,9,21.25,15,Small Business
+SO-10295,2025-02-23,North,Rain Shell,9,89,0,Enterprise
+SO-10296,2025-02-23,South,Camp Mug,8,9.75,0,Small Business
+SO-10297,2025-02-24,West,Wool Beanie,4,21.25,5,Enterprise
+SO-10298,2025-02-24,Central,Wool Beanie,6,21.25,0,Enterprise
+SO-10299,2025-02-24,North,Rain Shell,7,89,0,Consumer
+SO-10300,2025-02-24,South,Camp Mug,5,9.75,5,Education
+SO-10301,2025-02-24,West,Camp Mug,9,9.75,0,Consumer
+SO-10302,2025-02-24,East,Canvas Tote,4,18.5,0,Education
+SO-10303,2025-02-25,North,Folding Stool,9,34.4,n/a,Consumer
+SO-10304,2025-02-25,West,Canvas Tote,2,18.5,0,Education
+SO-10305,2025-02-25,West,Camp Mug,10,9.75,0,Small Business
+SO-10306,2025-02-25,East,Wool Beanie,7,21.25,5,Consumer
+SO-10307,2025-02-25,South,Trail Lantern,9,24.99,0,Small Business
+SO-10308,2025-02-26,East,Camp Mug,5,9.75,0,Small Business
+SO-10309,2025-02-26,South,Trail Lantern,2,24.99,n/a,Enterprise
+SO-10310,2025-02-26,East,Trail Lantern,8,24.99,0,Consumer
+SO-10311,2025-02-26,North,Camp Mug,3,9.75,0,Small Business
+SO-10312,2025-02-26,Central,Rain Shell,5,89,15,Enterprise
+SO-10313,2025-02-26,East,Wool Beanie,12,21.25,0,Education
+SO-10314,2025-02-27,East,Folding Stool,6,34.4,5,Education
+SO-10315,2025-02-27,West,Canvas Tote,8,18.5,15,Consumer
+SO-10316,2025-02-27,West,Trail Lantern,2,24.99,0,Small Business
+SO-10317,2025-02-27,West,Folding Stool,9,34.4,0,Consumer
+SO-10318,2025-02-27,East,Folding Stool,4,34.4,15,Small Business
+SO-10319,2025-02-28,East,Folding Stool,7,34.4,15,Consumer
+SO-10320,2025-02-28,South,Canvas Tote,3,18.5,10,Enterprise
+SO-10321,2025-02-28,South,Camp Mug,9,9.75,15,Small Business
+SO-10322,2025-02-28,East,Camp Mug,4,9.75,10,Education
+SO-10323,2025-02-28,North,Canvas Tote,5,18.5,0,Education
+SO-10324,2025-02-28,North,Rain Shell,4,89,5,Education
+SO-10325,2025-03-01,Central,Camp Mug,10,9.75,0,Small Business
+SO-10326,2025-03-01,South,Camp Mug,6,9.75,0,Education
+SO-10327,2025-03-01,East,Rain Shell,10,89,0,Education
+SO-10328,2025-03-01,West,Wool Beanie,9,21.25,0,Consumer
+SO-10329,2025-03-01,Central,Trail Lantern,12,24.99,10,Education
+SO-10330,2025-03-02,West,Camp Mug,9,9.75,10,Consumer
+SO-10331,2025-03-02,East,Folding Stool,1,34.4,0,Consumer
+SO-10332,2025-03-02,Central,Wool Beanie,1,21.25,0,Enterprise
+SO-10333,2025-03-02,South,Canvas Tote,10,18.5,5,
+SO-10334,2025-03-02,South,Wool Beanie,6,21.25,15,Consumer
+SO-10335,2025-03-02,East,Canvas Tote,4,18.5,15,Enterprise
+SO-10336,2025-03-03,West,Trail Lantern,7,24.99,0,Enterprise
+SO-10337,2025-03-03,South,Wool Beanie,6,21.25,0,Enterprise
+SO-10338,2025-03-03,West,Rain Shell,10,89,15,Small Business
+SO-10339,2025-03-03,East,Folding Stool,4,34.4,15,Small Business
+SO-10340,2025-03-03,North,Camp Mug,6,9.75,0,Education
+SO-10341,2025-03-04,East,Camp Mug,2,9.75,0,Small Business
+SO-10342,2025-03-04,Central,Canvas Tote,11,18.5,0,Consumer
+SO-10343,2025-03-04,South,Rain Shell,10,89,0,Small Business
+SO-10344,2025-03-04,North,Rain Shell,12,89,15,Education
+SO-10345,2025-03-04,East,Folding Stool,6,34.4,0,Small Business
+SO-10346,2025-03-04,South,Trail Lantern,4,24.99,15,Consumer
+SO-10347,2025-03-05,Central,Trail Lantern,6,24.99,10,Consumer
+SO-10348,2025-03-05,North,Wool Beanie,7,21.25,10,Education
+SO-10349,2025-03-05,North,Folding Stool,8,34.4,0,Enterprise
+SO-10350,2025-03-05,East,Canvas Tote,6,18.5,0,Consumer
+SO-10351,2025-03-05,North,Trail Lantern,2,24.99,0,Consumer
+SO-10352,2025-03-06,West,Rain Shell,7,89,0,Enterprise
+SO-10353,2025-03-06,East,Trail Lantern,7,24.99,10,Small Business
+SO-10354,2025-03-06,Central,Camp Mug,9,9.75,0,Consumer
+SO-10355,2025-03-06,South,Camp Mug,7,9.75,0,Education
+SO-10356,2025-03-06,West,Folding Stool,2,34.4,10,Small Business
+SO-10357,2025-03-06,South,Rain Shell,2,89,10,Consumer
+SO-10358,2025-03-07,West,Canvas Tote,2,18.5,0,
+SO-10359,2025-03-07,West,Camp Mug,12,9.75,10,Education
+SO-10360,2025-03-07,East,Camp Mug,8,9.75,15,Consumer
+SO-10361,2025-03-07,Central,Rain Shell,12,89,0,Small Business
+SO-10362,2025-03-07,East,Rain Shell,12,89,0,Enterprise
+SO-10363,2025-03-08,West,Camp Mug,7,9.75,15,Education
+SO-10364,2025-03-08,West,Trail Lantern,3,24.99,10,Enterprise
+SO-10365,2025-03-08,South,Camp Mug,6,9.75,10,Enterprise
+SO-10366,2025-03-08,North,Rain Shell,12,89,0,Enterprise
+SO-10367,2025-03-08,North,Folding Stool,1,34.4,0,Consumer
+SO-10368,2025-03-08,East,Folding Stool,10,34.4,0,Enterprise
+SO-10369,2025-03-09,South,Wool Beanie,12,21.25,15,Consumer
+SO-10370,2025-03-09,North,Camp Mug,11,9.75,0,Education
+SO-10371,2025-03-09,North,Folding Stool,11,34.4,5,Small Business
+SO-10372,2025-03-09,Central,Camp Mug,2,9.75,15,Enterprise
+SO-10373,2025-03-09,Central,Canvas Tote,10,18.5,0,Small Business
+SO-10374,2025-03-10,South,Rain Shell,9,89,0,Consumer
+SO-10375,2025-03-10,Central,Wool Beanie,1,21.25,0,Consumer
+SO-10376,2025-03-10,West,Folding Stool,11,34.4,0,Enterprise
+SO-10377,2025-03-10,Central,Camp Mug,8,9.75,10,Education
+SO-10378,2025-03-10,East,Rain Shell,5,89,5,Enterprise
+SO-10379,2025-03-10,West,Camp Mug,5,9.75,0,Small Business
+SO-10380,2025-03-11,Central,Canvas Tote,3,18.5,5,Education
+SO-10381,2025-03-11,Central,Trail Lantern,8,24.99,0,Consumer
+SO-10382,2025-03-11,South,Trail Lantern,2,24.99,10,Enterprise
+SO-10383,2025-03-11,Central,Camp Mug,2,9.75,10,Small Business
+SO-10384,2025-03-11,East,Folding Stool,5,34.4,10,Education
+SO-10385,2025-03-12,East,Folding Stool,6,34.4,0,Consumer
+SO-10386,2025-03-12,South,Trail Lantern,4,24.99,5,Consumer
+SO-10387,2025-03-12,East,Trail Lantern,2,24.99,5,Education
+SO-10388,2025-03-12,Central,Camp Mug,6,9.75,0,Education
+SO-10389,2025-03-12,North,Canvas Tote,12,18.5,15,Education
+SO-10390,2025-03-12,West,Wool Beanie,5,21.25,15,Consumer
+SO-10391,2025-03-13,West,Canvas Tote,4,18.5,10,Small Business
+SO-10392,2025-03-13,North,Folding Stool,10,34.4,0,Small Business
+SO-10393,2025-03-13,South,Camp Mug,3,9.75,5,Education
+SO-10394,2025-03-13,North,Rain Shell,12,89,5,Enterprise
+SO-10395,2025-03-13,South,Trail Lantern,11,24.99,0,Enterprise
+SO-10396,2025-03-14,North,Canvas Tote,11,18.5,5,Consumer
+SO-10397,2025-03-14,East,Canvas Tote,5,18.5,15,Small Business
+SO-10398,2025-03-14,East,Canvas Tote,2,18.5,0,Enterprise
+SO-10399,2025-03-14,South,Rain Shell,2,89,0,Enterprise
+SO-10400,2025-03-14,East,Rain Shell,7,89,0,Education
+SO-10401,2025-03-15,South,Folding Stool,2,34.4,0,Small Business
+SO-10402,2025-03-15,Central,Rain Shell,6,89,0,Enterprise
+SO-10403,2025-03-15,West,Camp Mug,3,9.75,0,Enterprise
+SO-10404,2025-03-15,Central,Trail Lantern,7,24.99,0,Consumer
+SO-10405,2025-03-15,South,Wool Beanie,7,21.25,0,Enterprise
+SO-10406,2025-03-15,West,Camp Mug,4,9.75,15,Enterprise
+SO-10407,2025-03-16,East,Trail Lantern,1,24.99,10,Consumer
+SO-10408,2025-03-16,Central,Rain Shell,3,89,5,Consumer
+SO-10409,2025-03-16,West,Wool Beanie,6,21.25,5,Education
+SO-10410,2025-03-16,East,Trail Lantern,8,24.99,15,Consumer
+SO-10411,2025-03-16,North,Trail Lantern,4,24.99,0,Enterprise
+SO-10412,2025-03-17,South,Camp Mug,8,9.75,0,
+SO-10413,2025-03-17,North,Camp Mug,8,9.75,0,Small Business
+SO-10414,2025-03-17,South,Folding Stool,2,34.4,n/a,Small Business
+SO-10415,2025-03-17,West,Wool Beanie,8,21.25,0,Education
+SO-10416,2025-03-17,South,Rain Shell,8,89,15,Small Business
+SO-10417,2025-03-17,North,Folding Stool,10,34.4,10,Small Business
+SO-10418,2025-03-18,West,Trail Lantern,1,24.99,n/a,Enterprise
+SO-10419,2025-03-18,East,Canvas Tote,8,18.5,10,Education
+SO-10420,2025-03-18,Central,Rain Shell,3,89,0,Consumer
+SO-10421,2025-03-18,Central,Trail Lantern,7,24.99,10,Education
+SO-10422,2025-03-18,East,Camp Mug,7,9.75,5,Consumer
+SO-10423,2025-03-19,North,Trail Lantern,9,24.99,0,Education
+SO-10424,2025-03-19,Central,Trail Lantern,5,24.99,0,Enterprise
+SO-10425,2025-03-19,North,Canvas Tote,6,18.5,5,Enterprise
+SO-10426,2025-03-19,West,Wool Beanie,10,21.25,10,Education
+SO-10427,2025-03-19,Central,Wool Beanie,4,21.25,0,Small Business
+SO-10428,2025-03-19,Central,Rain Shell,5,89,0,Enterprise
+SO-10429,2025-03-20,North,Folding Stool,4,34.4,10,Consumer
+SO-10430,2025-03-20,West,Wool Beanie,4,21.25,0,
+SO-10431,2025-03-20,North,Camp Mug,2,9.75,0,Consumer
+SO-10432,2025-03-20,West,Rain Shell,6,89,0,Enterprise
+SO-10433,2025-03-20,North,Folding Stool,5,34.4,0,Enterprise
+SO-10434,2025-03-21,North,Rain Shell,7,89,0,Small Business
+SO-10435,2025-03-21,East,Wool Beanie,7,21.25,0,Small Business
+SO-10436,2025-03-21,West,Folding Stool,8,34.4,0,Small Business
+SO-10437,2025-03-21,South,Wool Beanie,10,21.25,15,Consumer
+SO-10438,2025-03-21,North,Trail Lantern,6,24.99,0,Small Business
+SO-10439,2025-03-21,North,Wool Beanie,5,21.25,15,Consumer
+SO-10440,2025-03-22,East,Trail Lantern,7,24.99,10,Consumer
+SO-10441,2025-03-22,West,Trail Lantern,11,24.99,10,Enterprise
+SO-10442,2025-03-22,North,Wool Beanie,9,21.25,5,Enterprise
+SO-10443,2025-03-22,East,Canvas Tote,11,18.5,15,Education
+SO-10444,2025-03-22,South,Camp Mug,2,9.75,10,Education
+SO-10445,2025-03-23,Central,Rain Shell,1,89,10,Enterprise
+SO-10446,2025-03-23,East,Folding Stool,2,34.4,10,Consumer
+SO-10447,2025-03-23,North,Camp Mug,9,9.75,0,Enterprise
+SO-10448,2025-03-23,North,Camp Mug,8,9.75,0,Consumer
+SO-10449,2025-03-23,Central,Trail Lantern,7,24.99,0,Consumer
+SO-10450,2025-03-23,West,Canvas Tote,11,18.5,5,Small Business
+SO-10451,2025-03-24,North,Trail Lantern,3,24.99,0,Education
+SO-10452,2025-03-24,Central,Trail Lantern,1,24.99,5,Consumer
+SO-10453,2025-03-24,East,Folding Stool,1,34.4,0,Small Business
+SO-10454,2025-03-24,East,Wool Beanie,12,21.25,15,Enterprise
+SO-10455,2025-03-24,Central,Canvas Tote,6,18.5,0,
+SO-10456,2025-03-25,North,Trail Lantern,10,24.99,0,
+SO-10457,2025-03-25,Central,Camp Mug,9,9.75,15,Education
+SO-10458,2025-03-25,West,Trail Lantern,5,24.99,0,Enterprise
+SO-10459,2025-03-25,Central,Rain Shell,12,89,15,Small Business
+SO-10460,2025-03-25,East,Trail Lantern,7,24.99,5,Small Business
+SO-10461,2025-03-25,East,Rain Shell,2,89,0,Education
+SO-10462,2025-03-26,North,Camp Mug,6,9.75,10,Small Business
+SO-10463,2025-03-26,Central,Canvas Tote,1,18.5,0,Small Business
+SO-10464,2025-03-26,Central,Canvas Tote,8,18.5,0,Consumer
+SO-10465,2025-03-26,Central,Rain Shell,11,89,5,Consumer
+SO-10466,2025-03-26,Central,Folding Stool,6,34.4,0,Consumer
+SO-10467,2025-03-27,North,Rain Shell,10,89,0,Consumer
+SO-10468,2025-03-27,East,Camp Mug,6,9.75,5,Consumer
+SO-10469,2025-03-27,North,Rain Shell,5,89,n/a,Consumer
+SO-10470,2025-03-27,Central,Camp Mug,6,9.75,5,Enterprise
+SO-10471,2025-03-27,East,Folding Stool,1,34.4,0,Education
+SO-10472,2025-03-27,North,Folding Stool,2,34.4,0,Small Business
+SO-10473,2025-03-28,Central,Camp Mug,5,9.75,0,Education
+SO-10474,2025-03-28,Central,Rain Shell,1,89,0,Consumer
+SO-10475,2025-03-28,West,Trail Lantern,4,24.99,0,Enterprise
+SO-10476,2025-03-28,Central,Camp Mug,3,9.75,5,Education
+SO-10477,2025-03-28,West,Folding Stool,4,34.4,10,Small Business
+SO-10478,2025-03-29,Central,Canvas Tote,4,18.5,n/a,Consumer
+SO-10479,2025-03-29,South,Folding Stool,4,34.4,5,Small Business
+SO-10480,2025-03-29,Central,Folding Stool,11,34.4,5,Consumer
+SO-10481,2025-03-29,North,Trail Lantern,7,24.99,15,Enterprise
+SO-10482,2025-03-29,Central,Canvas Tote,8,18.5,0,Small Business
+SO-10483,2025-03-29,East,Trail Lantern,10,24.99,5,Enterprise
+SO-10484,2025-03-30,West,Wool Beanie,9,21.25,15,Enterprise
+SO-10485,2025-03-30,North,Canvas Tote,2,18.5,10,Enterprise
+SO-10486,2025-03-30,South,Rain Shell,11,89,0,Small Business
+SO-10487,2025-03-30,South,Trail Lantern,2,24.99,0,Enterprise
+SO-10488,2025-03-30,East,Canvas Tote,10,18.5,0,Education
+SO-10489,2025-03-31,West,Trail Lantern,7,24.99,0,Small Business
+SO-10490,2025-03-31,North,Rain Shell,3,89,0,Education
+SO-10491,2025-03-31,West,Trail Lantern,11,24.99,0,Enterprise
+SO-10492,2025-03-31,Central,Folding Stool,3,34.4,n/a,Enterprise
+SO-10493,2025-03-31,East,Camp Mug,11,9.75,10,Enterprise
+SO-10494,2025-03-31,Central,Canvas Tote,5,18.5,n/a,Enterprise
+SO-10495,2025-04-01,East,Trail Lantern,1,24.99,0,Enterprise
+SO-10496,2025-04-01,South,Folding Stool,4,34.4,15,Enterprise
+SO-10497,2025-04-01,Central,Rain Shell,5,89,0,Enterprise
+SO-10498,2025-04-01,North,Rain Shell,11,89,10,Enterprise
+SO-10499,2025-04-01,East,Canvas Tote,1,18.5,10,Small Business
+SO-10500,2025-04-02,West,Canvas Tote,2,18.5,0,Consumer
+SO-10501,2025-04-02,West,Folding Stool,12,34.4,15,Small Business
+SO-10502,2025-04-02,South,Canvas Tote,4,18.5,0,Education
+SO-10503,2025-04-02,West,Folding Stool,5,34.4,5,Small Business
+SO-10504,2025-04-02,North,Camp Mug,11,9.75,0,Consumer
+SO-10505,2025-04-02,Central,Canvas Tote,3,18.5,15,Small Business
+SO-10506,2025-04-03,East,Folding Stool,9,34.4,0,Consumer
+SO-10507,2025-04-03,Central,Canvas Tote,4,18.5,15,Small Business
+SO-10508,2025-04-03,South,Camp Mug,10,9.75,0,Education
+SO-10509,2025-04-03,Central,Trail Lantern,6,24.99,0,Small Business
+SO-10510,2025-04-03,South,Camp Mug,8,9.75,5,Small Business
+SO-10511,2025-04-04,West,Trail Lantern,7,24.99,0,Education
+SO-10512,2025-04-04,South,Wool Beanie,6,21.25,15,Education
+SO-10513,2025-04-04,East,Camp Mug,3,9.75,0,Small Business
+SO-10514,2025-04-04,Central,Wool Beanie,2,21.25,5,Enterprise
+SO-10515,2025-04-04,East,Folding Stool,9,34.4,0,Education
+SO-10516,2025-04-04,East,Folding Stool,5,34.4,0,Education
+SO-10517,2025-04-05,West,Canvas Tote,6,18.5,15,Education
+SO-10518,2025-04-05,North,Trail Lantern,2,24.99,10,Education
+SO-10519,2025-04-05,North,Trail Lantern,4,24.99,10,Enterprise
+SO-10520,2025-04-05,South,Wool Beanie,11,21.25,5,Enterprise
+SO-10521,2025-04-05,West,Wool Beanie,6,21.25,15,Education
+SO-10522,2025-04-06,Central,Trail Lantern,2,24.99,5,Small Business
+SO-10523,2025-04-06,Central,Trail Lantern,7,24.99,0,Enterprise
+SO-10524,2025-04-06,South,Wool Beanie,6,21.25,0,Consumer
+SO-10525,2025-04-06,South,Canvas Tote,3,18.5,0,Consumer
+SO-10526,2025-04-06,North,Rain Shell,3,89,0,Consumer
+SO-10527,2025-04-06,South,Folding Stool,3,34.4,0,Consumer
+SO-10528,2025-04-07,South,Wool Beanie,3,21.25,5,Consumer
+SO-10529,2025-04-07,East,Rain Shell,3,89,10,Education
+SO-10530,2025-04-07,South,Rain Shell,6,89,10,Small Business
+SO-10531,2025-04-07,Central,Rain Shell,4,89,5,Education
+SO-10532,2025-04-07,West,Canvas Tote,4,18.5,10,Small Business
+SO-10533,2025-04-08,Central,Trail Lantern,6,24.99,0,Enterprise
+SO-10534,2025-04-08,South,Camp Mug,2,9.75,0,Consumer
+SO-10535,2025-04-08,West,Rain Shell,5,89,5,Consumer
+SO-10536,2025-04-08,North,Camp Mug,1,9.75,15,Consumer
+SO-10537,2025-04-08,South,Canvas Tote,2,18.5,0,Education
+SO-10538,2025-04-09,North,Camp Mug,6,9.75,0,Small Business
+SO-10539,2025-04-09,West,Trail Lantern,5,24.99,0,Consumer
+SO-10540,2025-04-09,South,Trail Lantern,6,24.99,0,Small Business
+SO-10541,2025-04-09,South,Folding Stool,3,34.4,0,Small Business
+SO-10542,2025-04-09,Central,Canvas Tote,10,18.5,15,Consumer
+SO-10543,2025-04-09,South,Camp Mug,3,9.75,5,Consumer
+SO-10544,2025-04-10,South,Rain Shell,6,89,10,Enterprise
+SO-10545,2025-04-10,Central,Wool Beanie,10,21.25,5,Small Business
+SO-10546,2025-04-10,West,Canvas Tote,10,18.5,5,Small Business
+SO-10547,2025-04-10,East,Folding Stool,3,34.4,0,Consumer
+SO-10548,2025-04-10,South,Trail Lantern,8,24.99,0,Small Business
+SO-10549,2025-04-11,Central,Canvas Tote,6,18.5,10,Enterprise
+SO-10550,2025-04-11,North,Trail Lantern,2,24.99,0,Enterprise
+SO-10551,2025-04-11,South,Canvas Tote,1,18.5,15,Consumer
+SO-10552,2025-04-11,East,Canvas Tote,6,18.5,10,Small Business
+SO-10553,2025-04-11,Central,Folding Stool,8,34.4,0,Small Business
+SO-10554,2025-04-11,North,Canvas Tote,2,18.5,10,Small Business
+SO-10555,2025-04-12,East,Canvas Tote,7,18.5,0,Education
+SO-10556,2025-04-12,Central,Rain Shell,3,89,10,Consumer
+SO-10557,2025-04-12,East,Camp Mug,11,9.75,5,Enterprise
+SO-10558,2025-04-12,East,Wool Beanie,4,21.25,10,Consumer
+SO-10559,2025-04-12,Central,Trail Lantern,2,24.99,n/a,Enterprise
+SO-10560,2025-04-13,Central,Rain Shell,4,89,15,Small Business
+SO-10561,2025-04-13,East,Trail Lantern,10,24.99,0,Consumer
+SO-10562,2025-04-13,North,Camp Mug,3,9.75,15,Small Business
+SO-10563,2025-04-13,North,Folding Stool,1,34.4,5,Enterprise
+SO-10564,2025-04-13,North,Trail Lantern,9,24.99,15,Enterprise
+SO-10565,2025-04-13,South,Wool Beanie,4,21.25,5,Consumer
+SO-10566,2025-04-14,East,Canvas Tote,11,18.5,10,Education
+SO-10567,2025-04-14,East,Canvas Tote,7,18.5,0,Consumer
+SO-10568,2025-04-14,East,Rain Shell,11,89,10,Enterprise
+SO-10569,2025-04-14,North,Trail Lantern,7,24.99,15,Education
+SO-10570,2025-04-14,West,Rain Shell,2,89,0,Small Business
+SO-10571,2025-04-15,Central,Wool Beanie,3,21.25,5,Consumer
+SO-10572,2025-04-15,East,Trail Lantern,12,24.99,0,Enterprise
+SO-10573,2025-04-15,North,Wool Beanie,4,21.25,10,Consumer
+SO-10574,2025-04-15,Central,Camp Mug,5,9.75,0,Education
+SO-10575,2025-04-15,North,Wool Beanie,6,21.25,15,Education
+SO-10576,2025-04-15,North,Canvas Tote,6,18.5,5,Education
+SO-10577,2025-04-16,Central,Folding Stool,5,34.4,0,Consumer
+SO-10578,2025-04-16,Central,Trail Lantern,12,24.99,15,Education
+SO-10579,2025-04-16,Central,Canvas Tote,8,18.5,5,Small Business
+SO-10580,2025-04-16,West,Camp Mug,6,9.75,0,Education
+SO-10581,2025-04-16,West,Wool Beanie,6,21.25,10,Education
+SO-10582,2025-04-17,West,Trail Lantern,3,24.99,0,Small Business
+SO-10583,2025-04-17,South,Folding Stool,3,34.4,5,Small Business
+SO-10584,2025-04-17,Central,Canvas Tote,6,18.5,0,Education
+SO-10585,2025-04-17,West,Wool Beanie,2,21.25,10,Enterprise
+SO-10586,2025-04-17,South,Folding Stool,4,34.4,0,Enterprise
+SO-10587,2025-04-17,North,Wool Beanie,4,21.25,0,Enterprise
+SO-10588,2025-04-18,East,Folding Stool,1,34.4,10,Consumer
+SO-10589,2025-04-18,Central,Canvas Tote,1,18.5,0,Education
+SO-10590,2025-04-18,South,Camp Mug,10,9.75,0,Small Business
+SO-10591,2025-04-18,East,Trail Lantern,6,24.99,15,Education
+SO-10592,2025-04-18,North,Folding Stool,8,34.4,5,Small Business
+SO-10593,2025-04-19,Central,Trail Lantern,4,24.99,5,Consumer
+SO-10594,2025-04-19,South,Wool Beanie,2,21.25,0,Consumer
+SO-10595,2025-04-19,South,Canvas Tote,12,18.5,10,Education
+SO-10596,2025-04-19,West,Rain Shell,3,89,0,Consumer
+SO-10597,2025-04-19,South,Wool Beanie,8,21.25,15,Education
+SO-10598,2025-04-19,Central,Wool Beanie,9,21.25,0,Small Business
+SO-10599,2025-04-20,Central,Wool Beanie,6,21.25,0,Consumer
+SO-10600,2025-04-20,South,Rain Shell,11,89,5,Small Business
+SO-10601,2025-04-20,North,Canvas Tote,7,18.5,10,Education
+SO-10602,2025-04-20,East,Camp Mug,1,9.75,5,Enterprise
+SO-10603,2025-04-20,South,Canvas Tote,8,18.5,15,Consumer
+SO-10604,2025-04-21,South,Wool Beanie,10,21.25,0,Small Business
+SO-10605,2025-04-21,North,Canvas Tote,12,18.5,0,Education
+SO-10606,2025-04-21,South,Folding Stool,12,34.4,10,Education
+SO-10607,2025-04-21,North,Rain Shell,9,89,0,Education
+SO-10608,2025-04-21,North,Canvas Tote,12,18.5,5,Small Business
+SO-10609,2025-04-21,Central,Canvas Tote,6,18.5,0,Education
+SO-10610,2025-04-22,South,Folding Stool,5,34.4,0,Small Business
+SO-10611,2025-04-22,North,Rain Shell,6,89,15,Small Business
+SO-10612,2025-04-22,West,Canvas Tote,10,18.5,0,Small Business
+SO-10613,2025-04-22,Central,Rain Shell,1,89,15,Enterprise
+SO-10614,2025-04-22,Central,Rain Shell,8,89,5,Consumer
+SO-10615,2025-04-23,North,Trail Lantern,7,24.99,5,Small Business
+SO-10616,2025-04-23,Central,Folding Stool,1,34.4,0,Education
+SO-10617,2025-04-23,East,Trail Lantern,10,24.99,10,Enterprise
+SO-10618,2025-04-23,East,Rain Shell,5,89,0,Small Business
+SO-10619,2025-04-23,North,Wool Beanie,1,21.25,10,Enterprise
+SO-10620,2025-04-23,East,Canvas Tote,7,18.5,0,Education
+SO-10621,2025-04-24,North,Canvas Tote,10,18.5,0,Consumer
+SO-10622,2025-04-24,Central,Folding Stool,4,34.4,5,Consumer
+SO-10623,2025-04-24,East,Folding Stool,8,34.4,0,Consumer
+SO-10624,2025-04-24,North,Rain Shell,3,89,0,Consumer
+SO-10625,2025-04-24,North,Camp Mug,6,9.75,15,Education
+SO-10626,2025-04-25,East,Wool Beanie,9,21.25,0,Consumer
+SO-10627,2025-04-25,West,Rain Shell,8,89,0,Enterprise
+SO-10628,2025-04-25,West,Rain Shell,11,89,10,Education
+SO-10629,2025-04-25,Central,Canvas Tote,6,18.5,15,Consumer
+SO-10630,2025-04-25,South,Trail Lantern,3,24.99,10,Consumer
+SO-10631,2025-04-25,South,Folding Stool,11,34.4,0,Small Business
+SO-10632,2025-04-26,South,Rain Shell,8,89,10,Consumer
+SO-10633,2025-04-26,Central,Rain Shell,2,89,0,Small Business
+SO-10634,2025-04-26,North,Rain Shell,8,89,0,Consumer
+SO-10635,2025-04-26,West,Folding Stool,3,34.4,0,Small Business
+SO-10636,2025-04-26,East,Wool Beanie,1,21.25,5,Education
+SO-10637,2025-04-27,North,Folding Stool,4,34.4,5,Enterprise
+SO-10638,2025-04-27,North,Rain Shell,12,89,10,Small Business
+SO-10639,2025-04-27,East,Rain Shell,6,89,0,Education
+SO-10640,2025-04-27,North,Folding Stool,1,34.4,0,Education
+SO-10641,2025-04-27,Central,Camp Mug,2,9.75,5,Small Business
+SO-10642,2025-04-27,West,Camp Mug,9,9.75,n/a,Small Business
+SO-10643,2025-04-28,Central,Rain Shell,2,89,5,Enterprise
+SO-10644,2025-04-28,South,Folding Stool,5,34.4,10,Education
+SO-10645,2025-04-28,West,Camp Mug,4,9.75,15,Enterprise
+SO-10646,2025-04-28,Central,Trail Lantern,1,24.99,5,Consumer
+SO-10647,2025-04-28,East,Folding Stool,1,34.4,0,Education
+SO-10648,2025-04-29,Central,Rain Shell,7,89,0,Education
+SO-10649,2025-04-29,East,Folding Stool,1,34.4,0,Consumer
+SO-10650,2025-04-29,Central,Camp Mug,12,9.75,0,Consumer
+SO-10651,2025-04-29,North,Trail Lantern,7,24.99,0,Education
+SO-10652,2025-04-29,North,Wool Beanie,1,21.25,5,Enterprise
+SO-10653,2025-04-29,South,Wool Beanie,6,21.25,0,Education
+SO-10654,2025-04-30,East,Trail Lantern,2,24.99,0,Small Business
+SO-10655,2025-04-30,North,Camp Mug,10,9.75,0,Enterprise
+SO-10656,2025-04-30,North,Rain Shell,2,89,5,Small Business
+SO-10657,2025-04-30,North,Folding Stool,5,34.4,0,Education
+SO-10658,2025-04-30,East,Canvas Tote,10,18.5,15,Small Business
+SO-10659,2025-05-01,South,Wool Beanie,12,21.25,10,Small Business
+SO-10660,2025-05-01,West,Camp Mug,7,9.75,10,Education
+SO-10661,2025-05-01,Central,Canvas Tote,5,18.5,5,Consumer
+SO-10662,2025-05-01,West,Wool Beanie,12,21.25,5,Consumer
+SO-10663,2025-05-01,South,Trail Lantern,8,24.99,5,Small Business
+SO-10664,2025-05-01,South,Trail Lantern,6,24.99,0,Education
+SO-10665,2025-05-02,South,Camp Mug,11,9.75,15,Consumer
+SO-10666,2025-05-02,South,Canvas Tote,2,18.5,10,Small Business
+SO-10667,2025-05-02,West,Folding Stool,6,34.4,10,Education
+SO-10668,2025-05-02,North,Rain Shell,1,89,0,Education
+SO-10669,2025-05-02,Central,Trail Lantern,11,24.99,0,Consumer
+SO-10670,2025-05-03,West,Rain Shell,9,89,5,Consumer
+SO-10671,2025-05-03,North,Canvas Tote,4,18.5,15,Consumer
+SO-10672,2025-05-03,West,Camp Mug,1,9.75,5,Small Business
+SO-10673,2025-05-03,South,Folding Stool,3,34.4,15,Enterprise
+SO-10674,2025-05-03,North,Camp Mug,10,9.75,0,Small Business
+SO-10675,2025-05-04,Central,Rain Shell,1,89,5,Small Business
+SO-10676,2025-05-04,East,Wool Beanie,9,21.25,10,Education
+SO-10677,2025-05-04,North,Rain Shell,11,89,0,Small Business
+SO-10678,2025-05-04,West,Wool Beanie,5,21.25,0,Small Business
+SO-10679,2025-05-04,West,Camp Mug,4,9.75,0,Education
+SO-10680,2025-05-04,South,Folding Stool,12,34.4,0,Consumer
+SO-10681,2025-05-05,East,Folding Stool,1,34.4,0,Enterprise
+SO-10682,2025-05-05,North,Canvas Tote,7,18.5,10,Consumer
+SO-10683,2025-05-05,West,Canvas Tote,5,18.5,0,Enterprise
+SO-10684,2025-05-05,East,Folding Stool,9,34.4,15,Enterprise
+SO-10685,2025-05-05,East,Canvas Tote,8,18.5,5,Enterprise
+SO-10686,2025-05-06,Central,Canvas Tote,9,18.5,0,Small Business
+SO-10687,2025-05-06,West,Canvas Tote,11,18.5,5,Enterprise
+SO-10688,2025-05-06,West,Canvas Tote,1,18.5,0,Consumer
+SO-10689,2025-05-06,North,Camp Mug,2,9.75,15,Education
+SO-10690,2025-05-06,South,Rain Shell,5,89,15,Education
+SO-10691,2025-05-06,East,Canvas Tote,9,18.5,0,Small Business
+SO-10692,2025-05-07,East,Canvas Tote,10,18.5,10,Enterprise
+SO-10693,2025-05-07,West,Trail Lantern,9,24.99,0,Education
+SO-10694,2025-05-07,Central,Folding Stool,8,34.4,0,Education
+SO-10695,2025-05-07,South,Folding Stool,6,34.4,n/a,Enterprise
+SO-10696,2025-05-07,South,Canvas Tote,5,18.5,0,Small Business
+SO-10697,2025-05-08,West,Wool Beanie,7,21.25,10,Enterprise
+SO-10698,2025-05-08,East,Canvas Tote,10,18.5,0,Consumer
+SO-10699,2025-05-08,West,Trail Lantern,12,24.99,0,Enterprise
+SO-10700,2025-05-08,North,Rain Shell,1,89,0,Consumer
+SO-10701,2025-05-08,North,Rain Shell,6,89,10,Small Business
+SO-10702,2025-05-08,West,Wool Beanie,4,21.25,0,Enterprise
+SO-10703,2025-05-09,East,Folding Stool,11,34.4,15,Education
+SO-10704,2025-05-09,South,Wool Beanie,10,21.25,0,Consumer
+SO-10705,2025-05-09,South,Camp Mug,10,9.75,n/a,Small Business
+SO-10706,2025-05-09,East,Canvas Tote,4,18.5,15,Education
+SO-10707,2025-05-09,East,Rain Shell,3,89,15,Enterprise
+SO-10708,2025-05-10,West,Folding Stool,6,34.4,n/a,Small Business
+SO-10709,2025-05-10,East,Camp Mug,10,9.75,0,Education
+SO-10710,2025-05-10,East,Wool Beanie,5,21.25,0,Consumer
+SO-10711,2025-05-10,North,Trail Lantern,11,24.99,0,Small Business
+SO-10712,2025-05-10,North,Trail Lantern,11,24.99,0,Small Business
+SO-10713,2025-05-10,East,Camp Mug,4,9.75,5,Education
+SO-10714,2025-05-11,South,Folding Stool,12,34.4,5,Consumer
+SO-10715,2025-05-11,North,Camp Mug,3,9.75,15,Education
+SO-10716,2025-05-11,East,Wool Beanie,9,21.25,0,Education
+SO-10717,2025-05-11,Central,Canvas Tote,5,18.5,15,Consumer
+SO-10718,2025-05-11,East,Camp Mug,3,9.75,15,Enterprise
+SO-10719,2025-05-12,West,Trail Lantern,3,24.99,10,Enterprise
+SO-10720,2025-05-12,West,Camp Mug,2,9.75,15,Consumer
+SO-10721,2025-05-12,West,Camp Mug,11,9.75,15,Enterprise
+SO-10722,2025-05-12,Central,Wool Beanie,11,21.25,10,Consumer
+SO-10723,2025-05-12,North,Rain Shell,12,89,0,Enterprise
+SO-10724,2025-05-12,South,Trail Lantern,10,24.99,0,Small Business
+SO-10725,2025-05-13,South,Canvas Tote,9,18.5,15,Small Business
+SO-10726,2025-05-13,Central,Folding Stool,7,34.4,0,Education
+SO-10727,2025-05-13,North,Wool Beanie,1,21.25,5,Small Business
+SO-10728,2025-05-13,East,Rain Shell,8,89,0,Education
+SO-10729,2025-05-13,North,Canvas Tote,4,18.5,10,Consumer
+SO-10730,2025-05-14,South,Rain Shell,3,89,5,Consumer
+SO-10731,2025-05-14,East,Camp Mug,5,9.75,5,Consumer
+SO-10732,2025-05-14,West,Canvas Tote,11,18.5,10,Enterprise
+SO-10733,2025-05-14,North,Rain Shell,3,89,15,Enterprise
+SO-10734,2025-05-14,Central,Rain Shell,10,89,0,Enterprise
+SO-10735,2025-05-14,West,Folding Stool,2,34.4,0,Enterprise
+SO-10736,2025-05-15,North,Wool Beanie,4,21.25,10,Enterprise
+SO-10737,2025-05-15,North,Folding Stool,4,34.4,5,Small Business
+SO-10738,2025-05-15,Central,Canvas Tote,2,18.5,10,Education
+SO-10739,2025-05-15,West,Rain Shell,11,89,0,Consumer
+SO-10740,2025-05-15,South,Canvas Tote,6,18.5,10,Small Business
+SO-10741,2025-05-16,South,Canvas Tote,4,18.5,0,Consumer
+SO-10742,2025-05-16,North,Wool Beanie,12,21.25,15,Consumer
+SO-10743,2025-05-16,East,Trail Lantern,7,24.99,5,Consumer
+SO-10744,2025-05-16,Central,Canvas Tote,3,18.5,n/a,Consumer
+SO-10745,2025-05-16,South,Rain Shell,12,89,0,Education
+SO-10746,2025-05-16,South,Camp Mug,2,9.75,10,Enterprise
+SO-10747,2025-05-17,North,Canvas Tote,8,18.5,0,Enterprise
+SO-10748,2025-05-17,South,Folding Stool,6,34.4,5,Education
+SO-10749,2025-05-17,Central,Rain Shell,8,89,15,Education
+SO-10750,2025-05-17,South,Canvas Tote,1,18.5,0,Small Business
+SO-10751,2025-05-17,East,Trail Lantern,3,24.99,10,Small Business
+SO-10752,2025-05-18,West,Canvas Tote,3,18.5,10,Enterprise
+SO-10753,2025-05-18,Central,Canvas Tote,6,18.5,0,Small Business
+SO-10754,2025-05-18,South,Rain Shell,6,89,n/a,Enterprise
+SO-10755,2025-05-18,West,Rain Shell,4,89,0,Education
+SO-10756,2025-05-18,North,Rain Shell,5,89,0,Consumer
+SO-10757,2025-05-18,East,Rain Shell,3,89,0,Consumer
+SO-10758,2025-05-19,North,Folding Stool,6,34.4,0,Education
+SO-10759,2025-05-19,North,Rain Shell,5,89,0,Consumer
+SO-10760,2025-05-19,East,Camp Mug,11,9.75,5,Enterprise
+SO-10761,2025-05-19,North,Camp Mug,10,9.75,0,Small Business
+SO-10762,2025-05-19,North,Rain Shell,10,89,0,Consumer
+SO-10763,2025-05-20,North,Canvas Tote,10,18.5,0,Enterprise
+SO-10764,2025-05-20,South,Camp Mug,2,9.75,0,Small Business
+SO-10765,2025-05-20,South,Wool Beanie,10,21.25,10,Enterprise
+SO-10766,2025-05-20,Central,Folding Stool,7,34.4,0,Education
+SO-10767,2025-05-20,Central,Rain Shell,6,89,10,Enterprise
+SO-10768,2025-05-20,East,Canvas Tote,8,18.5,0,Enterprise
+SO-10769,2025-05-21,West,Wool Beanie,12,21.25,0,Enterprise
+SO-10770,2025-05-21,East,Rain Shell,1,89,15,Education
+SO-10771,2025-05-21,West,Canvas Tote,7,18.5,5,Consumer
+SO-10772,2025-05-21,East,Camp Mug,11,9.75,0,Small Business
+SO-10773,2025-05-21,North,Folding Stool,10,34.4,10,Consumer
+SO-10774,2025-05-22,East,Folding Stool,7,34.4,n/a,Education
+SO-10775,2025-05-22,South,Wool Beanie,8,21.25,0,Small Business
+SO-10776,2025-05-22,West,Folding Stool,6,34.4,0,Consumer
+SO-10777,2025-05-22,North,Rain Shell,7,89,0,Enterprise
+SO-10778,2025-05-22,East,Wool Beanie,11,21.25,10,Consumer
+SO-10779,2025-05-22,North,Folding Stool,9,34.4,15,Enterprise
+SO-10780,2025-05-23,East,Trail Lantern,9,24.99,0,Consumer
+SO-10781,2025-05-23,North,Folding Stool,3,34.4,10,Education
+SO-10782,2025-05-23,North,Rain Shell,4,89,0,Consumer
+SO-10783,2025-05-23,East,Trail Lantern,9,24.99,10,Enterprise
+SO-10784,2025-05-23,South,Canvas Tote,11,18.5,0,Enterprise
+SO-10785,2025-05-24,Central,Canvas Tote,5,18.5,15,Small Business
+SO-10786,2025-05-24,North,Canvas Tote,9,18.5,0,Consumer
+SO-10787,2025-05-24,South,Canvas Tote,1,18.5,15,Small Business
+SO-10788,2025-05-24,East,Camp Mug,7,9.75,15,Small Business
+SO-10789,2025-05-24,West,Trail Lantern,1,24.99,0,Education
+SO-10790,2025-05-24,South,Canvas Tote,5,18.5,5,Education
+SO-10791,2025-05-25,Central,Wool Beanie,2,21.25,0,Small Business
+SO-10792,2025-05-25,Central,Wool Beanie,7,21.25,0,Consumer
+SO-10793,2025-05-25,South,Wool Beanie,8,21.25,0,Enterprise
+SO-10794,2025-05-25,Central,Camp Mug,8,9.75,10,Small Business
+SO-10795,2025-05-25,West,Trail Lantern,10,24.99,5,Small Business
+SO-10796,2025-05-26,North,Camp Mug,4,9.75,10,Consumer
+SO-10797,2025-05-26,Central,Trail Lantern,3,24.99,0,Small Business
+SO-10798,2025-05-26,South,Camp Mug,11,9.75,15,Small Business
+SO-10799,2025-05-26,West,Folding Stool,3,34.4,0,Consumer
+SO-10800,2025-05-26,West,Trail Lantern,1,24.99,15,Education
+SO-10801,2025-05-27,Central,Camp Mug,10,9.75,15,Education
+SO-10802,2025-05-27,Central,Canvas Tote,7,18.5,15,Enterprise
+SO-10803,2025-05-27,Central,Canvas Tote,9,18.5,10,Education
+SO-10804,2025-05-27,North,Camp Mug,7,9.75,5,Enterprise
+SO-10805,2025-05-27,North,Camp Mug,1,9.75,5,Education
+SO-10806,2025-05-27,West,Camp Mug,12,9.75,15,Small Business
+SO-10807,2025-05-28,West,Camp Mug,5,9.75,0,Education
+SO-10808,2025-05-28,South,Rain Shell,10,89,10,Consumer
+SO-10809,2025-05-28,Central,Folding Stool,7,34.4,10,Education
+SO-10810,2025-05-28,West,Rain Shell,1,89,10,Consumer
+SO-10811,2025-05-28,Central,Camp Mug,4,9.75,0,Education
+SO-10812,2025-05-29,South,Camp Mug,8,9.75,0,Education
+SO-10813,2025-05-29,West,Trail Lantern,8,24.99,5,Small Business
+SO-10814,2025-05-29,Central,Canvas Tote,8,18.5,0,Enterprise
+SO-10815,2025-05-29,West,Folding Stool,3,34.4,0,Enterprise
+SO-10816,2025-05-29,Central,Rain Shell,11,89,10,Consumer
+SO-10817,2025-05-29,South,Folding Stool,2,34.4,5,Education
+SO-10818,2025-05-30,East,Canvas Tote,8,18.5,10,Enterprise
+SO-10819,2025-05-30,West,Wool Beanie,10,21.25,15,Enterprise
+SO-10820,2025-05-30,East,Wool Beanie,6,21.25,0,Education
+SO-10821,2025-05-30,Central,Trail Lantern,6,24.99,15,Consumer
+SO-10822,2025-05-30,West,Trail Lantern,4,24.99,0,Consumer
+SO-10823,2025-05-31,Central,Trail Lantern,9,24.99,0,Small Business
+SO-10824,2025-05-31,North,Folding Stool,8,34.4,0,Consumer
+SO-10825,2025-05-31,East,Canvas Tote,8,18.5,15,Education
+SO-10826,2025-05-31,North,Canvas Tote,1,18.5,0,Education
+SO-10827,2025-05-31,West,Trail Lantern,4,24.99,0,Education
+SO-10828,2025-05-31,East,Folding Stool,3,34.4,0,Consumer
+SO-10829,2025-06-01,Central,Folding Stool,8,34.4,0,Small Business
+SO-10830,2025-06-01,West,Camp Mug,4,9.75,5,Consumer
+SO-10831,2025-06-01,South,Camp Mug,2,9.75,0,Consumer
+SO-10832,2025-06-01,West,Rain Shell,7,89,10,Consumer
+SO-10833,2025-06-01,North,Wool Beanie,5,21.25,0,Enterprise
+SO-10834,2025-06-02,North,Trail Lantern,7,24.99,5,Education
+SO-10835,2025-06-02,South,Canvas Tote,10,18.5,0,Enterprise
+SO-10836,2025-06-02,South,Folding Stool,1,34.4,5,Enterprise
+SO-10837,2025-06-02,East,Camp Mug,5,9.75,5,Small Business
+SO-10838,2025-06-02,West,Wool Beanie,1,21.25,5,Small Business
+SO-10839,2025-06-02,Central,Trail Lantern,5,24.99,10,Enterprise
+SO-10840,2025-06-03,North,Trail Lantern,5,24.99,n/a,Small Business
+SO-10841,2025-06-03,Central,Wool Beanie,3,21.25,10,Education
+SO-10842,2025-06-03,South,Trail Lantern,7,24.99,10,Education
+SO-10843,2025-06-03,East,Rain Shell,6,89,0,Education
+SO-10844,2025-06-03,North,Folding Stool,11,34.4,15,Consumer
+SO-10845,2025-06-04,Central,Wool Beanie,1,21.25,0,Consumer
+SO-10846,2025-06-04,North,Rain Shell,12,89,0,Small Business
+SO-10847,2025-06-04,North,Trail Lantern,5,24.99,0,Enterprise
+SO-10848,2025-06-04,East,Trail Lantern,2,24.99,10,Education
+SO-10849,2025-06-04,East,Rain Shell,5,89,15,Consumer
+SO-10850,2025-06-04,Central,Wool Beanie,6,21.25,0,Education
+SO-10851,2025-06-05,East,Canvas Tote,1,18.5,0,Education
+SO-10852,2025-06-05,North,Rain Shell,8,89,0,Consumer
+SO-10853,2025-06-05,East,Canvas Tote,10,18.5,0,Education
+SO-10854,2025-06-05,North,Trail Lantern,5,24.99,10,Small Business
+SO-10855,2025-06-05,South,Rain Shell,7,89,5,Education
+SO-10856,2025-06-06,West,Canvas Tote,5,18.5,0,Small Business
+SO-10857,2025-06-06,East,Folding Stool,10,34.4,10,Enterprise
+SO-10858,2025-06-06,South,Canvas Tote,6,18.5,5,Enterprise
+SO-10859,2025-06-06,North,Trail Lantern,2,24.99,15,Education
+SO-10860,2025-06-06,East,Wool Beanie,5,21.25,0,Small Business
+SO-10861,2025-06-06,East,Folding Stool,1,34.4,15,Education
+SO-10862,2025-06-07,West,Canvas Tote,3,18.5,0,Small Business
+SO-10863,2025-06-07,West,Wool Beanie,7,21.25,0,Enterprise
+SO-10864,2025-06-07,South,Rain Shell,1,89,0,Small Business
+SO-10865,2025-06-07,Central,Rain Shell,2,89,10,Education
+SO-10866,2025-06-07,South,Folding Stool,10,34.4,5,Consumer
+SO-10867,2025-06-08,North,Folding Stool,3,34.4,0,Small Business
+SO-10868,2025-06-08,East,Trail Lantern,3,24.99,0,Consumer
+SO-10869,2025-06-08,Central,Trail Lantern,7,24.99,15,Consumer
+SO-10870,2025-06-08,South,Trail Lantern,3,24.99,n/a,
+SO-10871,2025-06-08,East,Folding Stool,12,34.4,0,Consumer
+SO-10872,2025-06-08,East,Folding Stool,11,34.4,0,Consumer
+SO-10873,2025-06-09,North,Folding Stool,5,34.4,0,Enterprise
+SO-10874,2025-06-09,West,Canvas Tote,1,18.5,10,Consumer
+SO-10875,2025-06-09,West,Canvas Tote,5,18.5,5,Enterprise
+SO-10876,2025-06-09,Central,Canvas Tote,10,18.5,0,Consumer
+SO-10877,2025-06-09,Central,Canvas Tote,8,18.5,0,Education
+SO-10878,2025-06-10,East,Camp Mug,11,9.75,0,Education
+SO-10879,2025-06-10,East,Folding Stool,8,34.4,10,Education
+SO-10880,2025-06-10,West,Rain Shell,3,89,0,Small Business
+SO-10881,2025-06-10,East,Canvas Tote,9,18.5,15,Education
+SO-10882,2025-06-10,West,Trail Lantern,4,24.99,5,Education
+SO-10883,2025-06-10,West,Trail Lantern,12,24.99,0,Education
+SO-10884,2025-06-11,South,Rain Shell,4,89,0,Consumer
+SO-10885,2025-06-11,East,Canvas Tote,1,18.5,15,Small Business
+SO-10886,2025-06-11,East,Canvas Tote,8,18.5,5,Consumer
+SO-10887,2025-06-11,Central,Trail Lantern,2,24.99,10,Consumer
+SO-10888,2025-06-11,East,Rain Shell,1,89,0,Enterprise
+SO-10889,2025-06-12,West,Folding Stool,10,34.4,0,Small Business
+SO-10890,2025-06-12,West,Canvas Tote,8,18.5,0,Education
+SO-10891,2025-06-12,East,Folding Stool,7,34.4,0,Small Business
+SO-10892,2025-06-12,South,Wool Beanie,4,21.25,15,Small Business
+SO-10893,2025-06-12,North,Folding Stool,11,34.4,0,Enterprise
+SO-10894,2025-06-12,Central,Canvas Tote,8,18.5,5,Education
+SO-10895,2025-06-13,Central,Rain Shell,2,89,10,Education
+SO-10896,2025-06-13,Central,Wool Beanie,1,21.25,10,Enterprise
+SO-10897,2025-06-13,North,Wool Beanie,6,21.25,0,Consumer
+SO-10898,2025-06-13,South,Trail Lantern,3,24.99,0,Education
+SO-10899,2025-06-13,Central,Camp Mug,12,9.75,10,Small Business
+SO-10900,2025-06-14,East,Rain Shell,8,89,0,Consumer
+SO-10901,2025-06-14,East,Folding Stool,7,34.4,5,Small Business
+SO-10902,2025-06-14,South,Camp Mug,3,9.75,0,Education
+SO-10903,2025-06-14,West,Rain Shell,11,89,0,Education
+SO-10904,2025-06-14,Central,Wool Beanie,2,21.25,0,Small Business
+SO-10905,2025-06-14,East,Rain Shell,9,89,15,Consumer
+SO-10906,2025-06-15,East,Rain Shell,1,89,0,Enterprise
+SO-10907,2025-06-15,West,Rain Shell,4,89,n/a,Small Business
+SO-10908,2025-06-15,West,Canvas Tote,2,18.5,15,Small Business
+SO-10909,2025-06-15,Central,Folding Stool,9,34.4,n/a,Education
+SO-10910,2025-06-15,West,Folding Stool,3,34.4,10,Enterprise
+SO-10911,2025-06-16,North,Folding Stool,9,34.4,0,Consumer
+SO-10912,2025-06-16,East,Rain Shell,8,89,15,Education
+SO-10913,2025-06-16,North,Trail Lantern,3,24.99,5,Education
+SO-10914,2025-06-16,South,Canvas Tote,6,18.5,15,Education
+SO-10915,2025-06-16,West,Folding Stool,2,34.4,15,Small Business
+SO-10916,2025-06-16,Central,Trail Lantern,11,24.99,0,Enterprise
+SO-10917,2025-06-17,Central,Trail Lantern,5,24.99,0,Small Business
+SO-10918,2025-06-17,Central,Wool Beanie,11,21.25,0,Consumer
+SO-10919,2025-06-17,North,Rain Shell,11,89,15,Consumer
+SO-10920,2025-06-17,South,Folding Stool,11,34.4,0,Consumer
+SO-10921,2025-06-17,North,Canvas Tote,5,18.5,5,Enterprise
+SO-10922,2025-06-18,West,Rain Shell,6,89,n/a,Small Business
+SO-10923,2025-06-18,Central,Canvas Tote,2,18.5,0,Education
+SO-10924,2025-06-18,West,Folding Stool,6,34.4,10,Education
+SO-10925,2025-06-18,South,Trail Lantern,6,24.99,5,Consumer
+SO-10926,2025-06-18,Central,Folding Stool,3,34.4,5,Education
+SO-10927,2025-06-18,Central,Wool Beanie,9,21.25,0,Small Business
+SO-10928,2025-06-19,South,Canvas Tote,8,18.5,0,Enterprise
+SO-10929,2025-06-19,West,Canvas Tote,8,18.5,5,Education
+SO-10930,2025-06-19,North,Wool Beanie,1,21.25,10,Consumer
+SO-10931,2025-06-19,South,Canvas Tote,8,18.5,15,Consumer
+SO-10932,2025-06-19,North,Rain Shell,1,89,10,Consumer
+SO-10933,2025-06-20,North,Trail Lantern,5,24.99,0,Small Business
+SO-10934,2025-06-20,North,Folding Stool,11,34.4,10,Small Business
+SO-10935,2025-06-20,North,Canvas Tote,9,18.5,5,Education
+SO-10936,2025-06-20,West,Wool Beanie,7,21.25,0,Consumer
+SO-10937,2025-06-20,East,Rain Shell,10,89,0,Consumer
+SO-10938,2025-06-21,East,Canvas Tote,10,18.5,0,Consumer
+SO-10939,2025-06-21,West,Canvas Tote,12,18.5,5,Enterprise
+SO-10940,2025-06-21,East,Wool Beanie,2,21.25,5,Consumer
+SO-10941,2025-06-21,North,Canvas Tote,9,18.5,0,Consumer
+SO-10942,2025-06-21,West,Rain Shell,5,89,0,Consumer
+SO-10943,2025-06-21,Central,Trail Lantern,1,24.99,10,Small Business
+SO-10944,2025-06-22,West,Folding Stool,4,34.4,0,Consumer
+SO-10945,2025-06-22,North,Canvas Tote,9,18.5,5,Small Business
+SO-10946,2025-06-22,West,Folding Stool,10,34.4,0,Consumer
+SO-10947,2025-06-22,South,Trail Lantern,9,24.99,5,Consumer
+SO-10948,2025-06-22,West,Wool Beanie,9,21.25,0,Small Business
+SO-10949,2025-06-23,West,Camp Mug,11,9.75,5,Consumer
+SO-10950,2025-06-23,South,Folding Stool,7,34.4,0,Small Business
+SO-10951,2025-06-23,West,Canvas Tote,12,18.5,0,Small Business
+SO-10952,2025-06-23,South,Wool Beanie,3,21.25,0,Enterprise
+SO-10953,2025-06-23,North,Camp Mug,8,9.75,5,Small Business
+SO-10954,2025-06-23,North,Camp Mug,7,9.75,15,Education
+SO-10955,2025-06-24,East,Camp Mug,3,9.75,10,Small Business
+SO-10956,2025-06-24,East,Camp Mug,8,9.75,15,Small Business
+SO-10957,2025-06-24,East,Wool Beanie,6,21.25,5,Education
+SO-10958,2025-06-24,Central,Folding Stool,8,34.4,0,Enterprise
+SO-10959,2025-06-24,North,Canvas Tote,2,18.5,0,Education
+SO-10960,2025-06-25,West,Wool Beanie,8,21.25,0,Education
+SO-10961,2025-06-25,North,Canvas Tote,9,18.5,0,Enterprise
+SO-10962,2025-06-25,North,Wool Beanie,7,21.25,15,Small Business
+SO-10963,2025-06-25,West,Rain Shell,1,89,15,Education
+SO-10964,2025-06-25,West,Camp Mug,10,9.75,0,Small Business
+SO-10965,2025-06-25,West,Canvas Tote,5,18.5,0,Consumer
+SO-10966,2025-06-26,West,Trail Lantern,11,24.99,15,Consumer
+SO-10967,2025-06-26,East,Camp Mug,6,9.75,0,Consumer
+SO-10968,2025-06-26,West,Canvas Tote,12,18.5,15,Small Business
+SO-10969,2025-06-26,South,Rain Shell,12,89,0,Consumer
+SO-10970,2025-06-26,Central,Rain Shell,5,89,0,Consumer
+SO-10971,2025-06-27,East,Folding Stool,10,34.4,10,Consumer
+SO-10972,2025-06-27,Central,Folding Stool,8,34.4,0,Consumer
+SO-10973,2025-06-27,West,Camp Mug,5,9.75,0,Consumer
+SO-10974,2025-06-27,North,Rain Shell,8,89,10,Small Business
+SO-10975,2025-06-27,West,Folding Stool,7,34.4,15,Enterprise
+SO-10976,2025-06-27,East,Trail Lantern,8,24.99,0,Consumer
+SO-10977,2025-06-28,Central,Camp Mug,8,9.75,10,Small Business
+SO-10978,2025-06-28,Central,Canvas Tote,8,18.5,5,Education
+SO-10979,2025-06-28,Central,Canvas Tote,8,18.5,0,Enterprise
+SO-10980,2025-06-28,North,Camp Mug,11,9.75,n/a,Education
+SO-10981,2025-06-28,West,Folding Stool,7,34.4,n/a,Enterprise
+SO-10982,2025-06-29,East,Canvas Tote,9,18.5,15,Education
+SO-10983,2025-06-29,North,Wool Beanie,4,21.25,15,Small Business
+SO-10984,2025-06-29,West,Rain Shell,6,89,0,Consumer
+SO-10985,2025-06-29,North,Folding Stool,8,34.4,15,Small Business
+SO-10986,2025-06-29,West,Trail Lantern,2,24.99,0,Small Business
+SO-10987,2025-06-29,North,Camp Mug,9,9.75,15,Consumer
+SO-10988,2025-06-30,West,Trail Lantern,4,24.99,n/a,
+SO-10989,2025-06-30,Central,Wool Beanie,9,21.25,5,Enterprise
+SO-10990,2025-06-30,West,Wool Beanie,4,21.25,5,Enterprise
+SO-10991,2025-06-30,West,Camp Mug,12,9.75,0,Consumer
+SO-10992,2025-06-30,South,Folding Stool,7,34.4,10,Consumer
+SO-10993,2025-07-01,South,Camp Mug,3,9.75,n/a,Education
+SO-10994,2025-07-01,West,Canvas Tote,4,18.5,5,Consumer
+SO-10995,2025-07-01,East,Trail Lantern,12,24.99,15,Consumer
+SO-10996,2025-07-01,Central,Rain Shell,5,89,15,Small Business
+SO-10997,2025-07-01,South,Canvas Tote,5,18.5,0,Education
+SO-10998,2025-07-01,East,Canvas Tote,4,18.5,n/a,Enterprise
+SO-10999,2025-07-02,North,Wool Beanie,1,21.25,0,Small Business
+SO-11000,2025-07-02,East,Canvas Tote,6,18.5,0,Education
+SO-11001,2025-07-02,East,Wool Beanie,7,21.25,5,Education
+SO-11002,2025-07-02,West,Trail Lantern,5,24.99,10,Enterprise
+SO-11003,2025-07-02,West,Camp Mug,9,9.75,0,Consumer
+SO-11004,2025-07-03,East,Camp Mug,12,9.75,10,Small Business
+SO-11005,2025-07-03,South,Folding Stool,2,34.4,0,Enterprise
+SO-11006,2025-07-03,North,Wool Beanie,1,21.25,5,Consumer
+SO-11007,2025-07-03,Central,Wool Beanie,9,21.25,5,Education
+SO-11008,2025-07-03,East,Canvas Tote,6,18.5,10,
+SO-11009,2025-07-03,North,Folding Stool,11,34.4,0,Small Business
+SO-11010,2025-07-04,South,Rain Shell,10,89,0,Small Business
+SO-11011,2025-07-04,West,Canvas Tote,9,18.5,10,Enterprise
+SO-11012,2025-07-04,North,Canvas Tote,2,18.5,10,Education
+SO-11013,2025-07-04,East,Wool Beanie,5,21.25,0,Consumer
+SO-11014,2025-07-04,South,Canvas Tote,3,18.5,n/a,Education
+SO-11015,2025-07-05,South,Wool Beanie,5,21.25,10,Education
+SO-11016,2025-07-05,South,Rain Shell,7,89,0,Consumer
+SO-11017,2025-07-05,Central,Canvas Tote,1,18.5,0,Consumer
+SO-11018,2025-07-05,South,Rain Shell,2,89,0,Small Business
+SO-11019,2025-07-05,North,Camp Mug,1,9.75,0,Consumer
+SO-11020,2025-07-05,North,Trail Lantern,10,24.99,10,Education
+SO-11021,2025-07-06,North,Folding Stool,10,34.4,15,Education
+SO-11022,2025-07-06,North,Trail Lantern,6,24.99,10,Enterprise
+SO-11023,2025-07-06,East,Camp Mug,11,9.75,0,Education
+SO-11024,2025-07-06,East,Trail Lantern,11,24.99,0,Consumer
+SO-11025,2025-07-06,Central,Wool Beanie,4,21.25,15,Consumer
+SO-11026,2025-07-07,North,Canvas Tote,10,18.5,0,Small Business
+SO-11027,2025-07-07,West,Camp Mug,8,9.75,0,Small Business
+SO-11028,2025-07-07,West,Rain Shell,4,89,15,Enterprise
+SO-11029,2025-07-07,North,Folding Stool,12,34.4,0,Enterprise
+SO-11030,2025-07-07,West,Rain Shell,7,89,0,Consumer
+SO-11031,2025-07-07,South,Folding Stool,2,34.4,0,Education
+SO-11032,2025-07-08,Central,Wool Beanie,9,21.25,5,Small Business
+SO-11033,2025-07-08,South,Folding Stool,8,34.4,0,Education
+SO-11034,2025-07-08,South,Camp Mug,12,9.75,0,Education
+SO-11035,2025-07-08,East,Camp Mug,3,9.75,10,Small Business
+SO-11036,2025-07-08,East,Rain Shell,10,89,10,Education
+SO-11037,2025-07-09,East,Camp Mug,7,9.75,5,Small Business
+SO-11038,2025-07-09,North,Wool Beanie,8,21.25,15,Enterprise
+SO-11039,2025-07-09,West,Folding Stool,3,34.4,0,Small Business
+SO-11040,2025-07-09,West,Trail Lantern,10,24.99,0,Enterprise
+SO-11041,2025-07-09,Central,Wool Beanie,6,21.25,0,Education
+SO-11042,2025-07-09,North,Trail Lantern,9,24.99,5,Education
+SO-11043,2025-07-10,North,Wool Beanie,5,21.25,15,Consumer
+SO-11044,2025-07-10,North,Rain Shell,5,89,0,Small Business
+SO-11045,2025-07-10,East,Camp Mug,7,9.75,0,Enterprise
+SO-11046,2025-07-10,Central,Camp Mug,7,9.75,0,Consumer
+SO-11047,2025-07-10,North,Canvas Tote,2,18.5,5,Small Business
+SO-11048,2025-07-11,Central,Rain Shell,7,89,0,Education
+SO-11049,2025-07-11,North,Camp Mug,9,9.75,15,Education
+SO-11050,2025-07-11,South,Rain Shell,3,89,n/a,Enterprise
+SO-11051,2025-07-11,South,Wool Beanie,7,21.25,0,Consumer
+SO-11052,2025-07-11,East,Camp Mug,1,9.75,10,Education
+SO-11053,2025-07-11,South,Canvas Tote,7,18.5,10,Small Business
+SO-11054,2025-07-12,Central,Rain Shell,5,89,0,Small Business
+SO-11055,2025-07-12,East,Canvas Tote,6,18.5,0,Education
+SO-11056,2025-07-12,West,Rain Shell,9,89,15,Small Business
+SO-11057,2025-07-12,East,Trail Lantern,8,24.99,0,Enterprise
+SO-11058,2025-07-12,South,Trail Lantern,1,24.99,10,Education
+SO-11059,2025-07-13,South,Folding Stool,5,34.4,10,Small Business
+SO-11060,2025-07-13,North,Wool Beanie,10,21.25,0,Small Business
+SO-11061,2025-07-13,South,Canvas Tote,12,18.5,15,Consumer
+SO-11062,2025-07-13,Central,Camp Mug,3,9.75,10,Enterprise
+SO-11063,2025-07-13,East,Trail Lantern,9,24.99,5,Small Business
+SO-11064,2025-07-13,West,Trail Lantern,4,24.99,0,Small Business
+SO-11065,2025-07-14,North,Folding Stool,10,34.4,0,Consumer
+SO-11066,2025-07-14,Central,Folding Stool,4,34.4,0,Consumer
+SO-11067,2025-07-14,West,Canvas Tote,11,18.5,10,Small Business
+SO-11068,2025-07-14,East,Rain Shell,12,89,15,Enterprise
+SO-11069,2025-07-14,North,Camp Mug,11,9.75,5,Enterprise
+SO-11070,2025-07-15,South,Rain Shell,10,89,5,Consumer
+SO-11071,2025-07-15,Central,Camp Mug,4,9.75,0,Consumer
+SO-11072,2025-07-15,Central,Wool Beanie,2,21.25,0,Enterprise
+SO-11073,2025-07-15,North,Folding Stool,8,34.4,10,Consumer
+SO-11074,2025-07-15,North,Camp Mug,3,9.75,0,Enterprise
+SO-11075,2025-07-16,Central,Rain Shell,2,89,15,Consumer
+SO-11076,2025-07-16,West,Wool Beanie,12,21.25,0,Consumer
+SO-11077,2025-07-16,East,Canvas Tote,2,18.5,0,Consumer
+SO-11078,2025-07-16,East,Folding Stool,12,34.4,0,Enterprise
+SO-11079,2025-07-16,West,Folding Stool,11,34.4,10,Small Business
+SO-11080,2025-07-16,North,Canvas Tote,1,18.5,15,Education
+SO-11081,2025-07-17,West,Canvas Tote,7,18.5,10,Consumer
+SO-11082,2025-07-17,South,Folding Stool,4,34.4,0,Small Business
+SO-11083,2025-07-17,West,Canvas Tote,10,18.5,5,Small Business
+SO-11084,2025-07-17,South,Camp Mug,11,9.75,15,Small Business
+SO-11085,2025-07-17,South,Canvas Tote,5,18.5,0,Education
+SO-11086,2025-07-18,South,Camp Mug,6,9.75,0,Consumer
+SO-11087,2025-07-18,East,Trail Lantern,10,24.99,0,Consumer
+SO-11088,2025-07-18,Central,Camp Mug,11,9.75,10,Consumer
+SO-11089,2025-07-18,South,Trail Lantern,6,24.99,0,Consumer
+SO-11090,2025-07-18,East,Wool Beanie,5,21.25,10,Enterprise
+SO-11091,2025-07-18,East,Trail Lantern,4,24.99,10,Consumer
+SO-11092,2025-07-19,Central,Folding Stool,5,34.4,10,Consumer
+SO-11093,2025-07-19,North,Folding Stool,3,34.4,10,Consumer
+SO-11094,2025-07-19,East,Canvas Tote,10,18.5,15,Enterprise
+SO-11095,2025-07-19,West,Rain Shell,4,89,0,Enterprise
+SO-11096,2025-07-19,South,Folding Stool,5,34.4,15,Consumer
+SO-11097,2025-07-20,Central,Trail Lantern,12,24.99,0,Small Business
+SO-11098,2025-07-20,East,Folding Stool,5,34.4,0,Enterprise
+SO-11099,2025-07-20,Central,Trail Lantern,1,24.99,0,Small Business
+SO-11100,2025-07-20,North,Wool Beanie,3,21.25,10,Enterprise
+SO-11101,2025-07-20,South,Wool Beanie,9,21.25,0,Education
+SO-11102,2025-07-20,East,Rain Shell,10,89,10,Consumer
+SO-11103,2025-07-21,North,Canvas Tote,6,18.5,5,Education
+SO-11104,2025-07-21,South,Folding Stool,3,34.4,15,Education
+SO-11105,2025-07-21,West,Wool Beanie,10,21.25,0,Enterprise
+SO-11106,2025-07-21,Central,Camp Mug,11,9.75,15,Consumer
+SO-11107,2025-07-21,Central,Rain Shell,8,89,15,Small Business
+SO-11108,2025-07-22,North,Rain Shell,5,89,5,Education
+SO-11109,2025-07-22,Central,Wool Beanie,10,21.25,0,Small Business
+SO-11110,2025-07-22,West,Camp Mug,12,9.75,0,Small Business
+SO-11111,2025-07-22,South,Rain Shell,9,89,0,Enterprise
+SO-11112,2025-07-22,North,Camp Mug,8,9.75,0,Small Business
+SO-11113,2025-07-22,South,Wool Beanie,8,21.25,0,Enterprise
+SO-11114,2025-07-23,North,Camp Mug,5,9.75,0,Education
+SO-11115,2025-07-23,South,Rain Shell,10,89,0,Education
+SO-11116,2025-07-23,West,Trail Lantern,2,24.99,0,Small Business
+SO-11117,2025-07-23,South,Canvas Tote,10,18.5,0,Education
+SO-11118,2025-07-23,South,Wool Beanie,2,21.25,0,Consumer
+SO-11119,2025-07-24,Central,Canvas Tote,3,18.5,0,
+SO-11120,2025-07-24,West,Wool Beanie,4,21.25,0,Consumer
+SO-11121,2025-07-24,North,Trail Lantern,9,24.99,15,Education
+SO-11122,2025-07-24,Central,Trail Lantern,3,24.99,0,Education
+SO-11123,2025-07-24,North,Canvas Tote,3,18.5,15,Education
+SO-11124,2025-07-24,East,Rain Shell,1,89,n/a,Small Business
+SO-11125,2025-07-25,North,Trail Lantern,12,24.99,10,Small Business
+SO-11126,2025-07-25,East,Canvas Tote,3,18.5,0,Enterprise
+SO-11127,2025-07-25,Central,Rain Shell,1,89,15,Enterprise
+SO-11128,2025-07-25,West,Rain Shell,5,89,0,Education
+SO-11129,2025-07-25,East,Camp Mug,2,9.75,10,Education
+SO-11130,2025-07-26,West,Wool Beanie,1,21.25,0,Consumer
+SO-11131,2025-07-26,North,Wool Beanie,10,21.25,0,Small Business
+SO-11132,2025-07-26,South,Camp Mug,6,9.75,0,Small Business
+SO-11133,2025-07-26,West,Folding Stool,6,34.4,10,Consumer
+SO-11134,2025-07-26,North,Wool Beanie,8,21.25,5,Consumer
+SO-11135,2025-07-26,Central,Canvas Tote,4,18.5,0,Small Business
+SO-11136,2025-07-27,North,Wool Beanie,4,21.25,5,Enterprise
+SO-11137,2025-07-27,North,Camp Mug,1,9.75,0,Education
+SO-11138,2025-07-27,Central,Canvas Tote,4,18.5,5,Consumer
+SO-11139,2025-07-27,East,Folding Stool,2,34.4,0,Small Business
+SO-11140,2025-07-27,North,Folding Stool,8,34.4,0,Enterprise
+SO-11141,2025-07-28,East,Wool Beanie,2,21.25,0,Education
+SO-11142,2025-07-28,East,Canvas Tote,11,18.5,15,Small Business
+SO-11143,2025-07-28,West,Wool Beanie,10,21.25,15,Education
+SO-11144,2025-07-28,Central,Camp Mug,8,9.75,0,Enterprise
+SO-11145,2025-07-28,South,Canvas Tote,10,18.5,5,Small Business
+SO-11146,2025-07-28,South,Wool Beanie,11,21.25,0,Enterprise
+SO-11147,2025-07-29,North,Folding Stool,9,34.4,0,Enterprise
+SO-11148,2025-07-29,East,Canvas Tote,6,18.5,5,Education
+SO-11149,2025-07-29,South,Canvas Tote,12,18.5,10,Consumer
+SO-11150,2025-07-29,North,Camp Mug,9,9.75,0,Small Business
+SO-11151,2025-07-29,North,Trail Lantern,1,24.99,0,Education
+SO-11152,2025-07-30,Central,Folding Stool,7,34.4,0,Consumer
+SO-11153,2025-07-30,West,Canvas Tote,6,18.5,0,Enterprise
+SO-11154,2025-07-30,South,Folding Stool,2,34.4,0,Consumer
+SO-11155,2025-07-30,North,Wool Beanie,9,21.25,15,Enterprise
+SO-11156,2025-07-30,North,Trail Lantern,3,24.99,0,Small Business
+SO-11157,2025-07-30,West,Folding Stool,6,34.4,15,Small Business
+SO-11158,2025-07-31,North,Folding Stool,2,34.4,5,Enterprise
+SO-11159,2025-07-31,North,Rain Shell,6,89,0,Enterprise
+SO-11160,2025-07-31,Central,Folding Stool,8,34.4,0,Small Business
+SO-11161,2025-07-31,South,Folding Stool,2,34.4,0,Enterprise
+SO-11162,2025-07-31,Central,Trail Lantern,9,24.99,5,Small Business
+SO-11163,2025-08-01,Central,Folding Stool,4,34.4,0,Enterprise
+SO-11164,2025-08-01,North,Canvas Tote,1,18.5,15,Enterprise
+SO-11165,2025-08-01,West,Folding Stool,2,34.4,0,Small Business
+SO-11166,2025-08-01,North,Wool Beanie,9,21.25,10,Consumer
+SO-11167,2025-08-01,South,Wool Beanie,3,21.25,5,Consumer
+SO-11168,2025-08-01,Central,Folding Stool,11,34.4,0,Small Business
+SO-11169,2025-08-02,Central,Canvas Tote,2,18.5,0,Education
+SO-11170,2025-08-02,East,Camp Mug,5,9.75,0,Enterprise
+SO-11171,2025-08-02,West,Rain Shell,5,89,0,Small Business
+SO-11172,2025-08-02,East,Canvas Tote,9,18.5,15,Consumer
+SO-11173,2025-08-02,South,Wool Beanie,6,21.25,0,Education
+SO-11174,2025-08-03,South,Wool Beanie,10,21.25,15,Education
+SO-11175,2025-08-03,West,Trail Lantern,7,24.99,10,Consumer
+SO-11176,2025-08-03,Central,Canvas Tote,2,18.5,10,Enterprise
+SO-11177,2025-08-03,South,Camp Mug,2,9.75,0,Education
+SO-11178,2025-08-03,West,Wool Beanie,9,21.25,5,Small Business
+SO-11179,2025-08-03,West,Trail Lantern,9,24.99,n/a,Education
+SO-11180,2025-08-04,East,Folding Stool,1,34.4,10,Small Business
+SO-11181,2025-08-04,West,Rain Shell,11,89,0,Education
+SO-11182,2025-08-04,North,Wool Beanie,6,21.25,0,Education
+SO-11183,2025-08-04,West,Wool Beanie,3,21.25,n/a,Education
+SO-11184,2025-08-04,North,Folding Stool,4,34.4,0,Education
+SO-11185,2025-08-05,North,Trail Lantern,7,24.99,15,Education
+SO-11186,2025-08-05,South,Folding Stool,2,34.4,0,Small Business
+SO-11187,2025-08-05,East,Trail Lantern,8,24.99,0,Enterprise
+SO-11188,2025-08-05,West,Trail Lantern,7,24.99,5,Consumer
+SO-11189,2025-08-05,East,Trail Lantern,5,24.99,0,Enterprise
+SO-11190,2025-08-05,North,Trail Lantern,1,24.99,5,Small Business
+SO-11191,2025-08-06,South,Folding Stool,10,34.4,15,Enterprise
+SO-11192,2025-08-06,West,Rain Shell,2,89,10,Education
+SO-11193,2025-08-06,East,Folding Stool,1,34.4,0,Enterprise
+SO-11194,2025-08-06,North,Camp Mug,12,9.75,0,Small Business
+SO-11195,2025-08-06,South,Rain Shell,7,89,15,Education
+SO-11196,2025-08-07,North,Canvas Tote,10,18.5,15,Enterprise
+SO-11197,2025-08-07,North,Trail Lantern,11,24.99,0,Small Business
+SO-11198,2025-08-07,West,Canvas Tote,5,18.5,0,Consumer
+SO-11199,2025-08-07,West,Folding Stool,10,34.4,0,Small Business
+SO-11200,2025-08-07,North,Wool Beanie,9,21.25,5,Small Business
+SO-11201,2025-08-08,South,Camp Mug,4,9.75,0,Consumer
+SO-11202,2025-08-08,West,Wool Beanie,1,21.25,10,Education
+SO-11203,2025-08-08,South,Folding Stool,10,34.4,0,Education
+SO-11204,2025-08-08,East,Canvas Tote,8,18.5,0,Education
+SO-11205,2025-08-08,South,Camp Mug,7,9.75,10,Education
+SO-11206,2025-08-08,East,Folding Stool,10,34.4,5,Enterprise
+SO-11207,2025-08-09,South,Folding Stool,2,34.4,0,Small Business
+SO-11208,2025-08-09,North,Trail Lantern,9,24.99,0,Education
+SO-11209,2025-08-09,South,Canvas Tote,11,18.5,10,Enterprise
+SO-11210,2025-08-09,South,Camp Mug,8,9.75,0,Consumer
+SO-11211,2025-08-09,Central,Camp Mug,8,9.75,10,Education
+SO-11212,2025-08-10,Central,Trail Lantern,1,24.99,15,Small Business
+SO-11213,2025-08-10,South,Canvas Tote,10,18.5,0,Education
+SO-11214,2025-08-10,West,Camp Mug,6,9.75,0,Consumer
+SO-11215,2025-08-10,Central,Folding Stool,5,34.4,0,Enterprise
+SO-11216,2025-08-10,East,Folding Stool,6,34.4,0,Consumer
+SO-11217,2025-08-10,West,Wool Beanie,2,21.25,10,Consumer
+SO-11218,2025-08-11,East,Rain Shell,12,89,10,Education
+SO-11219,2025-08-11,East,Camp Mug,10,9.75,0,Small Business
+SO-11220,2025-08-11,East,Canvas Tote,7,18.5,0,Enterprise
+SO-11221,2025-08-11,East,Folding Stool,6,34.4,0,Enterprise
+SO-11222,2025-08-11,West,Folding Stool,10,34.4,15,Small Business
+SO-11223,2025-08-12,West,Wool Beanie,5,21.25,0,Education
+SO-11224,2025-08-12,Central,Folding Stool,5,34.4,n/a,Consumer
+SO-11225,2025-08-12,Central,Canvas Tote,11,18.5,5,Consumer
+SO-11226,2025-08-12,North,Rain Shell,5,89,10,Education
+SO-11227,2025-08-12,West,Wool Beanie,9,21.25,0,Small Business
+SO-11228,2025-08-12,North,Trail Lantern,12,24.99,0,Consumer
+SO-11229,2025-08-13,South,Canvas Tote,3,18.5,15,Education
+SO-11230,2025-08-13,North,Wool Beanie,3,21.25,15,Consumer
+SO-11231,2025-08-13,East,Rain Shell,6,89,15,Enterprise
+SO-11232,2025-08-13,West,Trail Lantern,6,24.99,10,Small Business
+SO-11233,2025-08-13,South,Folding Stool,8,34.4,0,Consumer
+SO-11234,2025-08-14,Central,Rain Shell,5,89,10,Consumer
+SO-11235,2025-08-14,Central,Trail Lantern,10,24.99,0,Consumer
+SO-11236,2025-08-14,West,Canvas Tote,1,18.5,0,Education
+SO-11237,2025-08-14,West,Folding Stool,6,34.4,0,Education
+SO-11238,2025-08-14,North,Wool Beanie,12,21.25,15,Enterprise
+SO-11239,2025-08-14,North,Trail Lantern,1,24.99,0,Small Business
+SO-11240,2025-08-15,South,Rain Shell,3,89,0,Small Business
+SO-11241,2025-08-15,West,Camp Mug,10,9.75,0,Small Business
+SO-11242,2025-08-15,North,Trail Lantern,6,24.99,0,Education
+SO-11243,2025-08-15,North,Rain Shell,8,89,0,Enterprise
+SO-11244,2025-08-15,West,Rain Shell,12,89,0,Small Business
+SO-11245,2025-08-16,West,Rain Shell,3,89,10,Enterprise
+SO-11246,2025-08-16,South,Canvas Tote,4,18.5,15,Education
+SO-11247,2025-08-16,North,Trail Lantern,4,24.99,0,Enterprise
+SO-11248,2025-08-16,South,Rain Shell,6,89,10,Enterprise
+SO-11249,2025-08-16,West,Rain Shell,11,89,15,Enterprise
+SO-11250,2025-08-16,Central,Wool Beanie,4,21.25,15,Consumer
+SO-11251,2025-08-17,East,Canvas Tote,6,18.5,15,Consumer
+SO-11252,2025-08-17,South,Canvas Tote,5,18.5,10,Education
+SO-11253,2025-08-17,East,Camp Mug,1,9.75,0,Enterprise
+SO-11254,2025-08-17,West,Wool Beanie,2,21.25,15,Consumer
+SO-11255,2025-08-17,South,Wool Beanie,4,21.25,0,Consumer
+SO-11256,2025-08-18,Central,Wool Beanie,7,21.25,5,Small Business
+SO-11257,2025-08-18,Central,Wool Beanie,7,21.25,n/a,Small Business
+SO-11258,2025-08-18,East,Rain Shell,7,89,15,Small Business
+SO-11259,2025-08-18,Central,Trail Lantern,9,24.99,5,Education
+SO-11260,2025-08-18,Central,Canvas Tote,4,18.5,5,Enterprise
+SO-11261,2025-08-18,North,Folding Stool,3,34.4,0,Consumer
+SO-11262,2025-08-19,East,Trail Lantern,5,24.99,10,Enterprise
+SO-11263,2025-08-19,North,Wool Beanie,10,21.25,5,Enterprise
+SO-11264,2025-08-19,Central,Rain Shell,8,89,5,Consumer
+SO-11265,2025-08-19,South,Rain Shell,3,89,0,Enterprise
+SO-11266,2025-08-19,Central,Canvas Tote,6,18.5,5,Consumer
+SO-11267,2025-08-20,West,Trail Lantern,9,24.99,5,Education
+SO-11268,2025-08-20,West,Folding Stool,10,34.4,0,Consumer
+SO-11269,2025-08-20,East,Rain Shell,2,89,0,Enterprise
+SO-11270,2025-08-20,East,Rain Shell,2,89,5,Consumer
+SO-11271,2025-08-20,South,Canvas Tote,1,18.5,0,Enterprise
+SO-11272,2025-08-20,North,Canvas Tote,4,18.5,0,Small Business
+SO-11273,2025-08-21,Central,Folding Stool,7,34.4,5,Enterprise
+SO-11274,2025-08-21,East,Trail Lantern,2,24.99,15,Education
+SO-11275,2025-08-21,East,Rain Shell,8,89,0,Small Business
+SO-11276,2025-08-21,East,Wool Beanie,7,21.25,0,Consumer
+SO-11277,2025-08-21,East,Camp Mug,11,9.75,0,Small Business
+SO-11278,2025-08-22,Central,Rain Shell,7,89,15,Education
+SO-11279,2025-08-22,Central,Camp Mug,7,9.75,10,Small Business
+SO-11280,2025-08-22,Central,Rain Shell,11,89,15,Small Business
+SO-11281,2025-08-22,Central,Folding Stool,7,34.4,0,Enterprise
+SO-11282,2025-08-22,Central,Wool Beanie,4,21.25,5,Small Business
+SO-11283,2025-08-22,West,Canvas Tote,10,18.5,0,Small Business
+SO-11284,2025-08-23,East,Wool Beanie,7,21.25,0,Small Business
+SO-11285,2025-08-23,North,Trail Lantern,9,24.99,5,Enterprise
+SO-11286,2025-08-23,North,Rain Shell,8,89,0,Small Business
+SO-11287,2025-08-23,South,Wool Beanie,8,21.25,0,Enterprise
+SO-11288,2025-08-23,North,Canvas Tote,3,18.5,0,Education
+SO-11289,2025-08-24,Central,Folding Stool,5,34.4,15,Education
+SO-11290,2025-08-24,East,Trail Lantern,9,24.99,0,Education
+SO-11291,2025-08-24,West,Camp Mug,1,9.75,0,Education
+SO-11292,2025-08-24,South,Camp Mug,2,9.75,0,Consumer
+SO-11293,2025-08-24,South,Trail Lantern,5,24.99,0,Enterprise
+SO-11294,2025-08-24,West,Folding Stool,11,34.4,0,Consumer
+SO-11295,2025-08-25,North,Wool Beanie,9,21.25,0,Consumer
+SO-11296,2025-08-25,East,Trail Lantern,4,24.99,0,Enterprise
+SO-11297,2025-08-25,South,Canvas Tote,11,18.5,5,Small Business
+SO-11298,2025-08-25,West,Rain Shell,5,89,0,Enterprise
+SO-11299,2025-08-25,West,Rain Shell,3,89,0,Enterprise
+SO-11300,2025-08-26,North,Rain Shell,2,89,15,Consumer
+SO-11301,2025-08-26,West,Folding Stool,5,34.4,5,Consumer
+SO-11302,2025-08-26,East,Wool Beanie,6,21.25,15,Consumer
+SO-11303,2025-08-26,West,Camp Mug,7,9.75,5,Consumer
+SO-11304,2025-08-26,South,Trail Lantern,6,24.99,10,
+SO-11305,2025-08-26,East,Trail Lantern,3,24.99,15,Consumer
+SO-11306,2025-08-27,North,Canvas Tote,4,18.5,10,Consumer
+SO-11307,2025-08-27,North,Camp Mug,2,9.75,10,Education
+SO-11308,2025-08-27,West,Trail Lantern,11,24.99,15,Consumer
+SO-11309,2025-08-27,North,Folding Stool,6,34.4,10,Education
+SO-11310,2025-08-27,South,Wool Beanie,3,21.25,0,Consumer
+SO-11311,2025-08-28,South,Wool Beanie,1,21.25,0,Small Business
+SO-11312,2025-08-28,North,Camp Mug,10,9.75,0,Enterprise
+SO-11313,2025-08-28,West,Wool Beanie,8,21.25,5,Consumer
+SO-11314,2025-08-28,North,Trail Lantern,9,24.99,5,Education
+SO-11315,2025-08-28,Central,Rain Shell,2,89,5,Consumer
+SO-11316,2025-08-28,Central,Folding Stool,9,34.4,10,Education
+SO-11317,2025-08-29,Central,Wool Beanie,1,21.25,0,Consumer
+SO-11318,2025-08-29,West,Rain Shell,9,89,0,Enterprise
+SO-11319,2025-08-29,South,Trail Lantern,1,24.99,0,Education
+SO-11320,2025-08-29,East,Trail Lantern,3,24.99,0,Education
+SO-11321,2025-08-29,North,Wool Beanie,1,21.25,0,Enterprise
+SO-11322,2025-08-30,North,Wool Beanie,3,21.25,0,Enterprise
+SO-11323,2025-08-30,South,Rain Shell,3,89,0,Education
+SO-11324,2025-08-30,North,Camp Mug,7,9.75,n/a,Consumer
+SO-11325,2025-08-30,West,Rain Shell,10,89,15,Enterprise
+SO-11326,2025-08-30,North,Wool Beanie,9,21.25,15,Small Business
+SO-11327,2025-08-30,South,Folding Stool,12,34.4,0,Small Business
+SO-11328,2025-08-31,North,Camp Mug,11,9.75,0,Small Business
+SO-11329,2025-08-31,Central,Folding Stool,6,34.4,15,Small Business
+SO-11330,2025-08-31,South,Rain Shell,4,89,0,Small Business
+SO-11331,2025-08-31,Central,Folding Stool,3,34.4,15,Small Business
+SO-11332,2025-08-31,South,Trail Lantern,1,24.99,5,Enterprise
+SO-11333,2025-09-01,North,Canvas Tote,1,18.5,0,Enterprise
+SO-11334,2025-09-01,South,Wool Beanie,12,21.25,0,Enterprise
+SO-11335,2025-09-01,Central,Canvas Tote,12,18.5,0,
+SO-11336,2025-09-01,West,Folding Stool,12,34.4,0,Education
+SO-11337,2025-09-01,South,Trail Lantern,1,24.99,10,Education
+SO-11338,2025-09-02,North,Rain Shell,10,89,0,Small Business
+SO-11339,2025-09-02,East,Trail Lantern,2,24.99,5,Small Business
+SO-11340,2025-09-02,West,Folding Stool,3,34.4,5,Education
+SO-11341,2025-09-02,East,Wool Beanie,10,21.25,5,Education
+SO-11342,2025-09-02,West,Wool Beanie,11,21.25,0,Education
+SO-11343,2025-09-02,North,Canvas Tote,12,18.5,10,Small Business
+SO-11344,2025-09-03,North,Wool Beanie,5,21.25,0,Consumer
+SO-11345,2025-09-03,Central,Trail Lantern,1,24.99,0,Enterprise
+SO-11346,2025-09-03,North,Trail Lantern,5,24.99,15,Consumer
+SO-11347,2025-09-03,East,Folding Stool,2,34.4,10,Enterprise
+SO-11348,2025-09-03,West,Trail Lantern,6,24.99,0,Enterprise
+SO-11349,2025-09-04,West,Canvas Tote,7,18.5,15,Small Business
+SO-11350,2025-09-04,North,Rain Shell,5,89,0,Enterprise
+SO-11351,2025-09-04,North,Canvas Tote,6,18.5,0,Consumer
+SO-11352,2025-09-04,West,Folding Stool,6,34.4,10,Small Business
+SO-11353,2025-09-04,South,Trail Lantern,11,24.99,0,Enterprise
+SO-11354,2025-09-04,South,Canvas Tote,6,18.5,0,Consumer
+SO-11355,2025-09-05,East,Folding Stool,3,34.4,0,Consumer
+SO-11356,2025-09-05,North,Canvas Tote,11,18.5,0,Small Business
+SO-11357,2025-09-05,West,Folding Stool,5,34.4,5,Consumer
+SO-11358,2025-09-05,West,Trail Lantern,3,24.99,0,Education
+SO-11359,2025-09-05,South,Canvas Tote,2,18.5,0,Consumer
+SO-11360,2025-09-06,North,Folding Stool,9,34.4,0,Education
+SO-11361,2025-09-06,South,Rain Shell,8,89,0,Consumer
+SO-11362,2025-09-06,South,Wool Beanie,7,21.25,5,Education
+SO-11363,2025-09-06,West,Rain Shell,1,89,5,Enterprise
+SO-11364,2025-09-06,Central,Trail Lantern,11,24.99,10,Enterprise
+SO-11365,2025-09-06,North,Trail Lantern,5,24.99,10,Consumer
+SO-11366,2025-09-07,West,Trail Lantern,6,24.99,0,Small Business
+SO-11367,2025-09-07,North,Canvas Tote,8,18.5,5,Small Business
+SO-11368,2025-09-07,South,Folding Stool,6,34.4,0,Consumer
+SO-11369,2025-09-07,West,Wool Beanie,4,21.25,0,Consumer
+SO-11370,2025-09-07,North,Wool Beanie,1,21.25,10,Enterprise
+SO-11371,2025-09-08,South,Wool Beanie,9,21.25,0,Consumer
+SO-11372,2025-09-08,Central,Rain Shell,5,89,10,Education
+SO-11373,2025-09-08,Central,Folding Stool,7,34.4,0,Education
+SO-11374,2025-09-08,South,Camp Mug,2,9.75,0,Education
+SO-11375,2025-09-08,Central,Wool Beanie,1,21.25,0,Enterprise
+SO-11376,2025-09-08,East,Wool Beanie,2,21.25,5,Small Business
+SO-11377,2025-09-09,North,Folding Stool,5,34.4,10,Small Business
+SO-11378,2025-09-09,Central,Trail Lantern,12,24.99,0,Small Business
+SO-11379,2025-09-09,North,Trail Lantern,8,24.99,15,Consumer
+SO-11380,2025-09-09,Central,Wool Beanie,11,21.25,10,Small Business
+SO-11381,2025-09-09,Central,Rain Shell,6,89,5,Education
+SO-11382,2025-09-10,Central,Wool Beanie,12,21.25,5,Small Business
+SO-11383,2025-09-10,East,Canvas Tote,5,18.5,5,Enterprise
+SO-11384,2025-09-10,West,Trail Lantern,8,24.99,15,Small Business
+SO-11385,2025-09-10,East,Canvas Tote,2,18.5,0,Small Business
+SO-11386,2025-09-10,East,Camp Mug,2,9.75,15,Enterprise
+SO-11387,2025-09-10,South,Rain Shell,7,89,0,Enterprise
+SO-11388,2025-09-11,East,Canvas Tote,4,18.5,5,Education
+SO-11389,2025-09-11,South,Trail Lantern,9,24.99,15,Education
+SO-11390,2025-09-11,South,Rain Shell,6,89,0,Education
+SO-11391,2025-09-11,South,Canvas Tote,8,18.5,0,Enterprise
+SO-11392,2025-09-11,North,Folding Stool,9,34.4,0,Enterprise
+SO-11393,2025-09-12,North,Folding Stool,11,34.4,5,Consumer
+SO-11394,2025-09-12,North,Camp Mug,6,9.75,15,Education
+SO-11395,2025-09-12,South,Rain Shell,1,89,15,Education
+SO-11396,2025-09-12,East,Trail Lantern,5,24.99,n/a,Consumer
+SO-11397,2025-09-12,North,Folding Stool,7,34.4,0,Enterprise
+SO-11398,2025-09-12,South,Wool Beanie,9,21.25,0,Consumer
+SO-11399,2025-09-13,East,Trail Lantern,4,24.99,10,Small Business
+SO-11400,2025-09-13,Central,Folding Stool,7,34.4,0,Consumer
+SO-11401,2025-09-13,East,Wool Beanie,9,21.25,0,Enterprise
+SO-11402,2025-09-13,Central,Camp Mug,2,9.75,0,Small Business
+SO-11403,2025-09-13,West,Trail Lantern,9,24.99,15,Small Business
+SO-11404,2025-09-14,West,Folding Stool,12,34.4,10,Enterprise
+SO-11405,2025-09-14,South,Canvas Tote,8,18.5,0,Small Business
+SO-11406,2025-09-14,North,Folding Stool,8,34.4,10,Education
+SO-11407,2025-09-14,West,Trail Lantern,3,24.99,0,Consumer
+SO-11408,2025-09-14,East,Camp Mug,11,9.75,5,Education
+SO-11409,2025-09-14,North,Camp Mug,7,9.75,0,Education
+SO-11410,2025-09-15,South,Wool Beanie,9,21.25,0,Consumer
+SO-11411,2025-09-15,East,Rain Shell,2,89,15,Small Business
+SO-11412,2025-09-15,West,Wool Beanie,3,21.25,0,Small Business
+SO-11413,2025-09-15,West,Wool Beanie,12,21.25,0,Consumer
+SO-11414,2025-09-15,South,Trail Lantern,4,24.99,0,Education
+SO-11415,2025-09-16,West,Trail Lantern,10,24.99,15,Consumer
+SO-11416,2025-09-16,East,Camp Mug,9,9.75,0,Consumer
+SO-11417,2025-09-16,West,Folding Stool,8,34.4,15,Enterprise
+SO-11418,2025-09-16,North,Canvas Tote,5,18.5,0,Enterprise
+SO-11419,2025-09-16,South,Camp Mug,10,9.75,15,Enterprise
+SO-11420,2025-09-16,West,Rain Shell,5,89,10,Consumer
+SO-11421,2025-09-17,West,Rain Shell,7,89,10,Consumer
+SO-11422,2025-09-17,North,Rain Shell,10,89,0,Enterprise
+SO-11423,2025-09-17,Central,Camp Mug,11,9.75,5,Consumer
+SO-11424,2025-09-17,West,Wool Beanie,5,21.25,0,Consumer
+SO-11425,2025-09-17,West,Rain Shell,3,89,15,Education
+SO-11426,2025-09-18,South,Trail Lantern,12,24.99,0,Enterprise
+SO-11427,2025-09-18,West,Rain Shell,6,89,10,Enterprise
+SO-11428,2025-09-18,South,Camp Mug,10,9.75,10,Small Business
+SO-11429,2025-09-18,East,Wool Beanie,8,21.25,15,Enterprise
+SO-11430,2025-09-18,West,Trail Lantern,9,24.99,10,Enterprise
+SO-11431,2025-09-18,North,Camp Mug,11,9.75,15,Education
+SO-11432,2025-09-19,Central,Rain Shell,1,89,5,Enterprise
+SO-11433,2025-09-19,West,Camp Mug,11,9.75,0,Education
+SO-11434,2025-09-19,South,Wool Beanie,9,21.25,5,Enterprise
+SO-11435,2025-09-19,North,Wool Beanie,1,21.25,5,Consumer
+SO-11436,2025-09-19,North,Wool Beanie,10,21.25,n/a,Small Business
+SO-11437,2025-09-20,West,Folding Stool,10,34.4,5,Small Business
+SO-11438,2025-09-20,East,Trail Lantern,9,24.99,n/a,Enterprise
+SO-11439,2025-09-20,South,Rain Shell,2,89,0,Education
+SO-11440,2025-09-20,West,Wool Beanie,3,21.25,15,Education
+SO-11441,2025-09-20,West,Rain Shell,9,89,15,Education
+SO-11442,2025-09-20,East,Wool Beanie,3,21.25,15,Consumer
+SO-11443,2025-09-21,North,Canvas Tote,12,18.5,15,Education
+SO-11444,2025-09-21,Central,Wool Beanie,1,21.25,0,Small Business
+SO-11445,2025-09-21,North,Rain Shell,12,89,0,Enterprise
+SO-11446,2025-09-21,East,Canvas Tote,3,18.5,5,Enterprise
+SO-11447,2025-09-21,South,Trail Lantern,2,24.99,n/a,Education
+SO-11448,2025-09-22,North,Camp Mug,2,9.75,0,Education
+SO-11449,2025-09-22,South,Trail Lantern,4,24.99,5,Consumer
+SO-11450,2025-09-22,Central,Rain Shell,10,89,0,Enterprise
+SO-11451,2025-09-22,Central,Canvas Tote,4,18.5,5,Enterprise
+SO-11452,2025-09-22,North,Canvas Tote,6,18.5,10,Enterprise
+SO-11453,2025-09-22,South,Canvas Tote,10,18.5,15,Small Business
+SO-11454,2025-09-23,Central,Folding Stool,8,34.4,15,Small Business
+SO-11455,2025-09-23,South,Folding Stool,3,34.4,0,Enterprise
+SO-11456,2025-09-23,East,Canvas Tote,4,18.5,15,Consumer
+SO-11457,2025-09-23,West,Trail Lantern,12,24.99,0,Enterprise
+SO-11458,2025-09-23,East,Folding Stool,1,34.4,10,Small Business
+SO-11459,2025-09-24,North,Wool Beanie,1,21.25,0,Consumer
+SO-11460,2025-09-24,West,Canvas Tote,4,18.5,10,Small Business
+SO-11461,2025-09-24,North,Camp Mug,2,9.75,15,Consumer
+SO-11462,2025-09-24,South,Wool Beanie,12,21.25,15,Small Business
+SO-11463,2025-09-24,Central,Camp Mug,9,9.75,5,Education
+SO-11464,2025-09-24,South,Trail Lantern,4,24.99,15,Education
+SO-11465,2025-09-25,South,Folding Stool,6,34.4,0,Small Business
+SO-11466,2025-09-25,South,Rain Shell,7,89,0,Education
+SO-11467,2025-09-25,East,Trail Lantern,1,24.99,10,Consumer
+SO-11468,2025-09-25,South,Wool Beanie,4,21.25,5,Education
+SO-11469,2025-09-25,West,Camp Mug,6,9.75,15,Small Business
+SO-11470,2025-09-26,West,Folding Stool,11,34.4,15,Small Business
+SO-11471,2025-09-26,North,Trail Lantern,1,24.99,0,Enterprise
+SO-11472,2025-09-26,East,Canvas Tote,12,18.5,0,Small Business
+SO-11473,2025-09-26,East,Rain Shell,2,89,0,Education
+SO-11474,2025-09-26,North,Trail Lantern,10,24.99,5,Small Business
+SO-11475,2025-09-27,Central,Camp Mug,10,9.75,0,Consumer
+SO-11476,2025-09-27,West,Trail Lantern,1,24.99,n/a,Enterprise
+SO-11477,2025-09-27,West,Wool Beanie,12,21.25,10,Consumer
+SO-11478,2025-09-27,North,Wool Beanie,10,21.25,10,Education
+SO-11479,2025-09-27,South,Trail Lantern,2,24.99,15,Education
+SO-11480,2025-09-27,West,Wool Beanie,10,21.25,n/a,Small Business
+SO-11481,2025-09-28,South,Camp Mug,2,9.75,15,Consumer
+SO-11482,2025-09-28,East,Rain Shell,1,89,5,Education
+SO-11483,2025-09-28,West,Folding Stool,12,34.4,0,Consumer
+SO-11484,2025-09-28,South,Camp Mug,11,9.75,10,Consumer
+SO-11485,2025-09-28,West,Camp Mug,6,9.75,10,Small Business
+SO-11486,2025-09-29,East,Rain Shell,1,89,10,Consumer
+SO-11487,2025-09-29,Central,Canvas Tote,2,18.5,0,Consumer
+SO-11488,2025-09-29,Central,Folding Stool,8,34.4,0,Small Business
+SO-11489,2025-09-29,West,Wool Beanie,8,21.25,5,Education
+SO-11490,2025-09-29,West,Canvas Tote,4,18.5,0,Education
+SO-11491,2025-09-29,East,Canvas Tote,5,18.5,0,Education
+SO-11492,2025-09-30,East,Camp Mug,6,9.75,0,Small Business
+SO-11493,2025-09-30,South,Folding Stool,8,34.4,5,Small Business
+SO-11494,2025-09-30,Central,Folding Stool,3,34.4,10,Small Business
+SO-11495,2025-09-30,West,Canvas Tote,9,18.5,5,Education
+SO-11496,2025-09-30,East,Canvas Tote,4,18.5,0,Enterprise
+SO-11497,2025-10-01,West,Trail Lantern,1,24.99,0,Consumer
+SO-11498,2025-10-01,East,Canvas Tote,5,18.5,15,Enterprise
+SO-11499,2025-10-01,North,Camp Mug,5,9.75,10,Education
+SO-11500,2025-10-01,East,Folding Stool,10,34.4,0,Small Business
+SO-11501,2025-10-01,Central,Wool Beanie,7,21.25,10,Education
+SO-11502,2025-10-01,North,Camp Mug,3,9.75,10,Education
+SO-11503,2025-10-02,North,Rain Shell,10,89,5,Enterprise
+SO-11504,2025-10-02,North,Trail Lantern,8,24.99,0,Small Business
+SO-11505,2025-10-02,East,Wool Beanie,6,21.25,15,Consumer
+SO-11506,2025-10-02,North,Canvas Tote,6,18.5,0,Enterprise
+SO-11507,2025-10-02,East,Canvas Tote,4,18.5,0,Education
+SO-11508,2025-10-03,South,Rain Shell,5,89,5,Enterprise
+SO-11509,2025-10-03,Central,Camp Mug,3,9.75,10,Enterprise
+SO-11510,2025-10-03,North,Camp Mug,2,9.75,n/a,Small Business
+SO-11511,2025-10-03,Central,Canvas Tote,10,18.5,5,Consumer
+SO-11512,2025-10-03,South,Trail Lantern,9,24.99,10,Consumer
+SO-11513,2025-10-03,East,Canvas Tote,7,18.5,15,Education
+SO-11514,2025-10-04,North,Canvas Tote,3,18.5,0,Education
+SO-11515,2025-10-04,South,Folding Stool,4,34.4,0,Small Business
+SO-11516,2025-10-04,West,Camp Mug,9,9.75,15,Small Business
+SO-11517,2025-10-04,Central,Camp Mug,10,9.75,15,Consumer
+SO-11518,2025-10-04,North,Trail Lantern,2,24.99,10,Consumer
+SO-11519,2025-10-05,West,Trail Lantern,6,24.99,10,Small Business
+SO-11520,2025-10-05,West,Wool Beanie,6,21.25,0,Enterprise
+SO-11521,2025-10-05,South,Trail Lantern,1,24.99,5,Enterprise
+SO-11522,2025-10-05,South,Canvas Tote,11,18.5,5,Enterprise
+SO-11523,2025-10-05,East,Canvas Tote,2,18.5,0,Consumer
+SO-11524,2025-10-05,East,Rain Shell,10,89,0,Consumer
+SO-11525,2025-10-06,West,Trail Lantern,9,24.99,0,Education
+SO-11526,2025-10-06,South,Folding Stool,3,34.4,5,Enterprise
+SO-11527,2025-10-06,South,Canvas Tote,4,18.5,0,Consumer
+SO-11528,2025-10-06,Central,Camp Mug,10,9.75,15,Consumer
+SO-11529,2025-10-06,Central,Camp Mug,9,9.75,10,Consumer
+SO-11530,2025-10-07,Central,Rain Shell,7,89,15,Enterprise
+SO-11531,2025-10-07,East,Trail Lantern,2,24.99,10,Small Business
+SO-11532,2025-10-07,South,Canvas Tote,2,18.5,0,Small Business
+SO-11533,2025-10-07,South,Folding Stool,7,34.4,0,Small Business
+SO-11534,2025-10-07,East,Rain Shell,6,89,5,Education
+SO-11535,2025-10-07,West,Trail Lantern,3,24.99,15,Education
+SO-11536,2025-10-08,Central,Canvas Tote,12,18.5,5,Enterprise
+SO-11537,2025-10-08,East,Wool Beanie,10,21.25,0,Small Business
+SO-11538,2025-10-08,Central,Folding Stool,3,34.4,15,Small Business
+SO-11539,2025-10-08,North,Canvas Tote,4,18.5,5,Education
+SO-11540,2025-10-08,East,Folding Stool,6,34.4,10,
+SO-11541,2025-10-09,North,Wool Beanie,7,21.25,0,Enterprise
+SO-11542,2025-10-09,Central,Folding Stool,11,34.4,0,Small Business
+SO-11543,2025-10-09,East,Camp Mug,10,9.75,15,Education
+SO-11544,2025-10-09,East,Camp Mug,8,9.75,0,Small Business
+SO-11545,2025-10-09,South,Folding Stool,3,34.4,0,Consumer
+SO-11546,2025-10-09,Central,Canvas Tote,6,18.5,5,Education
+SO-11547,2025-10-10,Central,Camp Mug,5,9.75,15,Education
+SO-11548,2025-10-10,Central,Wool Beanie,4,21.25,15,Education
+SO-11549,2025-10-10,South,Wool Beanie,11,21.25,10,Consumer
+SO-11550,2025-10-10,North,Canvas Tote,1,18.5,10,Consumer
+SO-11551,2025-10-10,East,Trail Lantern,7,24.99,n/a,Enterprise
+SO-11552,2025-10-11,Central,Wool Beanie,5,21.25,15,Consumer
+SO-11553,2025-10-11,South,Wool Beanie,10,21.25,10,Consumer
+SO-11554,2025-10-11,North,Camp Mug,7,9.75,0,Consumer
+SO-11555,2025-10-11,North,Folding Stool,9,34.4,0,Consumer
+SO-11556,2025-10-11,South,Camp Mug,12,9.75,15,
+SO-11557,2025-10-11,South,Wool Beanie,2,21.25,10,Consumer
+SO-11558,2025-10-12,West,Camp Mug,6,9.75,5,Enterprise
+SO-11559,2025-10-12,West,Camp Mug,5,9.75,0,Small Business
+SO-11560,2025-10-12,South,Canvas Tote,1,18.5,0,Education
+SO-11561,2025-10-12,West,Rain Shell,8,89,0,Enterprise
+SO-11562,2025-10-12,South,Wool Beanie,5,21.25,15,Education
+SO-11563,2025-10-13,North,Rain Shell,9,89,5,Education
+SO-11564,2025-10-13,West,Rain Shell,9,89,10,Education
+SO-11565,2025-10-13,North,Rain Shell,5,89,0,Consumer
+SO-11566,2025-10-13,East,Wool Beanie,3,21.25,0,Consumer
+SO-11567,2025-10-13,South,Canvas Tote,9,18.5,10,Enterprise
+SO-11568,2025-10-13,East,Trail Lantern,4,24.99,10,Enterprise
+SO-11569,2025-10-14,West,Canvas Tote,9,18.5,0,Enterprise
+SO-11570,2025-10-14,North,Canvas Tote,3,18.5,15,Small Business
+SO-11571,2025-10-14,North,Wool Beanie,3,21.25,15,Enterprise
+SO-11572,2025-10-14,South,Trail Lantern,3,24.99,0,Education
+SO-11573,2025-10-14,Central,Wool Beanie,3,21.25,5,Small Business
+SO-11574,2025-10-15,East,Trail Lantern,5,24.99,15,Consumer
+SO-11575,2025-10-15,North,Folding Stool,9,34.4,0,Small Business
+SO-11576,2025-10-15,Central,Canvas Tote,2,18.5,15,Consumer
+SO-11577,2025-10-15,East,Trail Lantern,12,24.99,15,Education
+SO-11578,2025-10-15,Central,Wool Beanie,7,21.25,10,Small Business
+SO-11579,2025-10-15,West,Canvas Tote,12,18.5,0,Education
+SO-11580,2025-10-16,East,Folding Stool,5,34.4,15,Education
+SO-11581,2025-10-16,Central,Trail Lantern,2,24.99,0,Consumer
+SO-11582,2025-10-16,Central,Camp Mug,6,9.75,0,Consumer
+SO-11583,2025-10-16,South,Folding Stool,9,34.4,15,Consumer
+SO-11584,2025-10-16,Central,Trail Lantern,7,24.99,0,Small Business
+SO-11585,2025-10-17,South,Canvas Tote,4,18.5,10,Consumer
+SO-11586,2025-10-17,Central,Rain Shell,10,89,5,Education
+SO-11587,2025-10-17,South,Folding Stool,1,34.4,10,Education
+SO-11588,2025-10-17,East,Folding Stool,10,34.4,15,Small Business
+SO-11589,2025-10-17,South,Camp Mug,1,9.75,0,Consumer
+SO-11590,2025-10-17,East,Rain Shell,5,89,0,Enterprise
+SO-11591,2025-10-18,North,Rain Shell,5,89,0,Consumer
+SO-11592,2025-10-18,East,Canvas Tote,2,18.5,0,Small Business
+SO-11593,2025-10-18,North,Canvas Tote,1,18.5,0,Consumer
+SO-11594,2025-10-18,East,Wool Beanie,5,21.25,15,Consumer
+SO-11595,2025-10-18,Central,Trail Lantern,10,24.99,0,Consumer
+SO-11596,2025-10-19,North,Canvas Tote,2,18.5,5,Consumer
+SO-11597,2025-10-19,South,Camp Mug,5,9.75,15,Consumer
+SO-11598,2025-10-19,West,Folding Stool,11,34.4,5,Small Business
+SO-11599,2025-10-19,South,Canvas Tote,8,18.5,0,Enterprise
+SO-11600,2025-10-19,West,Canvas Tote,9,18.5,0,Small Business
+SO-11601,2025-10-20,North,Folding Stool,10,34.4,5,Enterprise
+SO-11602,2025-10-20,North,Rain Shell,3,89,15,Enterprise
+SO-11603,2025-10-20,East,Trail Lantern,6,24.99,5,Enterprise
+SO-11604,2025-10-20,Central,Canvas Tote,8,18.5,15,Small Business
+SO-11605,2025-10-20,East,Folding Stool,1,34.4,0,Small Business
+SO-11606,2025-10-20,West,Wool Beanie,5,21.25,10,
+SO-11607,2025-10-21,East,Trail Lantern,1,24.99,10,Small Business
+SO-11608,2025-10-21,South,Rain Shell,3,89,0,Education
+SO-11609,2025-10-21,Central,Camp Mug,2,9.75,10,Consumer
+SO-11610,2025-10-21,South,Wool Beanie,9,21.25,0,Small Business
+SO-11611,2025-10-21,South,Camp Mug,3,9.75,0,Consumer
+SO-11612,2025-10-22,South,Wool Beanie,9,21.25,5,Consumer
+SO-11613,2025-10-22,South,Trail Lantern,8,24.99,5,Small Business
+SO-11614,2025-10-22,West,Rain Shell,10,89,0,Small Business
+SO-11615,2025-10-22,Central,Rain Shell,11,89,0,Consumer
+SO-11616,2025-10-22,South,Canvas Tote,9,18.5,0,Consumer
+SO-11617,2025-10-22,North,Trail Lantern,12,24.99,0,Consumer
+SO-11618,2025-10-23,Central,Rain Shell,3,89,15,Consumer
+SO-11619,2025-10-23,East,Canvas Tote,7,18.5,10,Education
+SO-11620,2025-10-23,North,Folding Stool,6,34.4,0,Consumer
+SO-11621,2025-10-23,East,Wool Beanie,2,21.25,0,Enterprise
+SO-11622,2025-10-23,West,Canvas Tote,4,18.5,0,Small Business
+SO-11623,2025-10-24,East,Rain Shell,12,89,0,Consumer
+SO-11624,2025-10-24,East,Trail Lantern,4,24.99,0,Education
+SO-11625,2025-10-24,East,Folding Stool,5,34.4,10,Small Business
+SO-11626,2025-10-24,East,Wool Beanie,11,21.25,0,Education
+SO-11627,2025-10-24,East,Camp Mug,12,9.75,0,Small Business
+SO-11628,2025-10-24,East,Trail Lantern,9,24.99,15,Consumer
+SO-11629,2025-10-25,Central,Trail Lantern,5,24.99,5,Education
+SO-11630,2025-10-25,North,Rain Shell,10,89,10,Small Business
+SO-11631,2025-10-25,Central,Trail Lantern,12,24.99,5,Consumer
+SO-11632,2025-10-25,South,Canvas Tote,12,18.5,0,Education
+SO-11633,2025-10-25,North,Canvas Tote,6,18.5,5,Enterprise
+SO-11634,2025-10-26,Central,Camp Mug,10,9.75,15,Education
+SO-11635,2025-10-26,West,Trail Lantern,11,24.99,0,Small Business
+SO-11636,2025-10-26,East,Wool Beanie,1,21.25,0,Enterprise
+SO-11637,2025-10-26,West,Rain Shell,3,89,15,Enterprise
+SO-11638,2025-10-26,East,Trail Lantern,3,24.99,5,Enterprise
+SO-11639,2025-10-26,South,Rain Shell,5,89,15,Small Business
+SO-11640,2025-10-27,Central,Camp Mug,12,9.75,10,Education
+SO-11641,2025-10-27,Central,Folding Stool,10,34.4,10,Enterprise
+SO-11642,2025-10-27,East,Camp Mug,7,9.75,0,Education
+SO-11643,2025-10-27,West,Canvas Tote,2,18.5,10,Consumer
+SO-11644,2025-10-27,Central,Trail Lantern,6,24.99,0,Small Business
+SO-11645,2025-10-28,West,Folding Stool,3,34.4,15,Consumer
+SO-11646,2025-10-28,East,Camp Mug,2,9.75,10,Enterprise
+SO-11647,2025-10-28,South,Trail Lantern,2,24.99,5,Enterprise
+SO-11648,2025-10-28,East,Canvas Tote,1,18.5,0,Education
+SO-11649,2025-10-28,Central,Trail Lantern,11,24.99,0,Consumer
+SO-11650,2025-10-28,East,Canvas Tote,4,18.5,0,Consumer
+SO-11651,2025-10-29,North,Camp Mug,5,9.75,15,Consumer
+SO-11652,2025-10-29,North,Trail Lantern,10,24.99,10,Consumer
+SO-11653,2025-10-29,Central,Camp Mug,1,9.75,15,Small Business
+SO-11654,2025-10-29,Central,Canvas Tote,11,18.5,0,Enterprise
+SO-11655,2025-10-29,West,Rain Shell,4,89,0,Education
+SO-11656,2025-10-30,North,Canvas Tote,4,18.5,5,Enterprise
+SO-11657,2025-10-30,North,Camp Mug,7,9.75,5,Education
+SO-11658,2025-10-30,West,Canvas Tote,7,18.5,15,Education
+SO-11659,2025-10-30,East,Camp Mug,7,9.75,0,Education
+SO-11660,2025-10-30,East,Trail Lantern,7,24.99,10,Enterprise
+SO-11661,2025-10-30,West,Wool Beanie,7,21.25,10,Consumer
+SO-11662,2025-10-31,Central,Wool Beanie,1,21.25,15,Consumer
+SO-11663,2025-10-31,North,Folding Stool,10,34.4,0,Consumer
+SO-11664,2025-10-31,South,Camp Mug,6,9.75,15,Education
+SO-11665,2025-10-31,South,Folding Stool,7,34.4,0,Education
+SO-11666,2025-10-31,North,Wool Beanie,8,21.25,15,Education
+SO-11667,2025-11-01,West,Folding Stool,10,34.4,10,Small Business
+SO-11668,2025-11-01,South,Rain Shell,4,89,n/a,Enterprise
+SO-11669,2025-11-01,Central,Trail Lantern,12,24.99,15,Enterprise
+SO-11670,2025-11-01,South,Folding Stool,12,34.4,10,Consumer
+SO-11671,2025-11-01,East,Camp Mug,3,9.75,15,Education
+SO-11672,2025-11-01,South,Canvas Tote,8,18.5,0,Small Business
+SO-11673,2025-11-02,West,Wool Beanie,12,21.25,0,Small Business
+SO-11674,2025-11-02,East,Trail Lantern,1,24.99,10,Consumer
+SO-11675,2025-11-02,South,Camp Mug,4,9.75,0,Enterprise
+SO-11676,2025-11-02,West,Trail Lantern,8,24.99,0,Small Business
+SO-11677,2025-11-02,East,Camp Mug,1,9.75,15,Enterprise
+SO-11678,2025-11-03,South,Wool Beanie,2,21.25,15,Education
+SO-11679,2025-11-03,South,Wool Beanie,9,21.25,0,Education
+SO-11680,2025-11-03,East,Folding Stool,7,34.4,0,Consumer
+SO-11681,2025-11-03,North,Camp Mug,8,9.75,0,Consumer
+SO-11682,2025-11-03,South,Rain Shell,12,89,5,Enterprise
+SO-11683,2025-11-03,South,Rain Shell,11,89,5,Consumer
+SO-11684,2025-11-04,South,Trail Lantern,4,24.99,0,Small Business
+SO-11685,2025-11-04,West,Folding Stool,4,34.4,5,Enterprise
+SO-11686,2025-11-04,Central,Wool Beanie,2,21.25,15,Consumer
+SO-11687,2025-11-04,Central,Trail Lantern,10,24.99,15,Education
+SO-11688,2025-11-04,North,Folding Stool,2,34.4,0,Consumer
+SO-11689,2025-11-05,West,Rain Shell,6,89,5,Enterprise
+SO-11690,2025-11-05,Central,Rain Shell,6,89,0,Small Business
+SO-11691,2025-11-05,East,Folding Stool,2,34.4,5,Small Business
+SO-11692,2025-11-05,Central,Canvas Tote,7,18.5,0,Small Business
+SO-11693,2025-11-05,West,Trail Lantern,12,24.99,0,Enterprise
+SO-11694,2025-11-05,West,Camp Mug,5,9.75,10,Education
+SO-11695,2025-11-06,West,Folding Stool,10,34.4,5,Small Business
+SO-11696,2025-11-06,West,Wool Beanie,9,21.25,0,Enterprise
+SO-11697,2025-11-06,East,Folding Stool,6,34.4,0,Enterprise
+SO-11698,2025-11-06,South,Camp Mug,6,9.75,0,Small Business
+SO-11699,2025-11-06,East,Camp Mug,9,9.75,15,Consumer
+SO-11700,2025-11-07,West,Rain Shell,5,89,n/a,Small Business
+SO-11701,2025-11-07,East,Wool Beanie,7,21.25,0,Small Business
+SO-11702,2025-11-07,South,Canvas Tote,5,18.5,0,Small Business
+SO-11703,2025-11-07,North,Trail Lantern,3,24.99,0,Enterprise
+SO-11704,2025-11-07,West,Folding Stool,2,34.4,0,Small Business
+SO-11705,2025-11-07,East,Camp Mug,12,9.75,5,Enterprise
+SO-11706,2025-11-08,North,Trail Lantern,2,24.99,0,Education
+SO-11707,2025-11-08,Central,Folding Stool,6,34.4,5,Small Business
+SO-11708,2025-11-08,West,Rain Shell,9,89,0,Education
+SO-11709,2025-11-08,Central,Canvas Tote,8,18.5,10,Small Business
+SO-11710,2025-11-08,East,Camp Mug,4,9.75,0,Small Business
+SO-11711,2025-11-09,North,Folding Stool,1,34.4,0,Consumer
+SO-11712,2025-11-09,North,Rain Shell,7,89,10,Small Business
+SO-11713,2025-11-09,Central,Canvas Tote,12,18.5,0,Enterprise
+SO-11714,2025-11-09,Central,Wool Beanie,3,21.25,10,Enterprise
+SO-11715,2025-11-09,South,Trail Lantern,11,24.99,0,Education
+SO-11716,2025-11-09,North,Trail Lantern,1,24.99,5,Education
+SO-11717,2025-11-10,Central,Canvas Tote,5,18.5,10,Education
+SO-11718,2025-11-10,East,Canvas Tote,8,18.5,10,Enterprise
+SO-11719,2025-11-10,East,Canvas Tote,10,18.5,0,Consumer
+SO-11720,2025-11-10,North,Canvas Tote,8,18.5,0,Small Business
+SO-11721,2025-11-10,South,Canvas Tote,1,18.5,0,Consumer
+SO-11722,2025-11-11,West,Rain Shell,6,89,0,Small Business
+SO-11723,2025-11-11,West,Wool Beanie,5,21.25,5,Enterprise
+SO-11724,2025-11-11,West,Wool Beanie,2,21.25,0,Consumer
+SO-11725,2025-11-11,North,Rain Shell,6,89,5,Education
+SO-11726,2025-11-11,East,Canvas Tote,2,18.5,0,Consumer
+SO-11727,2025-11-11,West,Wool Beanie,2,21.25,n/a,Small Business
+SO-11728,2025-11-12,Central,Trail Lantern,6,24.99,0,Education
+SO-11729,2025-11-12,Central,Rain Shell,9,89,15,Education
+SO-11730,2025-11-12,South,Folding Stool,10,34.4,10,Enterprise
+SO-11731,2025-11-12,North,Wool Beanie,7,21.25,0,Small Business
+SO-11732,2025-11-12,South,Trail Lantern,7,24.99,0,Education
+SO-11733,2025-11-13,South,Trail Lantern,11,24.99,0,Education
+SO-11734,2025-11-13,Central,Trail Lantern,1,24.99,0,Consumer
+SO-11735,2025-11-13,East,Trail Lantern,9,24.99,5,Enterprise
+SO-11736,2025-11-13,North,Wool Beanie,1,21.25,10,Consumer
+SO-11737,2025-11-13,West,Wool Beanie,9,21.25,10,Small Business
+SO-11738,2025-11-14,East,Trail Lantern,3,24.99,0,Education
+SO-11739,2025-11-14,East,Camp Mug,4,9.75,10,Small Business
+SO-11740,2025-11-14,West,Rain Shell,12,89,5,Consumer
+SO-11741,2025-11-14,East,Wool Beanie,8,21.25,15,Enterprise
+SO-11742,2025-11-14,East,Wool Beanie,6,21.25,0,Small Business
+SO-11743,2025-11-14,West,Trail Lantern,11,24.99,10,Enterprise
+SO-11744,2025-11-15,South,Trail Lantern,8,24.99,0,Small Business
+SO-11745,2025-11-15,South,Trail Lantern,8,24.99,0,Enterprise
+SO-11746,2025-11-15,North,Folding Stool,11,34.4,0,Education
+SO-11747,2025-11-15,West,Camp Mug,3,9.75,0,Small Business
+SO-11748,2025-11-15,Central,Folding Stool,1,34.4,0,Small Business
+SO-11749,2025-11-16,Central,Wool Beanie,2,21.25,0,Education
+SO-11750,2025-11-16,South,Camp Mug,1,9.75,0,Consumer
+SO-11751,2025-11-16,South,Rain Shell,9,89,0,Consumer
+SO-11752,2025-11-16,West,Trail Lantern,2,24.99,0,Enterprise
+SO-11753,2025-11-16,Central,Folding Stool,4,34.4,0,Enterprise
+SO-11754,2025-11-16,East,Wool Beanie,5,21.25,5,Small Business
+SO-11755,2025-11-17,West,Rain Shell,10,89,0,Small Business
+SO-11756,2025-11-17,South,Canvas Tote,9,18.5,0,Enterprise
+SO-11757,2025-11-17,South,Camp Mug,9,9.75,0,Consumer
+SO-11758,2025-11-17,East,Wool Beanie,6,21.25,0,Small Business
+SO-11759,2025-11-17,West,Rain Shell,11,89,0,Small Business
+SO-11760,2025-11-18,South,Trail Lantern,4,24.99,15,Education
+SO-11761,2025-11-18,West,Trail Lantern,5,24.99,10,Consumer
+SO-11762,2025-11-18,Central,Folding Stool,1,34.4,15,Consumer
+SO-11763,2025-11-18,South,Folding Stool,4,34.4,5,Consumer
+SO-11764,2025-11-18,East,Wool Beanie,5,21.25,15,Consumer
+SO-11765,2025-11-18,South,Rain Shell,8,89,0,Small Business
+SO-11766,2025-11-19,South,Wool Beanie,10,21.25,15,Education
+SO-11767,2025-11-19,North,Folding Stool,4,34.4,0,Small Business
+SO-11768,2025-11-19,Central,Canvas Tote,11,18.5,n/a,Consumer
+SO-11769,2025-11-19,South,Trail Lantern,12,24.99,15,Education
+SO-11770,2025-11-19,East,Rain Shell,11,89,5,Consumer
+SO-11771,2025-11-20,Central,Canvas Tote,2,18.5,0,Consumer
+SO-11772,2025-11-20,East,Rain Shell,7,89,0,Consumer
+SO-11773,2025-11-20,Central,Camp Mug,6,9.75,0,Enterprise
+SO-11774,2025-11-20,West,Trail Lantern,1,24.99,n/a,Enterprise
+SO-11775,2025-11-20,East,Camp Mug,2,9.75,0,Small Business
+SO-11776,2025-11-20,West,Camp Mug,2,9.75,0,Consumer
+SO-11777,2025-11-21,North,Folding Stool,9,34.4,0,Small Business
+SO-11778,2025-11-21,Central,Canvas Tote,4,18.5,15,Small Business
+SO-11779,2025-11-21,North,Folding Stool,4,34.4,0,Enterprise
+SO-11780,2025-11-21,West,Rain Shell,6,89,10,Consumer
+SO-11781,2025-11-21,Central,Folding Stool,10,34.4,0,Small Business
+SO-11782,2025-11-22,West,Trail Lantern,4,24.99,0,Enterprise
+SO-11783,2025-11-22,East,Camp Mug,8,9.75,15,Consumer
+SO-11784,2025-11-22,East,Folding Stool,8,34.4,5,Enterprise
+SO-11785,2025-11-22,East,Wool Beanie,1,21.25,10,Enterprise
+SO-11786,2025-11-22,Central,Folding Stool,1,34.4,15,Small Business
+SO-11787,2025-11-22,East,Trail Lantern,6,24.99,10,Enterprise
+SO-11788,2025-11-23,Central,Folding Stool,10,34.4,0,Consumer
+SO-11789,2025-11-23,South,Camp Mug,10,9.75,15,Small Business
+SO-11790,2025-11-23,North,Canvas Tote,6,18.5,10,Small Business
+SO-11791,2025-11-23,North,Camp Mug,3,9.75,10,Education
+SO-11792,2025-11-23,East,Camp Mug,8,9.75,15,Enterprise
+SO-11793,2025-11-24,South,Camp Mug,10,9.75,5,Small Business
+SO-11794,2025-11-24,South,Folding Stool,7,34.4,10,Enterprise
+SO-11795,2025-11-24,South,Folding Stool,11,34.4,0,Enterprise
+SO-11796,2025-11-24,East,Folding Stool,3,34.4,15,Enterprise
+SO-11797,2025-11-24,Central,Canvas Tote,4,18.5,10,Small Business
+SO-11798,2025-11-24,East,Camp Mug,1,9.75,5,Enterprise
+SO-11799,2025-11-25,East,Rain Shell,4,89,10,Small Business
+SO-11800,2025-11-25,North,Trail Lantern,2,24.99,0,Education
+SO-11801,2025-11-25,East,Canvas Tote,10,18.5,0,Enterprise
+SO-11802,2025-11-25,North,Canvas Tote,8,18.5,0,Small Business
+SO-11803,2025-11-25,South,Trail Lantern,6,24.99,0,Consumer
+SO-11804,2025-11-26,North,Wool Beanie,10,21.25,0,Consumer
+SO-11805,2025-11-26,Central,Rain Shell,1,89,5,Consumer
+SO-11806,2025-11-26,West,Wool Beanie,9,21.25,0,Consumer
+SO-11807,2025-11-26,South,Trail Lantern,6,24.99,0,Consumer
+SO-11808,2025-11-26,North,Rain Shell,3,89,10,Enterprise
+SO-11809,2025-11-26,West,Folding Stool,10,34.4,0,Education
+SO-11810,2025-11-27,East,Trail Lantern,5,24.99,10,Small Business
+SO-11811,2025-11-27,South,Trail Lantern,3,24.99,15,Consumer
+SO-11812,2025-11-27,West,Rain Shell,9,89,0,Consumer
+SO-11813,2025-11-27,West,Rain Shell,4,89,10,Consumer
+SO-11814,2025-11-27,North,Trail Lantern,5,24.99,10,Consumer
+SO-11815,2025-11-28,East,Canvas Tote,5,18.5,10,Small Business
+SO-11816,2025-11-28,South,Wool Beanie,7,21.25,0,Consumer
+SO-11817,2025-11-28,Central,Trail Lantern,1,24.99,15,Consumer
+SO-11818,2025-11-28,East,Trail Lantern,2,24.99,n/a,Enterprise
+SO-11819,2025-11-28,Central,Trail Lantern,9,24.99,10,Consumer
+SO-11820,2025-11-28,East,Trail Lantern,10,24.99,0,Small Business
+SO-11821,2025-11-29,West,Canvas Tote,5,18.5,0,Enterprise
+SO-11822,2025-11-29,South,Folding Stool,4,34.4,0,Consumer
+SO-11823,2025-11-29,Central,Folding Stool,1,34.4,0,Education
+SO-11824,2025-11-29,West,Camp Mug,11,9.75,10,Education
+SO-11825,2025-11-29,North,Wool Beanie,5,21.25,0,Education
+SO-11826,2025-11-30,North,Canvas Tote,3,18.5,0,Small Business
+SO-11827,2025-11-30,East,Rain Shell,1,89,15,Enterprise
+SO-11828,2025-11-30,Central,Wool Beanie,5,21.25,15,Small Business
+SO-11829,2025-11-30,East,Canvas Tote,2,18.5,0,Education
+SO-11830,2025-11-30,West,Folding Stool,9,34.4,0,Small Business
+SO-11831,2025-11-30,South,Rain Shell,7,89,0,Small Business
+SO-11832,2025-12-01,Central,Canvas Tote,6,18.5,0,Education
+SO-11833,2025-12-01,West,Rain Shell,9,89,0,Consumer
+SO-11834,2025-12-01,East,Trail Lantern,8,24.99,5,Enterprise
+SO-11835,2025-12-01,East,Rain Shell,1,89,5,Enterprise
+SO-11836,2025-12-01,West,Rain Shell,2,89,0,Education
+SO-11837,2025-12-02,North,Trail Lantern,8,24.99,5,Small Business
+SO-11838,2025-12-02,West,Wool Beanie,5,21.25,10,Enterprise
+SO-11839,2025-12-02,East,Camp Mug,2,9.75,0,Consumer
+SO-11840,2025-12-02,West,Rain Shell,11,89,15,Education
+SO-11841,2025-12-02,Central,Wool Beanie,5,21.25,5,
+SO-11842,2025-12-02,East,Canvas Tote,5,18.5,0,Consumer
+SO-11843,2025-12-03,West,Canvas Tote,1,18.5,15,Enterprise
+SO-11844,2025-12-03,South,Canvas Tote,12,18.5,0,Enterprise
+SO-11845,2025-12-03,Central,Wool Beanie,3,21.25,5,Enterprise
+SO-11846,2025-12-03,Central,Canvas Tote,5,18.5,5,Small Business
+SO-11847,2025-12-03,South,Canvas Tote,2,18.5,5,Small Business
+SO-11848,2025-12-04,Central,Camp Mug,8,9.75,10,Small Business
+SO-11849,2025-12-04,Central,Wool Beanie,1,21.25,0,Education
+SO-11850,2025-12-04,North,Camp Mug,1,9.75,10,Small Business
+SO-11851,2025-12-04,North,Rain Shell,2,89,0,Education
+SO-11852,2025-12-04,East,Rain Shell,5,89,5,Small Business
+SO-11853,2025-12-04,South,Camp Mug,12,9.75,5,Education
+SO-11854,2025-12-05,Central,Folding Stool,9,34.4,10,Consumer
+SO-11855,2025-12-05,South,Canvas Tote,3,18.5,10,Consumer
+SO-11856,2025-12-05,South,Folding Stool,10,34.4,0,Small Business
+SO-11857,2025-12-05,Central,Trail Lantern,4,24.99,5,Consumer
+SO-11858,2025-12-05,South,Folding Stool,11,34.4,0,Small Business
+SO-11859,2025-12-06,West,Trail Lantern,12,24.99,15,Consumer
+SO-11860,2025-12-06,North,Folding Stool,10,34.4,0,Small Business
+SO-11861,2025-12-06,East,Rain Shell,7,89,5,Small Business
+SO-11862,2025-12-06,South,Rain Shell,11,89,5,Consumer
+SO-11863,2025-12-06,North,Rain Shell,9,89,0,Enterprise
+SO-11864,2025-12-06,East,Canvas Tote,11,18.5,5,Small Business
+SO-11865,2025-12-07,South,Trail Lantern,5,24.99,n/a,Small Business
+SO-11866,2025-12-07,East,Canvas Tote,12,18.5,15,Consumer
+SO-11867,2025-12-07,South,Canvas Tote,4,18.5,0,Consumer
+SO-11868,2025-12-07,East,Wool Beanie,11,21.25,5,Small Business
+SO-11869,2025-12-07,West,Camp Mug,11,9.75,0,Enterprise
+SO-11870,2025-12-08,East,Canvas Tote,8,18.5,0,Enterprise
+SO-11871,2025-12-08,East,Folding Stool,5,34.4,15,Education
+SO-11872,2025-12-08,South,Trail Lantern,3,24.99,0,Consumer
+SO-11873,2025-12-08,South,Rain Shell,8,89,0,Enterprise
+SO-11874,2025-12-08,South,Rain Shell,11,89,0,Education
+SO-11875,2025-12-09,South,Canvas Tote,6,18.5,n/a,Small Business
+SO-11876,2025-12-09,West,Wool Beanie,12,21.25,0,Small Business
+SO-11877,2025-12-09,West,Wool Beanie,7,21.25,0,Enterprise
+SO-11878,2025-12-09,Central,Rain Shell,8,89,0,Enterprise
+SO-11879,2025-12-09,East,Trail Lantern,5,24.99,0,Consumer
+SO-11880,2025-12-09,Central,Folding Stool,9,34.4,0,Education
+SO-11881,2025-12-10,Central,Camp Mug,1,9.75,5,Small Business
+SO-11882,2025-12-10,South,Rain Shell,5,89,0,Consumer
+SO-11883,2025-12-10,East,Folding Stool,10,34.4,5,Consumer
+SO-11884,2025-12-10,West,Wool Beanie,6,21.25,0,Education
+SO-11885,2025-12-10,North,Camp Mug,3,9.75,0,Enterprise
+SO-11886,2025-12-11,West,Wool Beanie,6,21.25,0,Small Business
+SO-11887,2025-12-11,East,Wool Beanie,12,21.25,0,Education
+SO-11888,2025-12-11,Central,Rain Shell,3,89,0,Consumer
+SO-11889,2025-12-11,West,Trail Lantern,3,24.99,5,Small Business
+SO-11890,2025-12-11,Central,Canvas Tote,7,18.5,15,Small Business
+SO-11891,2025-12-11,North,Camp Mug,5,9.75,15,Enterprise
+SO-11892,2025-12-12,South,Rain Shell,12,89,0,Small Business
+SO-11893,2025-12-12,North,Rain Shell,1,89,0,Small Business
+SO-11894,2025-12-12,Central,Wool Beanie,10,21.25,5,Consumer
+SO-11895,2025-12-12,East,Trail Lantern,3,24.99,5,Education
+SO-11896,2025-12-12,Central,Trail Lantern,11,24.99,0,Consumer
+SO-11897,2025-12-13,South,Folding Stool,12,34.4,5,Small Business
+SO-11898,2025-12-13,North,Camp Mug,1,9.75,0,Small Business
+SO-11899,2025-12-13,West,Trail Lantern,1,24.99,0,Small Business
+SO-11900,2025-12-13,North,Canvas Tote,11,18.5,0,Consumer
+SO-11901,2025-12-13,North,Camp Mug,10,9.75,15,Consumer
+SO-11902,2025-12-13,North,Rain Shell,9,89,0,Education
+SO-11903,2025-12-14,Central,Rain Shell,9,89,10,Consumer
+SO-11904,2025-12-14,South,Rain Shell,3,89,15,Education
+SO-11905,2025-12-14,East,Trail Lantern,2,24.99,15,Education
+SO-11906,2025-12-14,East,Folding Stool,4,34.4,0,Education
+SO-11907,2025-12-14,South,Wool Beanie,3,21.25,15,Small Business
+SO-11908,2025-12-15,East,Trail Lantern,4,24.99,15,Small Business
+SO-11909,2025-12-15,Central,Folding Stool,7,34.4,5,Small Business
+SO-11910,2025-12-15,West,Canvas Tote,5,18.5,15,Small Business
+SO-11911,2025-12-15,East,Camp Mug,1,9.75,15,Consumer
+SO-11912,2025-12-15,Central,Wool Beanie,9,21.25,10,Enterprise
+SO-11913,2025-12-15,Central,Camp Mug,10,9.75,10,Consumer
+SO-11914,2025-12-16,South,Camp Mug,8,9.75,0,Education
+SO-11915,2025-12-16,North,Trail Lantern,7,24.99,15,Education
+SO-11916,2025-12-16,Central,Canvas Tote,10,18.5,0,Consumer
+SO-11917,2025-12-16,East,Folding Stool,4,34.4,10,Enterprise
+SO-11918,2025-12-16,Central,Canvas Tote,6,18.5,10,Enterprise
+SO-11919,2025-12-17,South,Canvas Tote,2,18.5,5,Education
+SO-11920,2025-12-17,West,Folding Stool,7,34.4,10,
+SO-11921,2025-12-17,East,Folding Stool,5,34.4,0,Consumer
+SO-11922,2025-12-17,West,Trail Lantern,2,24.99,15,Small Business
+SO-11923,2025-12-17,North,Wool Beanie,10,21.25,10,
+SO-11924,2025-12-17,East,Trail Lantern,11,24.99,10,Small Business
+SO-11925,2025-12-18,North,Trail Lantern,5,24.99,5,Education
+SO-11926,2025-12-18,West,Camp Mug,12,9.75,15,Consumer
+SO-11927,2025-12-18,West,Rain Shell,4,89,10,Enterprise
+SO-11928,2025-12-18,North,Folding Stool,4,34.4,15,Consumer
+SO-11929,2025-12-18,East,Camp Mug,4,9.75,0,Consumer
+SO-11930,2025-12-19,West,Canvas Tote,12,18.5,0,Small Business
+SO-11931,2025-12-19,East,Camp Mug,7,9.75,0,Enterprise
+SO-11932,2025-12-19,West,Trail Lantern,1,24.99,10,Education
+SO-11933,2025-12-19,North,Folding Stool,2,34.4,10,Consumer
+SO-11934,2025-12-19,Central,Camp Mug,7,9.75,0,Enterprise
+SO-11935,2025-12-19,East,Camp Mug,5,9.75,0,Education
+SO-11936,2025-12-20,South,Folding Stool,2,34.4,0,Education
+SO-11937,2025-12-20,North,Canvas Tote,10,18.5,5,Consumer
+SO-11938,2025-12-20,West,Canvas Tote,7,18.5,5,Small Business
+SO-11939,2025-12-20,North,Canvas Tote,5,18.5,0,Enterprise
+SO-11940,2025-12-20,Central,Rain Shell,2,89,0,Enterprise
+SO-11941,2025-12-21,North,Folding Stool,7,34.4,0,Education
+SO-11942,2025-12-21,South,Trail Lantern,4,24.99,0,Education
+SO-11943,2025-12-21,South,Rain Shell,8,89,5,Education
+SO-11944,2025-12-21,East,Folding Stool,1,34.4,0,Consumer
+SO-11945,2025-12-21,Central,Rain Shell,11,89,0,Enterprise
+SO-11946,2025-12-21,Central,Trail Lantern,5,24.99,0,Small Business
+SO-11947,2025-12-22,South,Trail Lantern,7,24.99,0,Consumer
+SO-11948,2025-12-22,Central,Canvas Tote,11,18.5,15,Consumer
+SO-11949,2025-12-22,East,Canvas Tote,9,18.5,5,Education
+SO-11950,2025-12-22,West,Canvas Tote,7,18.5,10,Education
+SO-11951,2025-12-22,West,Rain Shell,7,89,15,Enterprise
+SO-11952,2025-12-23,West,Camp Mug,1,9.75,10,Education
+SO-11953,2025-12-23,Central,Rain Shell,9,89,0,Enterprise
+SO-11954,2025-12-23,East,Trail Lantern,7,24.99,0,Small Business
+SO-11955,2025-12-23,West,Canvas Tote,8,18.5,5,Enterprise
+SO-11956,2025-12-23,South,Rain Shell,8,89,0,Enterprise
+SO-11957,2025-12-23,Central,Rain Shell,3,89,0,Consumer
+SO-11958,2025-12-24,West,Folding Stool,6,34.4,15,Small Business
+SO-11959,2025-12-24,South,Trail Lantern,3,24.99,0,Small Business
+SO-11960,2025-12-24,South,Trail Lantern,3,24.99,0,Enterprise
+SO-11961,2025-12-24,East,Wool Beanie,7,21.25,0,Small Business
+SO-11962,2025-12-24,Central,Camp Mug,10,9.75,0,Enterprise
+SO-11963,2025-12-25,West,Wool Beanie,8,21.25,5,Small Business
+SO-11964,2025-12-25,East,Canvas Tote,3,18.5,15,Enterprise
+SO-11965,2025-12-25,South,Trail Lantern,11,24.99,10,Education
+SO-11966,2025-12-25,South,Canvas Tote,1,18.5,0,Consumer
+SO-11967,2025-12-25,East,Rain Shell,11,89,0,Education
+SO-11968,2025-12-25,South,Rain Shell,2,89,5,Enterprise
+SO-11969,2025-12-26,Central,Trail Lantern,11,24.99,0,Enterprise
+SO-11970,2025-12-26,Central,Folding Stool,12,34.4,0,Small Business
+SO-11971,2025-12-26,East,Wool Beanie,3,21.25,5,Enterprise
+SO-11972,2025-12-26,South,Trail Lantern,1,24.99,10,Consumer
+SO-11973,2025-12-26,West,Folding Stool,6,34.4,5,Enterprise
+SO-11974,2025-12-27,Central,Canvas Tote,7,18.5,0,Education
+SO-11975,2025-12-27,South,Wool Beanie,10,21.25,5,Enterprise
+SO-11976,2025-12-27,Central,Folding Stool,10,34.4,0,Enterprise
+SO-11977,2025-12-27,South,Folding Stool,11,34.4,15,Small Business
+SO-11978,2025-12-27,West,Camp Mug,8,9.75,0,Small Business
+SO-11979,2025-12-27,South,Folding Stool,10,34.4,0,Consumer
+SO-11980,2025-12-28,East,Trail Lantern,5,24.99,0,Enterprise
+SO-11981,2025-12-28,East,Trail Lantern,8,24.99,0,Small Business
+SO-11982,2025-12-28,Central,Camp Mug,8,9.75,0,Education
+SO-11983,2025-12-28,North,Trail Lantern,1,24.99,0,Small Business
+SO-11984,2025-12-28,West,Wool Beanie,9,21.25,0,Consumer
+SO-11985,2025-12-29,South,Camp Mug,2,9.75,15,Small Business
+SO-11986,2025-12-29,North,Trail Lantern,10,24.99,5,Consumer
+SO-11987,2025-12-29,East,Wool Beanie,2,21.25,0,Consumer
+SO-11988,2025-12-29,South,Wool Beanie,3,21.25,0,Small Business
+SO-11989,2025-12-29,East,Canvas Tote,5,18.5,10,Small Business
+SO-11990,2025-12-29,South,Camp Mug,3,9.75,10,Education
+SO-11991,2025-12-30,North,Wool Beanie,9,21.25,10,Enterprise
+SO-11992,2025-12-30,North,Trail Lantern,2,24.99,5,Education
+SO-11993,2025-12-30,Central,Canvas Tote,7,18.5,10,Enterprise
+SO-11994,2025-12-30,Central,Camp Mug,9,9.75,0,Education
+SO-11995,2025-12-30,East,Wool Beanie,6,21.25,0,Small Business
+SO-11996,2025-12-31,South,Trail Lantern,4,24.99,10,Consumer
+SO-11997,2025-12-31,West,Wool Beanie,6,21.25,0,Enterprise
+SO-11998,2025-12-31,Central,Rain Shell,12,89,0,Enterprise
+SO-11999,2025-12-31,Central,Wool Beanie,2,21.25,15,Education
+SO-12000,2025-12-31,West,Rain Shell,10,89,0,
