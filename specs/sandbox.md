@@ -74,6 +74,12 @@ Settled 2026-11-17. A D-number means the decision is also recorded in PRD sectio
 | Default limits | 5 s, 128 MB, and 50,000 rows, each configurable. The row limit is the same number as the chart row cap in DATA-17, defined once. |
 | Helper style | Synchronous. `data`, `save`, and `render` return values directly, with no `await`. |
 | Addon version | `isolated-vm` 6.2.0, pinned (D37). |
+| How code returns a value | The code is compiled as an expression first, so `data("r1").length` returns its value; if that is not valid, it runs as a function body and `return` sends the value. Internal to this part. |
+| What `run_js` returns | A non-empty array of plain objects is stored as a row set (provenance `run_js` with the code) and shown as its handle, columns, and first 20 rows, like a `query_sql` result. Any other value is returned as JSON; the agent loop caps it. Handles created by `save` are listed. Internal to this part. |
+| Helper errors | A helper's `ToolError` message reaches the model; any other error becomes "`name`() failed unexpectedly.", because it may carry a host path. Chart's `render` should throw `ToolError` for messages meant for the model. |
+| Host-side guards | Console output is kept up to 100,000 characters, and one helper call accepts at most 64 MB of arguments. These protect host memory and are not user settings. |
+| Wall-clock limit | `isolated-vm`'s `timeout` covers only synchronous execution, so the host also disposes the isolate when the time is up or the abort signal fires. This stops pending promises and microtask loops. |
+| `save` provenance | Row sets stored by `save` have provenance tool `save`, arguments `{ name }`, and the name as label. |
 
 ## Open questions
 
