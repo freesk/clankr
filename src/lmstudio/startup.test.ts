@@ -8,7 +8,7 @@ import {
   FakeLmStudioServer,
   type FakeServerOptions,
   testSession,
-} from "./fake-lm-studio-server.ts";
+} from "./fake-lm-studio-server.test-support.ts";
 import { assertLoopbackHost } from "./loopback.ts";
 import { ModelSwitcher } from "./model-switcher.ts";
 import { oldServerWarning } from "./server-check.ts";

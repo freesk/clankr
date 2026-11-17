@@ -439,6 +439,12 @@ Milestones give the order in which scenarios must pass. The work itself is split
 | D39 | HEIC and BMP images | Converted by the harness with the macOS built-in `/usr/bin/sips`, run with an argument list and no shell, writing into the session scratch folder. Other formats try `sharp` first and fall back to `sips` | `sharp` 0.35.5 has no HEVC decoder and cannot read BMP. This is harness code, not a model-facing shell, so D10 and PERM-6 still hold |
 | D40 | AVIF images | Accepted by `view_image` in addition to the IMG-1/IMG-4 formats | `sharp` decodes it at no extra cost |
 | D41 | Undo and cross-volume moves never delete permanently | `/undo` of a created file or copy sends it to the Trash; a `delete` is snapshotted in full first so `/undo` restores it; a move across volumes is copy then Trash the original | Extends FS-6 to undo. Under D27 (no size limit), deleting a large folder also copies it into the session snapshot folder |
+| D42 | The vix root is on the deny list | `~/.vix` is denied to every tool, so the model cannot read transcripts or rewrite `config.json` to change its own permission mode. Parts that store session data use `VixPaths` directly, not `PathPolicy` | A model must not be able to escalate its own permissions |
+| D43 | Credential files denied anywhere | Private key names (`id_rsa`, `id_ed25519`, …), `.netrc`, `.pgpass`, and `.git-credentials` are denied by file name, even inside allowed roots. `.env` files are not (see O5) | They hold secrets wherever they live |
+| D44 | Approvals without a preview | A write or execute call without a `ChangePreview` asks in every mode; "always for this session" never grants a location outside the allowed roots | Fails safe when a tool forgets its preview |
+| D45 | Token counting | `@lmstudio/sdk` 2.1.0, loaded on first count; falls back to about 4 characters per token with a one-time warning if the SDK cannot answer | Refines section 6.1 |
+| D46 | LM Studio version check (D23) | The HTTP API reports no version, so a 404 on `/api/v1/models` is read as "older than 0.4.0" | The only signal available |
+| D47 | Context length above the model maximum | Capped at the model's maximum | Loading would fail otherwise |
 
 Decisions internal to one part (limits, cache rules, eviction age) are recorded in that part's spec under [specs/](specs/README.md).
 
@@ -446,6 +452,7 @@ Decisions internal to one part (limits, cache rules, eviction age) are recorded 
 
 | # | Question | Leaning |
 |---|---|---|
+| O5 | Should `.env` files be on the deny list (D43)? | Undecided; they often hold secrets but are also edited legitimately |
 | O3 | Is the `vix` package name free on npm, if the tool is ever published? | Not checked; irrelevant while it is installed locally |
 
 O1, O2, and O4 were resolved by D36, D19, and D23. Questions local to one part are listed in [specs/README.md](specs/README.md).

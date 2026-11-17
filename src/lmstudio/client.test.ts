@@ -5,7 +5,7 @@ import {
   configForServer,
   FakeLmStudioServer,
   type FakeServerOptions,
-} from "./fake-lm-studio-server.ts";
+} from "./fake-lm-studio-server.test-support.ts";
 import type { TokenCounter } from "./token-counter.ts";
 
 const servers: FakeLmStudioServer[] = [];

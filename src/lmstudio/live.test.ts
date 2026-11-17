@@ -7,7 +7,7 @@ import { afterAll, describe, expect, it } from "vitest";
 import type { ChatEvent, LoadedInstance } from "../contracts/index.ts";
 import { parseChatStream } from "./chat-stream.ts";
 import { LmStudioClient } from "./client.ts";
-import { configForServer } from "./fake-lm-studio-server.ts";
+import { configForServer } from "./fake-lm-studio-server.test-support.ts";
 
 const liveEnabled = process.env.VIX_LIVE_LMSTUDIO === "1" && Boolean(process.env.LM_API_TOKEN);
 const loadEnabled = liveEnabled && process.env.VIX_LIVE_LOAD === "1";

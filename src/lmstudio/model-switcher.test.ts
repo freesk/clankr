@@ -4,7 +4,7 @@ import type { LoadedModel, ModelInfo, SlashCommandContext } from "../contracts/i
 import { ScriptedLmClient, testModel } from "../testing/index.ts";
 import { LmStudioClient } from "./client.ts";
 import { scrubSecret } from "./errors.ts";
-import { configForServer, FakeLmStudioServer, testSession } from "./fake-lm-studio-server.ts";
+import { configForServer, FakeLmStudioServer, testSession } from "./fake-lm-studio-server.test-support.ts";
 import { formatModelList } from "./format-models.ts";
 import { createModelCommand } from "./model-command.ts";
 import { ModelSwitcher } from "./model-switcher.ts";

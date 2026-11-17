@@ -23,11 +23,11 @@ Build `vix` as described in [PRD.md](PRD.md), part by part, following the waves 
 |---|---|---|---|---|---|---|
 | 0 | foundation | [foundation.md](specs/foundation.md) | 0 | main session | done (verified) | None. Evidence: lint, 16 tests, and build pass on a clean copy with `npm ci`; `npm run spike` prints a DuckDB result and an isolate result |
 | 1 | cli | [cli.md](specs/cli.md) | 1 | agent-cli | in progress | Argument parsing, one-shot mode, slash dispatcher; Ink REPL after |
-| 2 | lmstudio | [lmstudio.md](specs/lmstudio.md) | 1 | agent-lmstudio | in progress | `LmClient` against the live server on localhost:1234; confirm streaming reports usage |
+| 2 | lmstudio | [lmstudio.md](specs/lmstudio.md) | 1 | agent-lmstudio | done (verified) | Merged in `6d1e8c5`; full suite 270 passing + 5 skipped. Verified live: token-missing and token-rejected errors against LM Studio 0.4.20. Not verified live (no `LM_API_TOKEN`): chat stream, usage in stream, SDK token counts, load/switch, reasoning toggle. Run `VIX_LIVE_LMSTUDIO=1 LM_API_TOKEN=… npx vitest run src/lmstudio/live.test.ts` |
 | 3 | agent-loop | [agent-loop.md](specs/agent-loop.md) | 1 | agent-loop | in progress | Registry and JSON schema generation from zod, then `runTurn` with `ScriptedLmClient` |
 | 4 | context | [context.md](specs/context.md) | 1 | agent-context | in progress | On-disk `ResultStore` (JSON Lines rows), `capResult`, budgets |
-| 5 | permissions | [permissions.md](specs/permissions.md) | 1 | agent-storage-permissions | in progress | `PathPolicy` with canonicalisation and the deny list, then the gate's decision table |
-| 6 | storage | [storage.md](specs/storage.md) | 1 | agent-storage-permissions | in progress | Real `VixPaths` builder; then point `src/testing/temporary-vix-paths.ts` at it |
+| 5 | permissions | [permissions.md](specs/permissions.md) | 1 | agent-storage-permissions | done (verified) | Merged in `dc8f650` with storage; full suite 238 passing then. Not verified: deny-list paths on a real home folder, audit entries written end to end by the agent loop |
+| 6 | storage | [storage.md](specs/storage.md) | 1 | agent-storage-permissions | done (verified) | Merged in `dc8f650`: modes, wipe, resume, ephemeral cleanup on every exit path incl. signals, all tested in temp roots. Not verified: SIGHUP |
 | 7 | search | [search.md](specs/search.md) | 1 | agent-search | in progress | Vendor step for ripgrep; `list_dir` and `read_file` first. Replace the smoke test in `src/tools/search/` |
 | 8 | files | [files.md](specs/files.md) | 1 | agent-files | done (verified) | Merged in `c37d0ea`: 43 files tests; full suite 148 passing + 1 opt-in skipped, lint and build clean on main. Not verified: trashed file visible in `~/.Trash` (no Full Disk Access), cross-volume move fallback (EXDEV never triggered), behaviour against the real `PathPolicy` |
 | 9 | image | [image.md](specs/image.md) | 1 | agent-image | done (verified) | Merged in `03bba17`: 30 image tests, full suite 50 passing, lint and build clean on main. Not verified: live LM Studio check (no `LM_API_TOKEN`), so default max edge and the image token estimate stay open |
@@ -64,6 +64,13 @@ Build `vix` as described in [PRD.md](PRD.md), part by part, following the waves 
 - files: `/undo` does not update the `ReadTracker`, so the model must re-read before overwriting an undone file. Small race between target check and `rename` in move/copy.
 - Shared test fixtures inside a part go in `*.test-support.ts`, which the build excludes.
 
+- storage/permissions wiring (cli): `openSession({ root: resolveVixRoot(), ephemeral, resumeSessionId })` and `close()` on exit; `--resume` = `new FileSessionStore(root).newest()` + `chooseResumeModel`; `vix wipe` = `wipe(root, …)`; gate = `new SessionPermissionGate({ session, paths: new RealPathPolicy({...}), prompter })` (no prompter in one-shot); register `permissionsCommand`.
+- agent-loop must call `auditLog.record(...)` after every call incl. denied ones, with the gate's `basis`; build it with `createAuditLog({ vixPaths, ephemeral, secrets: [config.lmStudio.apiToken] })`.
+- Read tools must call `PathPolicy.classify` themselves; the gate gets no preview for reads.
+- lmstudio wiring: startup via `connectAtStartup({ client, switcher, session, modelKey, notify })`; `/model` via `createModelCommand(switcher)`; context subscribes via `switcher.onModelChanged`; cli must call `LmStudioClient.dispose()` on exit (SDK WebSocket keeps the process alive).
+- `estimateTokens` in lmstudio duplicates the character counter in `src/testing/`; move to one runtime helper during integration.
+- Risk: `npm audit` reports GHSA-mrhx-c7xc-m3w5 (zod < 4.6.6 memory exhaustion) through `@lmstudio/sdk`'s bundled zod 3.25.76. npm's only fix is downgrading the SDK to 0.3.0. Exposure is limited to messages from the local LM Studio server. Decide: accept, override, or drop the SDK for the character estimate.
+
 ## Decisions made along the way
 
 | Date | Decision | Reason |
@@ -75,4 +82,6 @@ Build `vix` as described in [PRD.md](PRD.md), part by part, following the waves 
 | 2026-11-17 | Wave 1 runs as 12 parallel agents in git worktrees | The user asked for parallel agents; worktrees keep `node_modules` and edits apart |
 | 2026-11-17 | D39 (`sips` for HEIC/BMP) and D40 (AVIF accepted), from the image agent | `sharp` lacks those decoders; AVIF is free |
 | 2026-11-17 | D41 (undo and cross-volume moves go through the Trash), from the files agent | Keeps FS-6's no-permanent-delete rule for every path |
+| 2026-11-17 | D42–D47 from storage/permissions and lmstudio; O5 (`.env`) opened | See PRD 13.1 |
+| 2026-11-17 | Renamed `src/lmstudio/fake-lm-studio-server.ts` to `.test-support.ts` | Keeps the fake out of `dist` |
 | 2026-11-17 | Config `data.rowCap` is one number for the chart row cap and the isolate helper cap | specs/sandbox.md requires them to be defined once |
