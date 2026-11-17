@@ -37,7 +37,23 @@ Own every byte the harness writes under `~/.vix/`. Transcripts and stored result
     results/              the result store (context)
     snapshots/            file snapshots for /undo (files)
     tmp/                  engine scratch space, such as DuckDB spill files (sql)
+  ephemeral/<pid>-<session-id>/
+    results/ snapshots/ tmp/   same as a saved session, but no transcript
 ```
+
+The root is `$VIX_HOME` when that variable is set, otherwise `~/.vix`. Tests always set an explicit root and never touch the real one.
+
+### Code (`src/storage/`)
+
+| Module | Provides |
+|---|---|
+| `layout.ts` | `resolveVixRoot`, `buildVixPaths`, `buildEphemeralVixPaths`, `buildRootPaths`, `sessionDirectories`, `newSessionId`. The only place the layout is spelled out; `src/testing/temporary-vix-paths.ts` builds through it. |
+| `private-files.ts` | `ensurePrivateDirectory` (0700) and `appendPrivateFile` (0600), with the mode set by chmod after creation. |
+| `session.ts` | `openSession({ root, ephemeral?, resumeSessionId? })` returns `{ paths, transcript, ephemeral, close() }`. Sweeps ephemeral leftovers first. |
+| `transcript.ts` | `FileTranscript` (implements the `SessionTranscript` contract) and `DiscardingTranscript` for ephemeral sessions. |
+| `session-store.ts` | `FileSessionStore` (implements the `SessionStore` contract) and `chooseResumeModel`. |
+| `ephemeral.ts` | The ephemeral directory, its exit hooks, and `sweepEphemeralLeftovers`. |
+| `wipe.ts` | `planWipe` and `wipe(root, { yes: true } \| { confirm })`. |
 
 ## Consumes
 
@@ -83,6 +99,19 @@ Settled 2026-11-17. All four are recorded together as D32 in PRD section 13.1.
 | `vix --resume` | Opens the most recent session. There is no picker. |
 | Retention | Sessions are kept until wiped. Nothing is deleted automatically. |
 | `/clear` | Starts a new session; the old one stays on disk. |
+
+Internal to this part, settled while building it (2026-11-17):
+
+| Topic | Decision |
+|---|---|
+| Root override | `VIX_HOME` replaces `~/.vix`, for tests and experiments. |
+| "Most recent" session | The one whose transcript was written last, not the one started last. Sessions with no messages are not listed or resumed. |
+| Empty sessions | The transcript and its header are created on the first message. `close()` removes a session directory that recorded nothing, so starting and quitting `vix` leaves nothing behind. |
+| Transcript records | One JSON object per line: a `session` header (format version, id, start time), `message`, and `model` (a model switch, so resume can reload it). A line that does not parse is skipped, since a crash can cut the last one. |
+| Ephemeral location | `ephemeral/<pid>-<id>/` under the root. Parents that did not exist before are removed again, so the tree ends up byte-for-byte as it was. The process id lets the startup sweep leave a running session alone. |
+| Ephemeral exit paths | Removed synchronously on `exit` (normal exit, `process.exit`, uncaught exception) and on SIGINT, SIGTERM, and SIGHUP, after which the signal is re-raised so the exit status is unchanged. If another listener owns the signal (the cli cancelling a turn on Ctrl-C), storage leaves it to that listener and cleans up on `exit`. SIGKILL and power loss are covered by the sweep. |
+| Resume and ephemeral | Cannot be combined; `openSession` refuses. |
+| Wipe scope | Everything at the top of the root except `config.json` and `theme.json`, including leftover ephemeral directories. The plan counts saved and leftover ephemeral sessions and their total size. With nothing to delete it does not ask. |
 
 ## Open questions
 

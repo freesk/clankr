@@ -22,7 +22,15 @@ export interface ChangePreview {
   dataSourcePaths?: string[];
 }
 
-export type GateDecision = { allowed: true } | { allowed: false; feedback: string };
+/**
+ * Why a call was allowed, for the audit log: a read, the mode (auto-edit inside the
+ * allowed roots), an earlier session grant, or the user's answer to this prompt.
+ */
+export type ApprovalBasis = "read" | "mode" | "grant" | "approved-once" | "approved-for-session";
+
+export type GateDecision =
+  | { allowed: true; basis?: ApprovalBasis }
+  | { allowed: false; feedback: string };
 
 export interface GatedTool {
   name: string;
@@ -63,4 +71,25 @@ export type ApprovalAnswer =
 
 export interface ApprovalPrompter {
   ask(request: ApprovalRequest, signal?: AbortSignal): Promise<ApprovalAnswer>;
+}
+
+/**
+ * One line of the audit log (PERM-8): one per tool call, written after the call ends.
+ * The agent loop writes it, because only it knows the outcome. The writer adds the time.
+ */
+export interface AuditEntry {
+  tool: string;
+  arguments: Record<string, unknown>;
+  decision: "allowed" | "denied";
+  basis?: ApprovalBasis;
+  /** "not-run" when the gate denied the call. */
+  outcome: "ok" | "error" | "not-run";
+  /** The error text the model saw, when the outcome is "error". */
+  error?: string;
+  durationMs?: number;
+}
+
+/** Writes nothing in an ephemeral session. Never writes the API token. */
+export interface AuditLog {
+  record(entry: AuditEntry): Promise<void>;
 }

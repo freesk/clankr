@@ -95,6 +95,22 @@ Settled 2026-11-17. A D-number means the decision is also recorded in PRD sectio
 | `delete` in auto-edit mode | Still asks, as PERM-5 says, unless granted for the session (D20). |
 | No prompter available (one-shot mode) | Anything that would ask is denied, unless `--permission-mode` pre-authorized it (D14). |
 
+Internal to this part, settled while building it (2026-11-17):
+
+| Topic | Decision |
+|---|---|
+| Code (`src/permissions/`) | `RealPathPolicy` (`path-policy.ts`, `canonical-path.ts`), the deny list (`deny-list.ts`), the decision table as a pure function (`decision.ts`), `SessionPermissionGate` (`gate.ts`), refusal texts (`messages.ts`), `createAuditLog` (`audit-log.ts`), and `permissionsCommand`. |
+| Concrete deny list | Defined once in `deny-list.ts`: credential folders and files under the home folder (`.ssh`, `.gnupg`, `.aws`, `.azure`, `.config/gcloud`, `.kube`, `.docker/config.json`, `.config/gh`, `.netrc`, `.npmrc`, `.pypirc`, `.git-credentials`, `.pgpass`, `.password-store`), `~/Library/Keychains` and `/Library/Keychains`, browser profiles (Chrome, Chromium, Brave, Edge, Arc, Firefox, Safari, cookies), 1Password, and system folders (`/System`, `/bin`, `/sbin`, `/usr/bin`, `/usr/sbin`, `/usr/lib`, `/usr/libexec`, `/etc`, `/private/etc`, `/private/var/db`). Private key file names (`id_rsa`, `id_dsa`, `id_ecdsa`, `id_ed25519`) and `.netrc`, `.pgpass`, `.git-credentials` are denied wherever they are. |
+| The vix root is denied | The model can neither read transcripts nor write `config.json`; a model that could write the config could change its own mode (SEC-7). Tools reach session files only through their own contracts (`ResultStore`, snapshots), never through `PathPolicy`. |
+| Canonical deny entries | Deny entries and allowed roots are canonicalized too, and both spellings of a deny entry are kept, so neither a link nor its target slips by. A dangling link is followed to where a write through it would land. |
+| Grants and outside writes | A write outside the allowed roots asks every time. Answering "always" to such a prompt grants only the parts of the request that grants can cover (the tool for inside-root writes, or the data files), never the outside location. |
+| Execute code with no data file | Grants fall back to the tool name (`run_js` with no input file). |
+| A write or execute call with no preview | Asks, in every mode, because its targets are unknown. |
+| Read-class deny checks | The gate refuses denied paths it is shown (preview targets and data sources). Read tools check their own paths with `PathPolicy` before opening a file, since the gate receives no preview for reads. |
+| One-shot refusals | The message names `--permission-mode` and says whether `auto-edit` would have allowed the call (writes inside the roots) or not (delete, execute, outside writes). |
+| Audit log writer | The agent loop records one `AuditEntry` per call after it ends, since only it knows the outcome; the gate reports the `basis` of each allowance for it. The token is redacted in raw and JSON-escaped form. String arguments over 2,000 characters are shortened. |
+| `/permissions` | `/permissions` shows mode, allowed folders, grants, and config-added protected paths; `/permissions <mode>` switches; `/permissions revoke` drops all session grants. |
+
 ## Open questions
 
 None.
