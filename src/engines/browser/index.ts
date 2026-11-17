@@ -1,2 +1,21 @@
-// pdf part. See specs/pdf.md. Empty until wave 1 builds it.
-export {};
+// pdf part. See specs/pdf.md. Turns a validated Vega-Lite spec into a PDF, PNG, or SVG file
+// in an offline headless browser. Playwright is loaded lazily, on the first render.
+
+export {
+  type ChartRenderer,
+  type ChartRendererOptions,
+  chartDataName,
+  createChartRenderer,
+  exportScale,
+  withHarnessData,
+} from "./chart-renderer.ts";
+export { systemFontFamily } from "./fonts.ts";
+export type { BlockedRequest, BlockedRequestLogger } from "./offline.ts";
+export { ChartDrawError } from "./page-calls.ts";
+export type { ReportBlock } from "./report.ts";
+export {
+  assertVendored,
+  isBrowserVendored,
+  MissingVendorFileError,
+  vegaLiteSchemaPath,
+} from "./vendor-files.ts";

@@ -72,6 +72,8 @@ const dataSchema = z.object({
   /** Limits on the V8 isolate that runs `run_js` and `make_chart` code (specs/sandbox.md). */
   isolateTimeoutMs: z.number().int().positive().default(5_000),
   isolateMemoryLimitMb: z.number().int().positive().default(128),
+  /** How long the chart browser stays open after the last render (D30). */
+  browserIdleSeconds: z.number().int().positive().default(60),
 });
 
 export const configSchema = z.object({

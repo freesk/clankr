@@ -94,10 +94,18 @@ Settled 2026-11-17. A D-number means the decision is also recorded in PRD sectio
 | Approval | `make_chart` is covered by the data file's session grant. The output file is a write and follows PERM-3 (D19). |
 | Reference text budget | About 1,000 tokens. |
 | Failed self-check | One automatic retry (D29). |
+| Chart from more than one data file | The folder of the first data file reached when tracing the code's handles in order (the provenance's SQL tables, `inspect_data` paths, and `run_js` code, followed up to 3 levels). One rule that needs no prompt, and the SQL file beside the chart names every data file, so nothing is lost. Settled in wave 1; needs a PRD row. |
+| Self-check retry and the metric | The automatic retry counts as an attempt toward "render within 3 attempts" (PRD section 10). The metric measures what the user waits for; not counting it would hide a failed first chart. Settled in wave 1; needs a PRD row. |
+| How the retry is carried | A failed check returns the verdict and writes nothing; the tool remembers that the retry is spent, so the next `make_chart` call is written with its own verdict. The flag resets after a written chart. |
+| Self-check wiring | `createMakeChartTool` takes an optional `selfCheck` and `renderPreview`. `createVisionSelfCheck(currentModel)` is the default implementation: one request, no tools, no history, PNG preview, answer starts PASS or FAIL. It skips models without vision. Integration may swap in image's sub-call. |
+| Isolate wiring | `runInIsolate` and `createStandardHelpers` are injected. `render` is the one extra helper; every message meant for the model is a `ToolError`. `render` also accepts a handle string in place of rows. Limits come from `config.data`, as for `run_js`. |
+| What counts as styling | Defined once in `src/chart/styling.ts`: top-level `config`, `background`, `padding`; mark `color`, `fill`, `stroke`, font properties; fixed `value` and `scale.scheme`/`scale.range` on `color`, `fill`, `stroke`; any font or colour property of a title, axis, legend, or header. |
+| External references | Any `url` key anywhere in the spec, and the `image` mark, are rejected before the browser. |
+| Field check | A field that is not a column is reported with the column list. Only checked for specs without transforms or repeat, where it cannot misfire. |
+| Validation errors | Ajv over the vendored schema. The deepest failing location wins; a property is "unknown" only if no alternative accepts it; enum lists get a "Did you mean" hint. At most 3 messages. |
+| Companion files | `<name>.chart.js`, `<name>.vl.json`, `<name>.sql`, beside `<name>.<format>`. A number is appended if any of the four exists. An explicit `output_path` gets a number too rather than overwriting. |
+| Reference text export | `chartToolReference` = `{ toolName, text, triggerWords }`, the shape agent-loop's `ToolReference` expects. |
 
 ## Open questions
 
-Both follow from the decisions above.
-
-- **A chart built from more than one data file:** which file's folder gets the output? Proposed: the first file named in the row set's provenance.
-- **Does the automatic retry count toward the "render within 3 attempts" metric** in PRD section 10? Proposed: yes, it is an attempt like any other.
+None.
