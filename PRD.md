@@ -73,7 +73,7 @@ Priorities: **P0** = required for v1, **P1** = should have, **P2** = later.
 |---|---|---|
 | CLI-1 | Interactive REPL started with `vix`, with streamed model output. | P0 |
 | CLI-2 | One-shot mode: `vix -p "prompt"` prints the result and exits with a status code. Accepts piped stdin. | P0 |
-| CLI-3 | Slash commands: `/model`, `/context`, `/compact`, `/clear`, `/think`, `/permissions`, `/help`, `/exit`. | P0 |
+| CLI-3 | Slash commands: `/model`, `/context`, `/compact`, `/clear`, `/think`, `/permissions`, `/config`, `/undo`, `/help`, `/exit`. | P0 |
 | CLI-4 | Tool calls are shown as one compact line each (tool, key argument, result size, duration). | P0 |
 | CLI-5 | `Ctrl+C` cancels the current generation or tool run without exiting; a second press exits. | P0 |
 | CLI-6 | `vix wipe` deletes all saved sessions, stored tool results, and logs. | P0 |
@@ -472,6 +472,7 @@ Milestones give the order in which scenarios must pass. The work itself is split
 | D72 | zod advisory through `@lmstudio/sdk` | Kept as is: the SDK's bundled zod 3.25.76 (GHSA-mrhx-c7xc-m3w5) is accepted | User decision. The SDK only parses messages from the local LM Studio server |
 | D73 | Setting the API token | Through a guided `vix config` / `/config` flow that writes `~/.vix/config.json` at 0600; `LM_API_TOKEN` still overrides it | User decision: setup should not require editing files or the shell |
 | D74 | Data tools in one-shot mode | `vix -p … --allow-data` grants the execute-class tools (`query_sql`, `run_js`, `make_chart`) for that run only, on data files inside the allowed folders. Without it they are denied, and the denial names `--allow-data`, not `--permission-mode`. Write and delete rules are unchanged | User decision. One-shot cannot ask (D14), and PERM-5 allows an explicit session grant |
+| D75 | Setup flow details (D73) | Six questions only. A rejected token can be retried or skipped; skipping keeps the saved token, so a known-bad token is never saved. Allowed folders are saved as absolute paths. A non-loopback host gets a warning, not an offer to override. On first run with no or a rejected token, a terminal is offered the setup; afterwards the user starts vix again. Ctrl+C in `vix config` exits 0 and writes nothing | Keeps setup short and never stores a bad secret |
 
 Decisions internal to one part (limits, cache rules, eviction age) are recorded in that part's spec under [specs/](specs/README.md).
 
