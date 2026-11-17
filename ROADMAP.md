@@ -38,7 +38,8 @@ Build `vix` as described in [PRD.md](PRD.md), part by part, following the waves 
 | 14 | pdf | [pdf.md](specs/pdf.md) | 1 | agent-chart-pdf | done (verified) | Merged in `65c20f5`; vega and Chromium vendored on main, full suite 591 passing + 5 skipped. Offline proven (blocked requests logged, 0 leak connections, no sockets via `lsof`). Chart to PDF 853 ms cold, about 100 ms warm. Flaky under load: three browser tests timed out at 5 s while the machine was busy, passed in 0.1–1 s otherwise |
 | 15 | evals | [evals.md](specs/evals.md) | 1 | agent-evals | done (verified) | Merged in `4b3d27d`: 41 golden tasks validated, runner and metrics tested with a scripted harness, network observers catch deliberate outbound traffic; full suite 409 passing + 5 skipped. Not verified: any golden run against a real model (real harness is wave 2), network test against real `vix`, PRD section 9 performance script (not built) |
 | 16 | subagents | [subagents.md](specs/subagents.md) | 2 | agent-subagents | done (verified) | Merged in `683a17e`: 24 tests with the real `runTurn` (brief-only context, read-only tools, no nesting, turn limit, summary cap, cancellation); full suite 685 passing + 7 skipped. Not verified: a real model keeping to the cap. Integration agent told to wire `delegate` |
-| 17 | integration | [README.md](specs/README.md) | 2 | agent-integration | in progress | Wire real parts in `src/cli/composition.ts`; work through the integration notes |
+| 17 | integration | [README.md](specs/README.md) | 2 | agent-integration | done (verified) | Merged in `ca2ddea`: real parts wired (`src/app/`); 7 end-to-end tests (one-shot file turn, denied write, ephemeral, resume, inspect → SQL → PDF, delegate, /compact and /clear); full suite 693 passing + 7 skipped. Startup median 278 ms REPL, 199 ms one-shot (fake server). Not verified live: no `LM_API_TOKEN`. Built `vix -p` against the real server without a token prints the token-missing error and fix, exit 1 |
+| 19 | CTX-5 fixed overhead | [context.md](specs/context.md) | 3 | unassigned | todo | Estimated overhead is over the 1,500-token target: core with `delegate` about 1,923, all groups about 2,588 (find_files about 508, delegate about 231). Measure with the real tokenizer, then shorten descriptions and schemas |
 | 18 | real eval harness and golden run | [evals.md](specs/evals.md) | 3 | unassigned | blocked | Waits for task 17; then implement `evals/runner/real-harness.ts` and run the golden suite against the model |
 
 ## How wave 1 runs
@@ -49,6 +50,12 @@ Build `vix` as described in [PRD.md](PRD.md), part by part, following the waves 
 - Shared files agents may touch, add-only: `package.json` (their own dependencies), `src/config/schema.ts` (new fields in their own section), `scripts/vendor/steps.ts` (their own step), their own spec. Contracts change only add-only, and the agent reports it.
 - The main session merges each branch into `main` as it finishes, regenerates `package-lock.json` on conflict, and re-runs lint, test, and build after each merge.
 - If a session dies: `git worktree list` and `git branch` show each agent's branch; anything committed there can be merged, and anything unfinished restarts from the row's next step.
+
+## Next steps (after wave 2)
+
+- Task 19 (CTX-5) can start now: real-tokenizer measurement needs `LM_API_TOKEN`; trimming can start against the estimate.
+- Task 18 needs `LM_API_TOKEN` for the golden run. Without it, implement `evals/runner/real-harness.ts` and run against the fake server only.
+- Smaller items: `renderReport` has no tool (DATA-19, P1); `delegate`'s nested tool-end events appear in one-shot `--json` `toolCalls` and could inflate eval metrics; the token-estimate warning prints once per run when the SDK rejects the token.
 
 ## How wave 2 runs
 
@@ -125,4 +132,5 @@ Build `vix` as described in [PRD.md](PRD.md), part by part, following the waves 
 | 2026-11-17 | Build also excludes `src/**/test-support.ts` | chart and browser test helpers use that exact name |
 | 2026-11-17 | D63–D64 from sql and inspect. Wave 1 complete: all 15 parts merged | See PRD 13.1 |
 | 2026-11-17 | D65 from subagents | See PRD 13.1 |
+| 2026-11-17 | D66–D71 from integration. Wave 2 complete | See PRD 13.1 |
 | 2026-11-17 | Config `data.rowCap` is one number for the chart row cap and the isolate helper cap | specs/sandbox.md requires them to be defined once |
