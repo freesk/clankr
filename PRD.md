@@ -445,6 +445,9 @@ Milestones give the order in which scenarios must pass. The work itself is split
 | D45 | Token counting | `@lmstudio/sdk` 2.1.0, loaded on first count; falls back to about 4 characters per token with a one-time warning if the SDK cannot answer | Refines section 6.1 |
 | D46 | LM Studio version check (D23) | The HTTP API reports no version, so a 404 on `/api/v1/models` is read as "older than 0.4.0" | The only signal available |
 | D47 | Context length above the model maximum | Capped at the model's maximum | Loading would fail otherwise |
+| D48 | When the Vega-Lite reference is in context (DATA-16) | While `make_chart` is offered, and either the user's message contains a chart trigger word or `make_chart` was called in the last 3 turns | Keeps the reference out of the budget for data work that is not charting |
+| D49 | Prompt-based tool calling (MOD-6) | `<tool_call>{"name", "arguments"}</tool_call>` in the model's text, results sent back as `<tool_result>` user messages; stored history always keeps the native shape | One history format whatever the style |
+| D50 | Enforcing PERM-6 | The tool registry refuses shell-like tool names at registration, along with nested parameters and write or execute tools without a preview | Makes D10 a checked rule, not a convention |
 
 Decisions internal to one part (limits, cache rules, eviction age) are recorded in that part's spec under [specs/](specs/README.md).
 

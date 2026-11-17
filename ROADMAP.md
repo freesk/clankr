@@ -24,7 +24,7 @@ Build `vix` as described in [PRD.md](PRD.md), part by part, following the waves 
 | 0 | foundation | [foundation.md](specs/foundation.md) | 0 | main session | done (verified) | None. Evidence: lint, 16 tests, and build pass on a clean copy with `npm ci`; `npm run spike` prints a DuckDB result and an isolate result |
 | 1 | cli | [cli.md](specs/cli.md) | 1 | agent-cli | in progress | Argument parsing, one-shot mode, slash dispatcher; Ink REPL after |
 | 2 | lmstudio | [lmstudio.md](specs/lmstudio.md) | 1 | agent-lmstudio | done (verified) | Merged in `6d1e8c5`; full suite 270 passing + 5 skipped. Verified live: token-missing and token-rejected errors against LM Studio 0.4.20. Not verified live (no `LM_API_TOKEN`): chat stream, usage in stream, SDK token counts, load/switch, reasoning toggle. Run `VIX_LIVE_LMSTUDIO=1 LM_API_TOKEN=… npx vitest run src/lmstudio/live.test.ts` |
-| 3 | agent-loop | [agent-loop.md](specs/agent-loop.md) | 1 | agent-loop | in progress | Registry and JSON schema generation from zod, then `runTurn` with `ScriptedLmClient` |
+| 3 | agent-loop | [agent-loop.md](specs/agent-loop.md) | 1 | agent-loop | done (verified) | Merged in `59acba2`: 58 agent tests; full suite 328 passing + 5 skipped. Not verified: CTX-5 with the real counter and tools (fake estimate 975 tokens native / 536 prompt), and whether Gemma follows `<tool_call>` |
 | 4 | context | [context.md](specs/context.md) | 1 | agent-context | in progress | On-disk `ResultStore` (JSON Lines rows), `capResult`, budgets |
 | 5 | permissions | [permissions.md](specs/permissions.md) | 1 | agent-storage-permissions | done (verified) | Merged in `dc8f650` with storage; full suite 238 passing then. Not verified: deny-list paths on a real home folder, audit entries written end to end by the agent loop |
 | 6 | storage | [storage.md](specs/storage.md) | 1 | agent-storage-permissions | done (verified) | Merged in `dc8f650`: modes, wipe, resume, ephemeral cleanup on every exit path incl. signals, all tested in temp roots. Not verified: SIGHUP |
@@ -71,6 +71,11 @@ Build `vix` as described in [PRD.md](PRD.md), part by part, following the waves 
 - `estimateTokens` in lmstudio duplicates the character counter in `src/testing/`; move to one runtime helper during integration.
 - Risk: `npm audit` reports GHSA-mrhx-c7xc-m3w5 (zod < 4.6.6 memory exhaustion) through `@lmstudio/sdk`'s bundled zod 3.25.76. npm's only fix is downgrading the SDK to 0.3.0. Exposure is limited to messages from the local LM Studio server. Decide: accept, override, or drop the SDK for the character estimate.
 
+- **Conflict to settle in integration:** `ChatRequest.model`. lmstudio and image use `LoadedModel.instanceId` (lmstudio maps it back to the key for profiles); agent-loop sends `model.key`. Change agent-loop to `instanceId`.
+- Compaction write-back: `prepareMessages` may compact but cannot return the new history, so `session.messages` would grow. Context agent asked to close this (add-only); integration wires the loop side.
+- agent-loop wiring: `runTurn(dependencies, session, input, signal)` with `AgentDependencies` (`lm`, `context`, `permissions`, `tools`, `createToolContext(signal)`, `config`, `workingDirectory`, optional `toolReferences`, `extraInstructions`). `createToolContext` must fill `model` and `reasoning` (image needs them). cli warns on MOD-6 via `toolCallingStyleFor(model, config)`. Session creator sets `reasoning` from the model profile. Storage should persist `SessionState.activatedToolGroups`. Run `measureFixedOverhead` with real tools and the real counter for CTX-5.
+- Chart must export a `ToolReference` (chart agent told).
+
 ## Decisions made along the way
 
 | Date | Decision | Reason |
@@ -84,4 +89,6 @@ Build `vix` as described in [PRD.md](PRD.md), part by part, following the waves 
 | 2026-11-17 | D41 (undo and cross-volume moves go through the Trash), from the files agent | Keeps FS-6's no-permanent-delete rule for every path |
 | 2026-11-17 | D42–D47 from storage/permissions and lmstudio; O5 (`.env`) opened | See PRD 13.1 |
 | 2026-11-17 | Renamed `src/lmstudio/fake-lm-studio-server.ts` to `.test-support.ts` | Keeps the fake out of `dist` |
+| 2026-11-17 | D48–D50 from agent-loop | See PRD 13.1 |
+| 2026-11-17 | Lint broke on main at `144a275` (long import after a rename), fixed in `ee2d841`; merge checks now use exit codes, not output tails | Rule 2: evidence must be the actual exit status |
 | 2026-11-17 | Config `data.rowCap` is one number for the chart row cap and the isolate helper cap | specs/sandbox.md requires them to be defined once |
