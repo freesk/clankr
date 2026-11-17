@@ -8,9 +8,19 @@ export interface ModelCapabilities {
   reasoning: boolean;
 }
 
+/** Load settings beyond the context length (D78). Unset means LM Studio decides. */
+export interface LoadSettings {
+  parallel?: number;
+  flashAttention?: boolean;
+  offloadKvCacheToGpu?: boolean;
+  evalBatchSize?: number;
+}
+
 export interface LoadedInstance {
   instanceId: string;
   contextLength: number;
+  /** What LM Studio reports the instance was loaded with. */
+  settings?: LoadSettings;
 }
 
 /** One entry from `GET /api/v1/models` (MOD-3). */
@@ -101,7 +111,10 @@ export type ChatEvent =
 
 export interface LmClient {
   listModels(): Promise<ModelInfo[]>;
-  loadModel(key: string, options: { contextLength: number }): Promise<LoadedModel>;
+  loadModel(
+    key: string,
+    options: { contextLength: number; settings?: LoadSettings },
+  ): Promise<LoadedModel>;
   unloadModel(instanceId: string): Promise<void>;
   chat(request: ChatRequest, signal: AbortSignal): AsyncIterable<ChatEvent>;
   countTokens(messages: ChatMessage[]): Promise<number>;

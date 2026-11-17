@@ -3,6 +3,18 @@
 
 import { z } from "zod";
 
+/**
+ * How LM Studio loads a model, beyond its context length. Only settings LM Studio's REST
+ * load API accepts; GPU offload and KV-cache quantization are left to LM Studio (D78).
+ */
+const loadSettingsSchema = z.object({
+  /** Request slots LM Studio reserves memory for. clankr sends one request at a time. */
+  parallel: z.number().int().positive().optional(),
+  flashAttention: z.boolean().optional(),
+  offloadKvCacheToGpu: z.boolean().optional(),
+  evalBatchSize: z.number().int().positive().optional(),
+});
+
 const modelProfileSchema = z.object({
   temperature: z.number().min(0).max(2).optional(),
   topK: z.number().int().positive().optional(),
@@ -10,6 +22,8 @@ const modelProfileSchema = z.object({
   contextLength: z.number().int().positive().optional(),
   reasoning: z.enum(["on", "off"]).optional(),
   toolCallingStyle: z.enum(["native", "prompt"]).optional(),
+  /** Overrides `model.load` for this model, setting by setting. */
+  load: loadSettingsSchema.optional(),
 });
 
 const lmStudioSchema = z.object({
@@ -24,6 +38,11 @@ const modelSchema = z.object({
   default: z.string().default("google/gemma-4-12b-qat"),
   contextLength: z.number().int().positive().default(16_384),
   unloadPreviousOnSwitch: z.boolean().default(false),
+  /**
+   * Load settings for every model. One slot saves about 0.9 GB on Gemma 4 12B at a 16k
+   * context with no speed cost (D78); unset fields use LM Studio's own defaults.
+   */
+  load: loadSettingsSchema.prefault({}).transform((settings) => ({ parallel: 1, ...settings })),
   /** Keyed by model key (MOD-9). */
   profiles: z.record(z.string(), modelProfileSchema).default({}),
 });
@@ -129,3 +148,4 @@ export const configSchema = z.object({
 export type Config = z.infer<typeof configSchema>;
 export type ConfigInput = z.input<typeof configSchema>;
 export type ModelProfile = z.infer<typeof modelProfileSchema>;
+export type LoadSettingsConfig = z.infer<typeof loadSettingsSchema>;

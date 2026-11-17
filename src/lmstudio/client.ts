@@ -7,6 +7,7 @@ import type {
   ChatRequest,
   LmClient,
   LoadedModel,
+  LoadSettings,
   ModelInfo,
 } from "../contracts/index.ts";
 import { estimateTokens } from "../shared/index.ts";
@@ -59,13 +60,16 @@ export class LmStudioClient implements LmClient {
    * Makes sure the model is loaded with this context length: reuses a matching instance,
    * reloads one loaded with another length (D22), or loads it fresh.
    */
-  async loadModel(key: string, options: { contextLength: number }): Promise<LoadedModel> {
+  async loadModel(
+    key: string,
+    options: { contextLength: number; settings?: LoadSettings },
+  ): Promise<LoadedModel> {
     const models = await this.listModels();
     const model = models.find((candidate) => candidate.key === key);
     if (model?.type !== "llm") {
       throw modelNotDownloaded(key, llmKeys(models));
     }
-    const plan = planLoad(model, options.contextLength);
+    const plan = planLoad(model, options.contextLength, options.settings);
     let instanceId: string;
     let contextLength: number;
     if (plan.action === "reuse") {
@@ -77,6 +81,7 @@ export class LmStudioClient implements LmClient {
         this.transport,
         key,
         options.contextLength,
+        options.settings,
       ));
     }
     this.instanceKeys.set(instanceId, key);

@@ -55,6 +55,24 @@ The setup asks six questions. Press Enter to keep the value shown in brackets.
 
 It saves `~/.clankr/config.json`, readable only by you. If you start `clankr` without a token, it offers to run this setup for you. The `LM_API_TOKEN` environment variable, if set, overrides the saved token.
 
+#### Model load settings
+
+When clankr loads a model it sets the context length and LM Studio's load settings. By default it asks for one parallel request slot, which saved about 0.9 GB with Gemma 4 12B at no speed cost. Anything else is left to LM Studio. To change them, edit `~/.clankr/config.json`, globally or per model:
+
+```json
+{
+  "model": {
+    "contextLength": 16384,
+    "load": { "parallel": 1, "flashAttention": true },
+    "profiles": {
+      "google/gemma-4-12b-qat": { "contextLength": 32768, "load": { "evalBatchSize": 512 } }
+    }
+  }
+}
+```
+
+Supported load settings: `parallel`, `flashAttention`, `offloadKvCacheToGpu`, `evalBatchSize`. If the model is already loaded with different settings, clankr reloads it and tells you why. GPU offload and KV-cache quantization are not exposed by LM Studio's API; set them in LM Studio's model settings.
+
 ## Using clankr
 
 ### Interactive

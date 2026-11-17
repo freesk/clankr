@@ -3,13 +3,26 @@
 // so a small API change degrades a field instead of breaking the session.
 
 import { z } from "zod";
-import type { LoadedInstance, ModelCapabilities, ModelInfo } from "../contracts/index.ts";
+import type {
+  LoadedInstance,
+  LoadSettings,
+  ModelCapabilities,
+  ModelInfo,
+} from "../contracts/index.ts";
 import { modelLoadFailed, requestFailed } from "./errors.ts";
 import type { LmStudioTransport } from "./transport.ts";
 
+const instanceConfigSchema = z.object({
+  context_length: z.number().optional(),
+  parallel: z.number().optional(),
+  flash_attention: z.boolean().optional(),
+  offload_kv_cache_to_gpu: z.boolean().optional(),
+  eval_batch_size: z.number().optional(),
+});
+
 const loadedInstanceSchema = z.object({
   id: z.string(),
-  config: z.object({ context_length: z.number().optional() }).optional(),
+  config: instanceConfigSchema.optional(),
 });
 
 const modelEntrySchema = z.object({
@@ -34,7 +47,7 @@ const modelListSchema = z.object({ models: z.array(z.unknown()) });
 
 const loadResponseSchema = z.object({
   instance_id: z.string(),
-  load_config: z.object({ context_length: z.number().optional() }).optional(),
+  load_config: instanceConfigSchema.optional(),
 });
 
 type ModelEntry = z.infer<typeof modelEntrySchema>;
@@ -79,7 +92,36 @@ function toCapabilities(capabilities: ModelEntry["capabilities"]): ModelCapabili
 }
 
 function toLoadedInstance(instance: z.infer<typeof loadedInstanceSchema>): LoadedInstance {
-  return { instanceId: instance.id, contextLength: instance.config?.context_length ?? 0 };
+  return {
+    instanceId: instance.id,
+    contextLength: instance.config?.context_length ?? 0,
+    settings: settingsFromConfig(instance.config),
+  };
+}
+
+function settingsFromConfig(
+  config: z.infer<typeof instanceConfigSchema> | undefined,
+): LoadSettings {
+  const settings: LoadSettings = {};
+  if (config?.parallel !== undefined) settings.parallel = config.parallel;
+  if (config?.flash_attention !== undefined) settings.flashAttention = config.flash_attention;
+  if (config?.offload_kv_cache_to_gpu !== undefined) {
+    settings.offloadKvCacheToGpu = config.offload_kv_cache_to_gpu;
+  }
+  if (config?.eval_batch_size !== undefined) settings.evalBatchSize = config.eval_batch_size;
+  return settings;
+}
+
+/** The REST field for each setting; unset settings are left out so LM Studio decides. */
+function settingsToRequest(settings: LoadSettings): Record<string, number | boolean> {
+  const fields: Record<string, number | boolean> = {};
+  if (settings.parallel !== undefined) fields.parallel = settings.parallel;
+  if (settings.flashAttention !== undefined) fields.flash_attention = settings.flashAttention;
+  if (settings.offloadKvCacheToGpu !== undefined) {
+    fields.offload_kv_cache_to_gpu = settings.offloadKvCacheToGpu;
+  }
+  if (settings.evalBatchSize !== undefined) fields.eval_batch_size = settings.evalBatchSize;
+  return fields;
 }
 
 export interface LoadResult {
@@ -91,10 +133,16 @@ export async function requestLoad(
   transport: LmStudioTransport,
   key: string,
   contextLength: number,
+  settings: LoadSettings = {},
 ): Promise<LoadResult> {
   const body = await transport.postJson(
     "/api/v1/models/load",
-    { model: key, context_length: contextLength, echo_load_config: true },
+    {
+      model: key,
+      context_length: contextLength,
+      ...settingsToRequest(settings),
+      echo_load_config: true,
+    },
     { what: "loading a model", onHttpError: (_status, detail) => modelLoadFailed(key, detail) },
   );
   const parsed = loadResponseSchema.safeParse(body);

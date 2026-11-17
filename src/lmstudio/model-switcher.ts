@@ -10,7 +10,7 @@ import type {
   SessionState,
 } from "../contracts/index.ts";
 import { LmStudioError, modelLoadFailed, modelNotDownloaded } from "./errors.ts";
-import { contextLengthFor, planLoad, reloadNotice } from "./profiles.ts";
+import { contextLengthFor, loadSettingsFor, planLoad, reloadNotice } from "./profiles.ts";
 
 /** Progress text for the user: reloads, unloads, restores. */
 export type Notify = (text: string) => void;
@@ -41,9 +41,10 @@ export class ModelSwitcher {
     const previous = session.model;
     if (previous?.key === key && previous.contextLength === contextLength) return previous;
 
-    const plan = planLoad(target, contextLength);
+    const settings = loadSettingsFor(this.config, key);
+    const plan = planLoad(target, contextLength, settings);
     if (plan.action === "reload") {
-      notify(reloadNotice(key, plan.instance.contextLength, contextLength));
+      notify(reloadNotice(key, plan.instance, contextLength));
     }
     let previousUnloaded =
       plan.action === "reload" && plan.instance.instanceId === previous?.instanceId;
@@ -55,7 +56,7 @@ export class ModelSwitcher {
 
     let loaded: LoadedModel;
     try {
-      loaded = await this.lm.loadModel(key, { contextLength });
+      loaded = await this.lm.loadModel(key, { contextLength, settings });
     } catch (error) {
       if (previous && previousUnloaded) await this.restore(previous, session, notify);
       throw asLoadError(key, error);

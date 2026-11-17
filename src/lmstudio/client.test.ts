@@ -64,7 +64,7 @@ describe("listModels", () => {
       quantization: "Q4_K_M",
       maxContextLength: 32_768,
       capabilities: { vision: true, trainedForToolUse: true, reasoning: false },
-      loadedInstances: [{ instanceId: "test/a", contextLength: 8_192 }],
+      loadedInstances: [{ instanceId: "test/a", contextLength: 8_192, settings: {} }],
     });
     expect(models[1]?.type).toBe("embedding");
   });
@@ -98,6 +98,33 @@ describe("loadModel", () => {
     expect(paths.indexOf("/api/v1/models/unload")).toBeLessThan(
       paths.indexOf("/api/v1/models/load"),
     );
+  });
+});
+
+describe("load settings (D78)", () => {
+  it("sends the configured settings with the load request", async () => {
+    const { server, client } = await startClient({ models: [{ key: "test/a" }] });
+    await client.loadModel("test/a", { contextLength: 16_384, settings: { parallel: 1 } });
+    const load = server.requests.find((request) => request.path === "/api/v1/models/load");
+    expect(load?.body).toMatchObject({ model: "test/a", context_length: 16_384, parallel: 1 });
+  });
+
+  it("reloads an instance loaded with a different parallel setting", async () => {
+    const { server, client } = await startClient({
+      models: [{ key: "test/a", loadedContextLengths: [16_384], loadedParallel: 4 }],
+    });
+    await client.loadModel("test/a", { contextLength: 16_384, settings: { parallel: 1 } });
+    const paths = server.requests.map((request) => request.path);
+    expect(paths).toContain("/api/v1/models/unload");
+    expect(paths).toContain("/api/v1/models/load");
+  });
+
+  it("reuses an instance when LM Studio does not report the setting", async () => {
+    const { server, client } = await startClient({
+      models: [{ key: "test/a", loadedContextLengths: [16_384] }],
+    });
+    await client.loadModel("test/a", { contextLength: 16_384, settings: { parallel: 1 } });
+    expect(server.requests.some((request) => request.path.endsWith("/load"))).toBe(false);
   });
 });
 

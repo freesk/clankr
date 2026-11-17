@@ -12,6 +12,8 @@ export interface FakeModel {
   maxContextLength?: number;
   vision?: boolean;
   loadedContextLengths?: number[];
+  /** `parallel` reported for the instances above; unset means LM Studio does not report it. */
+  loadedParallel?: number;
 }
 
 export interface FakeServerOptions {
@@ -38,6 +40,7 @@ export interface RecordedRequest {
 interface Instance {
   id: string;
   contextLength: number;
+  parallel?: number;
 }
 
 export class FakeLmStudioServer {
@@ -56,7 +59,7 @@ export class FakeLmStudioServer {
       this.instances.set(
         model.key,
         (model.loadedContextLengths ?? []).map((contextLength) =>
-          this.newInstance(model.key, contextLength),
+          this.newInstance(model.key, contextLength, model.loadedParallel),
         ),
       );
     }
@@ -80,11 +83,12 @@ export class FakeLmStudioServer {
     return (this.instances.get(key) ?? []).map((instance) => instance.contextLength);
   }
 
-  private newInstance(key: string, contextLength: number): Instance {
+  private newInstance(key: string, contextLength: number, parallel?: number): Instance {
     this.instanceCounter += 1;
     return {
       id: this.instanceCounter === 1 ? key : `${key}:${this.instanceCounter}`,
       contextLength,
+      ...(parallel === undefined ? {} : { parallel }),
     };
   }
 
@@ -133,7 +137,7 @@ export class FakeLmStudioServer {
       capabilities: { vision: model.vision ?? false, trained_for_tool_use: true },
       loaded_instances: (this.instances.get(model.key) ?? []).map((instance) => ({
         id: instance.id,
-        config: { context_length: instance.contextLength },
+        config: instanceConfig(instance),
       })),
     }));
   }
@@ -144,13 +148,14 @@ export class FakeLmStudioServer {
       sendJson(response, 500, { error: { message: "Failed to load model: insufficient memory" } });
       return;
     }
-    const instance = this.newInstance(key, Number(body.context_length));
+    const parallel = typeof body.parallel === "number" ? body.parallel : undefined;
+    const instance = this.newInstance(key, Number(body.context_length), parallel);
     this.instances.set(key, [...(this.instances.get(key) ?? []), instance]);
     sendJson(response, 200, {
       type: "llm",
       instance_id: instance.id,
       status: "loaded",
-      load_config: { context_length: instance.contextLength },
+      load_config: instanceConfig(instance),
     });
   }
 
@@ -209,5 +214,12 @@ export function testSession(): SessionState {
     grants: { tools: new Set(), dataFiles: new Set() },
     reasoning: "off",
     ephemeral: true,
+  };
+}
+
+function instanceConfig(instance: Instance): Record<string, number> {
+  return {
+    context_length: instance.contextLength,
+    ...(instance.parallel === undefined ? {} : { parallel: instance.parallel }),
   };
 }

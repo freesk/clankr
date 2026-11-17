@@ -79,3 +79,19 @@ describe("loadConfig", () => {
     expect(defaultConfig().subagents.turnLimit).toBe(8);
   });
 });
+
+describe("load settings (D78)", () => {
+  it("defaults to one parallel slot and lets a profile override any setting", async () => {
+    const { defaultConfig } = await import("./index.ts");
+    expect(defaultConfig().model.load).toEqual({ parallel: 1 });
+    const { configSchema } = await import("./schema.ts");
+    const config = configSchema.parse({
+      model: {
+        load: { flashAttention: true },
+        profiles: { "test/a": { load: { parallel: 2 } } },
+      },
+    });
+    expect(config.model.load).toEqual({ parallel: 1, flashAttention: true });
+    expect(config.model.profiles["test/a"]?.load).toEqual({ parallel: 2 });
+  });
+});
