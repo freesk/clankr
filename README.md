@@ -242,3 +242,7 @@ Project rules for contributors are in [CLAUDE.md](CLAUDE.md), the per-part desig
 ## Status
 
 `clankr` is pre-release. It runs end to end against LM Studio with Gemma 4 12B QAT. The golden task suite has not yet been run against the model, so success rates are not measured yet. Known gaps are tracked in [ROADMAP.md](ROADMAP.md).
+
+## License
+
+[MIT](LICENSE). npm dependencies and the third-party assets that `npm run vendor` downloads stay under their own licenses.
