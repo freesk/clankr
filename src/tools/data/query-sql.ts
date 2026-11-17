@@ -21,6 +21,7 @@ import {
   streamRows,
   withQueryLimits,
 } from "../../engines/duckdb/index.ts";
+import { emptyResultHint } from "./empty-result-hint.ts";
 
 const parameters = z.object({
   sql: z.string().min(1).describe("One SELECT; quote table names with spaces"),
@@ -82,7 +83,12 @@ async function runQuery(args: QuerySqlArguments, context: ToolContext): Promise<
         return storeResult(args, engine, context);
       },
     );
-    return { text: formatResult(result, limits.sqlStoredRowLimit), handles: [result.handle] };
+    const text = formatResult(result, limits.sqlStoredRowLimit);
+    const hint =
+      result.storedRowCount === 0
+        ? await emptyResultHint(args.sql, engine, connection, context.signal)
+        : undefined;
+    return { text: hint ? `${text}\n${hint}` : text, handles: [result.handle] };
   } catch (error) {
     throw await shapeQueryError(error, {
       timeoutMs: limits.sqlTimeoutMs,

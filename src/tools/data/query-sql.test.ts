@@ -268,3 +268,39 @@ describe("query_sql performance (PRD section 9)", () => {
     expect(elapsedMs).toBeLessThan(5000);
   }, 30_000);
 });
+
+describe("query_sql empty results", () => {
+  it("names a filter that matches no row, with the values the column has", async () => {
+    await setUp();
+    const output = await runSql(
+      "SELECT region, sum(amount) FROM sales WHERE amount > 0 AND region = 'Total' GROUP BY 1",
+    );
+    expect(output.text).toContain("0 rows, 2 columns.");
+    expect(output.text).toContain("No row has region = 'Total'. region has 2 values:");
+    expect(output.text).toMatch(/values: (north, south|south, north)\./);
+  });
+
+  it("checks IN lists and quoted columns, and leaves filters that match alone", async () => {
+    await setUp();
+    const output = await runSql(
+      `SELECT * FROM sales WHERE "region" IN ('east', 'west') AND amount = 10`,
+    );
+    expect(output.text).toContain(`No row has "region" IN ('east', 'west').`);
+    expect(output.text).not.toContain("amount = 10.");
+  });
+
+  it("ignores CASE mappings, and adds nothing when each filter matches on its own", async () => {
+    await setUp();
+    const output = await runSql(
+      "SELECT CASE WHEN region = 'nowhere' THEN 1 ELSE 0 END AS flag FROM sales WHERE region = 'north' AND amount = 20",
+    );
+    expect(output.text).toContain("0 rows, 1 column.");
+    expect(output.text).not.toContain("No row has");
+  });
+
+  it("says nothing extra when the result has rows", async () => {
+    await setUp();
+    const output = await runSql("SELECT * FROM sales WHERE region = 'north'");
+    expect(output.text).not.toContain("No row has");
+  });
+});

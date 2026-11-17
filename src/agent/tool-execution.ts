@@ -41,11 +41,27 @@ export interface ToolCallScope {
    * without asking the gate again.
    */
   refusedCalls: Set<string>;
+  /**
+   * Calls that ran in this turn, by signature, with the handle of the first result when it
+   * had one. A small model re-ran the same empty query three times in one live run, each
+   * time expecting something new; a repeat is still run, but told it is a repeat. Cleared
+   * when a write tool succeeds, since then the same call can rightly give a new answer.
+   */
+  earlierCalls: Map<string, string | undefined>;
 }
 
 const repeatedRefusalMessage =
   "This exact call was already refused in this turn and would be refused again. " +
   "Do something different, or tell the user what you need and why.";
+
+function repeatedCallNote(earlierHandle: string | undefined): string {
+  const where = earlierHandle ? ` (result ${earlierHandle})` : "";
+  return (
+    `Note: this exact call already ran earlier in this turn${where}, and nothing was written ` +
+    "since, so the result below is the same as before. Change the call instead of repeating it, " +
+    "or answer with what you have."
+  );
+}
 
 /** What happened when the tool itself was asked to work. */
 type RunResult = (
@@ -108,12 +124,36 @@ export async function* executeToolCall(
   const error = result.kind === "error" ? result.reason : undefined;
   yield toolEnd(call.id, startedAt, capped.tokens, validity, error);
   await recordAudit(scope, call.name, auditArguments, result, startedAt);
+  const repeatNote = signature ? rememberCall(scope, signature, tool?.definition, result) : "";
   return {
-    message: toolMessage(call.id, capped.text),
+    // The note goes after capping, so a long result can never cut it off.
+    message: toolMessage(call.id, repeatNote ? `${repeatNote}\n\n${capped.text}` : capped.text),
     validity,
     cancelled: false,
     ...(repeatedRefusal ? { repeatedRefusal } : {}),
   };
+}
+
+/**
+ * Records a call that the tool actually ran, and returns the repeat note when the same call
+ * ran before with nothing written in between. Refused and invalid calls are not recorded:
+ * the refusal path above already answers their repeats.
+ */
+function rememberCall(
+  scope: ToolCallScope,
+  signature: string,
+  tool: ToolDefinition | undefined,
+  result: RunResult,
+): string {
+  if (result.gate?.allowed !== true) return "";
+  if (tool?.permission === "write" && result.kind === "output") {
+    scope.earlierCalls.clear();
+    return "";
+  }
+  if (scope.earlierCalls.has(signature)) return repeatedCallNote(scope.earlierCalls.get(signature));
+  const handle = result.kind === "output" ? result.output.handles?.[0] : undefined;
+  scope.earlierCalls.set(signature, handle);
+  return "";
 }
 
 /** Tool name plus arguments with keys in a fixed order, so equal calls compare equal. */

@@ -66,6 +66,7 @@ async function* runRounds(
 ): AsyncGenerator<AgentEvent, TurnEndEvent> {
   const registry = new ToolRegistry(dependencies.tools);
   const refusedCalls = new Set<string>();
+  const earlierCalls = new Map<string, string | undefined>();
   let consecutiveInvalidCalls = 0;
   // Asked once per turn, not per round, so the tool list cannot change mid-turn (CTX-9).
   const availableGroups = (await dependencies.availableToolGroups?.()) ?? [];
@@ -86,6 +87,7 @@ async function* runRounds(
       offered: offeredByName(plan),
       signal,
       refusedCalls,
+      earlierCalls,
     };
     for (const call of reply.toolCalls) {
       const outcome = yield* executeToolCall(call, scope);

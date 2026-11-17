@@ -165,3 +165,39 @@ describe("repeated refusals", () => {
     expect(toolEnds(events).length).toBeLessThan(5);
   });
 });
+
+describe("repeated calls", () => {
+  const read = { path: "a.md" };
+
+  it("runs a repeat of an earlier call but tells the model it is one", async () => {
+    const { session, permissions } = await runOnce({
+      responses: [
+        respond.toolCall("read_note", read),
+        respond.toolCall("read_note", { path: "b.md" }),
+        respond.toolCall("read_note", read),
+        respond.text("done"),
+      ],
+    });
+    expect(permissions.checks).toHaveLength(3);
+    const [first, other, repeat] = toolMessages(session.messages);
+    expect(first).not.toContain("exact call already ran");
+    expect(other).not.toContain("exact call already ran");
+    expect(repeat).toMatch(/^Note: this exact call already ran earlier in this turn/);
+    // The tool still ran, so its result follows the note.
+    expect(repeat?.endsWith(first ?? "")).toBe(true);
+  });
+
+  it("does not flag a repeat that follows a successful write", async () => {
+    const { session } = await runOnce({
+      responses: [
+        respond.toolCall("read_note", read),
+        respond.toolCall("write_note", { path: "a.md", text: "new" }),
+        respond.toolCall("read_note", read),
+        respond.text("done"),
+      ],
+    });
+    for (const message of toolMessages(session.messages)) {
+      expect(message).not.toContain("exact call already ran");
+    }
+  });
+});
