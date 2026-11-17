@@ -12,6 +12,20 @@ export interface DataTable {
   label: string;
   /** Set when the table's rows were extracted into a stored row set (`.docx`, `.xls`). */
   rowsHandle?: ResultHandle;
+  /** Where the table sits in its file, so SQL reads it the way inspection did. Absent for row sets. */
+  layout?: TableLayout;
+}
+
+/** How to read a sheet or delimited file: the header row inspection detected or was told. */
+export interface TableLayout {
+  /** 1-based row of the header line. */
+  headerRow: number;
+  /** Sheet name, for `.xlsx`. */
+  sheet?: string;
+  /** Cell range for `.xlsx`, from the header row to the last used cell, for example "A3:F1200". */
+  cellRange?: string;
+  /** Field delimiter, for `.csv` and `.tsv`. */
+  delimiter?: string;
 }
 
 export interface DataSource {

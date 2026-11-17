@@ -1,2 +1,3 @@
-// inspect part. See specs/inspect.md. Empty until wave 1 builds it.
-export {};
+// inspect part: the data source registry (specs/inspect.md).
+export { SessionDataSourceRegistry } from "./session-data-source-registry.ts";
+export { allocateTableNames } from "./table-names.ts";

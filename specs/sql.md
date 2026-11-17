@@ -85,6 +85,19 @@ Settled 2026-11-17. A D-number means the decision is also recorded in PRD sectio
 | Connection lifetime | One connection per session: opened and locked down on first use, rebuilt when a file is registered (D38), closed when the session ends. |
 | Binding and version | `@duckdb/node-api` 1.4.5-r.1, DuckDB 1.4.5 (LTS), pinned (D37). |
 | How often a query prompts | Once per data file per session (D19). The rule lives in [permissions](permissions.md). |
+| Statement check detail | `extractStatements` must find exactly one statement and its prepared `statementType` must be `SELECT`. When preparing fails (an `UPDATE` of a missing table), the parser-only `json_serialize_sql` decides whether it was a `SELECT` at all, so the model is told "not allowed" rather than "table missing". `PIVOT` prepares as `CREATE` (it makes an enum type) and is rejected. |
+| Engine module API | `src/engines/duckdb/index.ts`. `sessionEngineFor(context)` keeps one engine per session, keyed by the session's `DataSourceRegistry`; `closeSessionEngine(registry)` closes it at session end. `openLockedDatabase` opens a short-lived locked instance; inspect profiles through it with `tableSourceSql`, so SQL reads a table exactly as inspection did. Only `query_sql` runs the statement check. |
+| When the rebuild happens (D38) | Lazily: before the next query, when a fingerprint of the registry differs from the one the instance was built for. A view whose file can no longer be read is skipped; the other tables stay usable. |
+| How each table is read | One view per registered table. `.csv`/`.tsv`: `read_csv` with the detected delimiter and `skip` to the header row. `.xlsx`: `read_xlsx` with sheet, cell range, and `ignore_errors` (a cell that does not fit its column is NULL; inspect reports such columns as mixed). Row sets (`.xls`, `.docx`): `read_json` on the row set's file. Each file is allowed by exact path. |
+| Excel reader loading | The vendored extension is loaded only when an `.xlsx` table is registered, so CSV-only sessions do not need `npm run vendor`. It lives at `vendor/duckdb-excel/v1.4.5/osx_arm64/excel.duckdb_extension`, pinned by SHA-256 in `scripts/vendor/duckdb-excel.ts`. |
+| Limits | Config `data.sqlTimeoutMs` (30 s), `data.sqlMemoryLimitMb` (2048), `data.sqlStoredRowLimit` (1,000,000), `data.sqlPreviewRows` (20). The timeout and the tool call's abort signal both call `interrupt()`. |
+| Stored values | BIGINT and DECIMAL are stored as JSON numbers (text only when beyond 2^53), dates and timestamps as ISO text. The provenance carries the SQL in `arguments.sql` and the files read in `dataSourcePaths`. |
+
+## Measurements (2026-11-17, Apple M3 Pro)
+
+- Group-by over a generated 1,000,000-row CSV through `query_sql`, including the engine build: 138 ms (target under 5 s).
+- Opening and locking an instance: about 30 ms in the exploration script.
+- A runaway query with a 300 ms timeout stops within the test's 3 s bound; the connection keeps working.
 
 ## Open questions
 

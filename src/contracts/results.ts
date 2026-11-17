@@ -20,6 +20,8 @@ export interface ResultProvenance {
   arguments: Record<string, unknown>;
   /** Short human label, for example "find_files *.pdf under ~/Documents". */
   label?: string;
+  /** Real paths of the data files the result was computed from (chart puts its output beside the first). */
+  dataSourcePaths?: string[];
 }
 
 export interface ResultMeta extends ResultProvenance {

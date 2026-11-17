@@ -72,6 +72,18 @@ const dataSchema = z.object({
   /** Limits on the V8 isolate that runs `run_js` and `make_chart` code (specs/sandbox.md). */
   isolateTimeoutMs: z.number().int().positive().default(5_000),
   isolateMemoryLimitMb: z.number().int().positive().default(128),
+  /** `query_sql` limits (DATA-9, specs/sql.md). The timeout interrupts the running query. */
+  sqlTimeoutMs: z.number().int().positive().default(30_000),
+  /** DuckDB's memory limit. Above it DuckDB spills to the session scratch folder or fails. */
+  sqlMemoryLimitMb: z.number().int().positive().default(2_048),
+  /** Most rows of one query result kept in the result store. */
+  sqlStoredRowLimit: z.number().int().positive().default(1_000_000),
+  /** Rows of a query result shown to the model; the rest stay behind the handle. */
+  sqlPreviewRows: z.number().int().positive().default(20),
+  /** Columns per sheet printed by `inspect_data`; wider sheets point to the stored profile. */
+  profileColumnsShown: z.number().int().positive().default(40),
+  /** DATA-5: column names (case-insensitive) whose sample values and min/max are masked. */
+  sensitiveColumns: z.array(z.string()).default([]),
 });
 
 export const configSchema = z.object({
