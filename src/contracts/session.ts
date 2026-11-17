@@ -75,3 +75,40 @@ export interface SlashCommand {
   usage?: string;
   run(argumentText: string, context: SlashCommandContext): Promise<void>;
 }
+
+/**
+ * Writes the current session's transcript (CLI-9). The cli appends each message as it
+ * happens. In an ephemeral session every call is accepted and nothing is written (CLI-7).
+ */
+export interface SessionTranscript {
+  appendMessage(message: ChatMessage): Promise<void>;
+  /** The model the session switched to, so a resume can reload it. */
+  recordModel(modelKey: string): Promise<void>;
+}
+
+export interface SessionSummary {
+  id: string;
+  /** ISO time of the first record, when the transcript has one. */
+  createdAt: string | undefined;
+  /** ISO time the transcript was last written. "Most recent" means this. */
+  lastActivityAt: string;
+  messageCount: number;
+}
+
+/** A saved session read back for `--resume`. */
+export interface SavedSession {
+  id: string;
+  createdAt: string | undefined;
+  messages: ChatMessage[];
+  /** The last model the session used. The cli falls back to the default if it is gone. */
+  modelKey: string | undefined;
+}
+
+/** Saved sessions on disk. Sessions with no messages are not listed. */
+export interface SessionStore {
+  /** Newest first. */
+  list(): Promise<SessionSummary[]>;
+  load(sessionId: string): Promise<SavedSession>;
+  /** The session `vix --resume` opens (D32), or undefined when none is saved. */
+  newest(): Promise<SavedSession | undefined>;
+}
