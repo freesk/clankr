@@ -58,7 +58,7 @@ The CLI owns dispatch, `/help`, `/exit`, and `/clear`. Every other command is re
 - **Tool lines.** One line per `tool-start` and `tool-end` pair: tool, key argument, result size, duration. The key argument comes from the event, so the CLI needs no knowledge of individual tools.
 - **Reasoning.** `reasoning` events are shown dimmed or hidden, never mixed into the answer text.
 - **Piped stdin.** Stdin can be large. Treat it like a tool result: over the cap, it goes to the result store and the prompt gets a preview and a handle.
-- **One-shot exit status.** Proposed: `0` done, `1` the turn failed or was denied, `2` usage error, `130` cancelled.
+- **One-shot exit status.** `0` done, `1` the turn failed or was denied, `2` usage error, `130` cancelled (see Decisions).
 - **Attachments (CLI-10).** A dragged path arrives as text, often quoted or backslash-escaped. Detect paths that exist, and pass them to the agent loop as attachments instead of leaving them in the prose.
 - **The token is never printed**, including in error output and `--json`.
 
@@ -87,6 +87,23 @@ Settled 2026-11-17. A D-number means the decision is also recorded in PRD sectio
 | Approvals in one-shot mode | Anything that would prompt is denied, with a message naming the `--permission-mode` flag. That flag pre-authorizes a mode, such as `auto-edit`, for the run (D14). |
 | Terminal UI | Ink (D21). |
 | `/clear` | Starts a new session with an empty context. The old session stays on disk and can be resumed (D32). |
+| Seam to the other parts | The cli talks to the rest of vix only through a `Harness` and a `CliComposition` (`src/cli/harness.ts`). `src/cli/composition.ts` is the one file integration edits. It uses the `RunTurn`/`TurnInput`/`Attachment` contract (`src/contracts/turn.ts`) and the proposed `SessionStore`/`WipeReport` contract (`src/contracts/session-store.ts`). |
+| One-shot exit status | `0` done, `1` failed, hit a limit, or had any approval denied (even if the model then finished), `2` usage error or invalid config file, `130` cancelled. |
+| One-shot output | The answer streams to stdout; tool lines, denials, and errors go to stderr, so stdout stays scriptable. Reasoning is hidden. `--json` prints one JSON document on stdout instead. |
+| Reading stdin in one-shot mode | Without `-p`, a non-terminal stdin is the prompt. With `-p`, stdin is read only when it is a pipe or a redirected file, so a stdin left open by a parent process cannot hang the run. |
+| Attachments in the prose | An attached path is replaced by its file name in brackets, for example `[report.pdf]`; the attachment carries the absolute path. A line starting with a path (`/Users/...`) is a prompt, not a slash command. |
+| Approval keys | `o` once, `a` always for this session, `d` deny and type feedback, `Esc` deny without feedback. `Enter` alone does nothing, so a stray key cannot approve a change. Ctrl+C at the prompt cancels the turn. |
+| Ctrl+C | During a turn, the first press aborts it and the REPL stops waiting on the event stream at once, even if the producer is slow to notice. Any press arms exit; the next press exits unless another key came in between. |
+| Flag combinations | `--ephemeral` with `--resume`, `--json` without one-shot mode, and `--yes` outside `wipe` are usage errors. `vix wipe` without `--yes` refuses when stdin is not a terminal. |
+
+## Startup measurement (2026-11-17)
+
+Apple M3 Pro, 18 GB, Node 22.22.2, built `bin/vix.js` with the placeholder composition (no real parts wired), 10 runs after one warm-up, in a pseudo-terminal:
+
+- REPL, spawn until the input prompt and status line are drawn: median 249 ms (246 to 280 ms). Ink and React are included.
+- `vix -p "hi"`, spawn to exit: median 81 ms (77 to 139 ms). Ink is not loaded (`src/cli/startup.test.ts`).
+
+Re-measure after integration: opening the real harness (LM Studio model check, session store) happens before the first frame.
 
 ## Open questions
 

@@ -1,0 +1,51 @@
+// Starts the interactive REPL (CLI-1). run-cli.ts imports this module with `await import()`,
+// and this module imports the Ink view the same way, so Ink loads only for the REPL.
+
+import type { Config } from "../../contracts/index.ts";
+import type { SessionCommand } from "../arguments.ts";
+import type { CliEnvironment } from "../cli-environment.ts";
+import { type ExitCode, exitCodes } from "../exit-codes.ts";
+import type { Harness } from "../harness.ts";
+import { errorMessage, redactSecrets } from "../secrets.ts";
+import { ReplController } from "./controller.ts";
+import { ReplApprovalPrompter } from "./repl-approval-prompter.ts";
+
+export interface StartReplRequest {
+  command: SessionCommand;
+  config: Config;
+  environment: CliEnvironment;
+}
+
+export async function startRepl(request: StartReplRequest): Promise<ExitCode> {
+  const { command, config, environment } = request;
+  const prompter = new ReplApprovalPrompter();
+  let harness: Harness;
+  try {
+    harness = await environment.composition.openHarness({
+      config,
+      approvalPrompter: prompter,
+      ephemeral: command.ephemeral,
+      resume: command.resume,
+      workingDirectory: environment.workingDirectory,
+    });
+  } catch (error) {
+    environment.stderr.write(`vix: ${redactSecrets(errorMessage(error), config)}\n`);
+    return exitCodes.failed;
+  }
+
+  const controller = new ReplController({
+    harness,
+    workingDirectory: environment.workingDirectory,
+  });
+  prompter.connect(controller);
+  const { mountReplView } = await import("./view.ts");
+  const instance = mountReplView(controller, environment);
+  try {
+    await controller.whenExited();
+  } finally {
+    instance.unmount();
+    await instance.waitUntilExit().catch(() => {});
+    await harness.close();
+  }
+  return exitCodes.done;
+}
