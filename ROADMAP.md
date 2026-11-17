@@ -42,7 +42,7 @@ Build `vix` as described in [PRD.md](PRD.md), part by part, following the waves 
 
 ## How wave 1 runs
 
-- 11 agents, one per row owner above, each in its own git worktree on its own branch, started from `c0aa32c`.
+- 11 agents, one per row owner above, each in its own git worktree on its own branch, started from the commit that adds `src/contracts/isolate.ts`.
 - Paired parts share an agent where one consumes the other: storage + permissions, sql + inspect (inspect needs sql's engine), chart + pdf.
 - Agents do not edit `ROADMAP.md`; the main session updates it as each agent reports.
 - Shared files agents may touch, add-only: `package.json` (their own dependencies), `src/config/schema.ts` (new fields in their own section), `scripts/vendor/steps.ts` (their own step), their own spec. Contracts change only add-only, and the agent reports it.

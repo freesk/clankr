@@ -6,6 +6,7 @@ export type { Config } from "../config/schema.ts";
 export type * from "./context.ts";
 export type * from "./data.ts";
 export type * from "./events.ts";
+export type * from "./isolate.ts";
 export type * from "./model.ts";
 export type * from "./permissions.ts";
 export type * from "./results.ts";
