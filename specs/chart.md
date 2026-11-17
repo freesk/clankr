@@ -52,7 +52,7 @@ chart code ─► isolate ─► captured (spec, rows) ─► row cap ─► str
 
 ## Design notes
 
-- **`render` captures; it does not draw.** Inside the isolate, `render(spec, rows)` only records its arguments. All checking and drawing happen on the host afterwards.
+- **`render` captures; it does not draw.** Inside the isolate, `render(spec, rows, summary)` only records its arguments. All checking and drawing happen on the host afterwards. Each call adds one chart (at most 6); several charts become one portrait PDF, a page each, each with its summary under it.
 - **Row cap first.** Over the cap (DATA-17), stop before validation and tell the model to aggregate with `query_sql`.
 - **The model does not style** (D9). Remove styling the model put in the spec, then apply the theme as the spec's configuration. Define exactly which properties count as styling, in one place.
 - **No external references.** A Vega-Lite spec can point at a URL for its data or for an image. Reject these here, before the spec reaches the browser. The browser blocks them too; this is the first of two layers.
@@ -103,8 +103,13 @@ Settled 2026-11-17. A D-number means the decision is also recorded in PRD sectio
 | External references | Any `url` key anywhere in the spec, and the `image` mark, are rejected before the browser. |
 | Field check | A field that is not a column is reported with the column list. Only checked for specs without transforms or repeat, where it cannot misfire. |
 | Validation errors | Ajv over the vendored schema. The deepest failing location wins; a property is "unknown" only if no alternative accepts it; enum lists get a "Did you mean" hint. At most 3 messages. |
-| Companion files | `<name>.chart.js`, `<name>.vl.json`, `<name>.sql`, beside `<name>.<format>`. A number is appended if any of the four exists. An explicit `output_path` gets a number too rather than overwriting. |
+| Companion files | `<name>.chart.js`, `<name>.vl.json` (`<name>.N.vl.json` per chart when there are several), `<name>.sql`, beside `<name>.<format>`. A number is appended if any of them exists. An explicit `output_path` gets a number too rather than overwriting. |
 | Reference text export | `chartToolReference` = `{ toolName, text, triggerWords }`, the shape agent-loop's `ToolReference` expects. |
+| Chart summary (task 32) | The third `render` argument: `render(spec, rows, summary)`, 1–3 plain sentences on the main finding. Chosen over the spec's `description` so the spec stays pure Vega-Lite and the reference shows one way. Optional: a missing summary does not fail the call, but the result names the chart that lacks one. Not text: a `ToolError`. Whitespace and control characters are collapsed; over 400 characters it is cut with "…" and a note. It reaches the page only as data and is set with `textContent`, so markup prints as characters. PNG and SVG hold the drawing only; the summary is not printed there and the result does not ask for one. Needs a PRD row. |
+| Several charts in one call (task 32) | Each `render` call adds a chart, at most 6 (`maxChartsPerCall`); the 7th is a `ToolError` telling the model to use another call. Every chart goes through the same pipeline (`prepareCharts`: row cap, styling, theme, schema, field check, polish); errors and notes from the second chart on, and all of them once there are several, start "chart N: ". Several charts print into one PDF via pdf's `renderChartPages`; PNG or SVG with several charts is refused with a message to use PDF or one call per image (one file per image would need a second numbering scheme beside D28's). The file is named from the first chart's title. Needs a PRD row. |
+| Companion files for several charts | One spec per chart, `<name>.1.vl.json` … `<name>.N.vl.json`, each a spec Vega-Lite can draw alone; one `.chart.js` and one `.sql`. All are checked for a clash before a name is taken. A single chart keeps `<name>.vl.json`. Summaries live in the saved chart code. |
+| Self-check with several charts | Each chart's preview is checked in order; the first failure stops the check and is returned as "chart N: verdict", with nothing saved. The one automatic retry (D29) is per `make_chart` call, not per chart. All passing reads "Self-check passed: all N charts." |
+| Tool result | The saved path, size, page count (counted in the written PDF), "portrait, one chart per page" for several, the companion files, and either "Summary/Summaries: printed …" or "No summary for chart N …". |
 
 ## Open questions
 

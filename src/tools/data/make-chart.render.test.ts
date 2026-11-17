@@ -12,7 +12,12 @@ import {
   createChartRenderer,
   isBrowserVendored,
 } from "../../engines/browser/index.ts";
-import { pdfPageCount, pdfText } from "../../engines/browser/test-support.ts";
+import {
+  pdfPageCount,
+  pdfPageSize,
+  pdfPageTexts,
+  pdfText,
+} from "../../engines/browser/test-support.ts";
 import {
   createTestToolContext,
   InMemoryResultStore,
@@ -65,6 +70,7 @@ describe.skipIf(!isBrowserVendored())(
         runInIsolate: fakeRunInIsolate,
         createStandardHelpers: fakeStandardHelpers(new Map([["r1", rows]])),
         renderChart: renderer.renderChart,
+        renderChartPages: renderer.renderChartPages,
       });
       const timings: number[] = [];
       for (let run = 0; run < 3; run++) {
@@ -81,6 +87,34 @@ describe.skipIf(!isBrowserVendored())(
       expect(pdfPageCount(pdf)).toBe(1);
       expect(pdfText(pdf)).toContain("Revenuebymonthandregion");
       for (const timing of timings) expect(timing).toBeLessThan(5_000);
+    });
+
+    it("turns several render calls into one portrait PDF with a summary per page", async () => {
+      const tool = createMakeChartTool({
+        runInIsolate: fakeRunInIsolate,
+        createStandardHelpers: fakeStandardHelpers(new Map([["r1", rows]])),
+        renderChart: renderer.renderChart,
+        renderChartPages: renderer.renderChartPages,
+      });
+      const twoCharts = `${code
+        .replace("Revenue by month and region", "Two views")
+        .replace('data("r1"));', 'data("r1"), "Every month, East earns the most.");')}
+render({ title: "Revenue by region", mark: "bar", encoding: {
+  x: { field: "region", type: "nominal" },
+  y: { field: "revenue", type: "quantitative", aggregate: "sum" } } }, data("r1"),
+  "East leads the year; North trails.");`;
+      const output = await tool.run({ code: twoCharts }, context);
+      expect(output.text).toContain("Saved 2 charts:");
+      expect(output.text).toContain("2 pages, portrait, one chart per page");
+      expect(output.text).toContain("Summaries: printed under each chart.");
+
+      const pdf = await readFile(join(context.workingDirectory, "two-views.pdf"));
+      const pages = pdfPageTexts(pdf);
+      expect(pages).toHaveLength(2);
+      expect(pages[0]).toContain("Everymonth,Eastearnsthemost.");
+      expect(pages[1]).toContain("Eastleadstheyear;Northtrails.");
+      const size = pdfPageSize(pdf);
+      expect(size.height).toBeGreaterThan(size.width);
     });
   },
 );

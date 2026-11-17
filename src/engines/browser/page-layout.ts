@@ -1,5 +1,5 @@
 // The printed page (DATA-15, pdf's share): page size and orientation, margins, the logo in the
-// header and the footer text, and sizing a chart so a single-chart PDF stays on one page.
+// header and the footer text, and sizing a chart and its summary so each stays on one page.
 
 import type { Page } from "playwright-core";
 import type { Row, Theme } from "../../contracts/index.ts";
@@ -58,6 +58,26 @@ export function printableArea(
     width: Math.floor(width * cssPixelsPerMillimetre) - 8,
     height: Math.floor(height * cssPixelsPerMillimetre) - 8,
   };
+}
+
+/** Summary text is 13 px; an average character is under 7 px wide, a line about 19 px high. */
+const summaryCharacterWidth = 7;
+const summaryLineHeight = 19;
+/** The gap between chart and summary, plus slack so the page never spills over. */
+const summaryGap = 24;
+
+/**
+ * The part of the area left for the chart once its summary is printed underneath. The line
+ * count is estimated from the text length, generously, since a spill would add a page.
+ */
+export function areaAboveSummary(
+  area: { width: number; height: number },
+  summary: string | undefined,
+): { width: number; height: number } {
+  if (!summary) return area;
+  const charactersPerLine = Math.max(20, Math.floor(area.width / summaryCharacterWidth));
+  const lines = Math.ceil(summary.length / charactersPerLine);
+  return { width: area.width, height: area.height - lines * summaryLineHeight - summaryGap };
 }
 
 const compositionKeys = ["hconcat", "vconcat", "concat", "facet", "repeat"];

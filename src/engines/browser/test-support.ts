@@ -39,8 +39,13 @@ function safeInflate(raw: Buffer): string {
   }
 }
 
-export function pdfPageCount(pdf: Buffer): number {
-  return pdf.toString("latin1").match(/\/Type\s*\/Page(?!s)/g)?.length ?? 0;
+export { pdfPageCount } from "./pdf-pages.ts";
+
+/** Width and height of every page in points, in order. */
+export function pdfPageSizes(pdf: Buffer): { width: number; height: number }[] {
+  return [...pdf.toString("latin1").matchAll(/\/MediaBox\s*\[\s*0 0 ([\d.]+) ([\d.]+)\s*\]/g)].map(
+    (match) => ({ width: Number(match[1]), height: Number(match[2]) }),
+  );
 }
 
 /** Width and height of the first page in points. */
@@ -58,17 +63,40 @@ export function pdfText(pdf: Buffer): string {
   const objects = pdfObjects(pdf);
   const fontMaps = fontUnicodeMaps(objects);
   let text = "";
-  for (const object of objects.values()) {
-    if (!object.stream || !/T[jJ]/.test(object.stream)) continue;
-    let currentFont: Map<number, string> | undefined;
-    for (const operation of object.stream.matchAll(
-      /\/([\w.+-]+)\s+[\d.]+\s+Tf|(\[[^\]]*\]|<[0-9A-Fa-f\s]*>)\s*T[jJ]/g,
-    )) {
-      if (operation[1]) currentFont = fontMaps.get(operation[1]);
-      else if (operation[2] && currentFont) text += decodeHexStrings(operation[2], currentFont);
-    }
+  for (const object of objects.values()) text += streamText(object.stream, fontMaps);
+  return tidyText(text);
+}
+
+/** The text of each page, in page order (the page tree's /Kids), whitespace removed. */
+export function pdfPageTexts(pdf: Buffer): string[] {
+  const objects = pdfObjects(pdf);
+  const fontMaps = fontUnicodeMaps(objects);
+  const pageTree = [...objects.values()].find((object) =>
+    /\/Type\s*\/Pages\b/.test(object.dictionary),
+  );
+  const kids = pageTree?.dictionary.match(/\/Kids\s*\[([^\]]*)\]/)?.[1] ?? "";
+  return [...kids.matchAll(/(\d+) 0 R/g)].map((kid) => {
+    const pageDictionary = objects.get(Number(kid[1]))?.dictionary ?? "";
+    const contents = pageDictionary.match(/\/Contents\s+(\d+) 0 R/)?.[1];
+    return tidyText(streamText(objects.get(Number(contents))?.stream, fontMaps));
+  });
+}
+
+function streamText(stream: string | undefined, fontMaps: Map<string, Map<number, string>>) {
+  if (!stream || !/T[jJ]/.test(stream)) return "";
+  let text = "";
+  let currentFont: Map<number, string> | undefined;
+  for (const operation of stream.matchAll(
+    /\/([\w.+-]+)\s+[\d.]+\s+Tf|(\[[^\]]*\]|<[0-9A-Fa-f\s]*>)\s*T[jJ]/g,
+  )) {
+    if (operation[1]) currentFont = fontMaps.get(operation[1]);
+    else if (operation[2] && currentFont) text += decodeHexStrings(operation[2], currentFont);
   }
-  // NFKC turns ligature glyphs such as "ﬁ" back into their letters.
+  return text;
+}
+
+/** NFKC turns ligature glyphs such as "ﬁ" back into their letters. */
+function tidyText(text: string): string {
   return text.normalize("NFKC").replaceAll(/\s+/g, "");
 }
 

@@ -10,14 +10,17 @@ import type { RowSources } from "./provenance.ts";
 export async function writeCompanionFiles(
   paths: ChartOutputPaths,
   code: string,
-  spec: Record<string, unknown>,
+  specs: Record<string, unknown>[],
   sources: RowSources,
 ): Promise<string[]> {
   const written: string[] = [];
   await writeFile(paths.code, `${code.trimEnd()}\n`, { flag: "wx" });
   written.push(basename(paths.code));
-  await writeFile(paths.spec, `${JSON.stringify(spec, null, 2)}\n`, { flag: "wx" });
-  written.push(basename(paths.spec));
+  // One file per chart, so each is a spec Vega-Lite can draw on its own. Summaries are in the code.
+  for (const [index, specPath] of paths.specs.entries()) {
+    await writeFile(specPath, `${JSON.stringify(specs[index], null, 2)}\n`, { flag: "wx" });
+    written.push(basename(specPath));
+  }
   if (sources.sql.length > 0) {
     await writeFile(paths.sql, sqlFileText(sources), { flag: "wx" });
     written.push(basename(paths.sql));

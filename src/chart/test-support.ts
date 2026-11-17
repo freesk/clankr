@@ -4,6 +4,7 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import { dirname } from "node:path";
 import {
+  type ChartPagesRequest,
   type ChartRenderRequest,
   type ChartRenderResult,
   type IsolateHelper,
@@ -59,19 +60,29 @@ export function fakeStandardHelpers(preloaded: Map<string, Row[]>): StandardHelp
 /** A renderer stand-in: records each request and writes a placeholder file. */
 export function createFakeRenderer() {
   const requests: ChartRenderRequest[] = [];
+  const pageRequests: ChartPagesRequest[] = [];
   const previews: Record<string, unknown>[] = [];
   return {
     requests,
+    pageRequests,
     previews,
     async renderChart(request: ChartRenderRequest): Promise<ChartRenderResult> {
       requests.push(request);
-      await mkdir(dirname(request.outputPath), { recursive: true });
-      await writeFile(request.outputPath, "placeholder", { flag: "wx" });
-      return { path: request.outputPath, sizeBytes: 11 };
+      return writePlaceholder(request.outputPath, 1);
+    },
+    async renderChartPages(request: ChartPagesRequest): Promise<ChartRenderResult> {
+      pageRequests.push(request);
+      return writePlaceholder(request.outputPath, request.charts.length);
     },
     async renderPreview(spec: Record<string, unknown>): Promise<Buffer> {
       previews.push(spec);
       return Buffer.from("png");
     },
   };
+}
+
+async function writePlaceholder(path: string, pageCount: number): Promise<ChartRenderResult> {
+  await mkdir(dirname(path), { recursive: true });
+  await writeFile(path, "placeholder", { flag: "wx" });
+  return path.endsWith(".pdf") ? { path, sizeBytes: 11, pageCount } : { path, sizeBytes: 11 };
 }

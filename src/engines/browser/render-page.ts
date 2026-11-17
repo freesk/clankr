@@ -48,6 +48,9 @@ html, body { margin: 0; padding: 0; background: white; }
 .text-block { break-after: avoid; margin: 0 0 12px 0; }
 h1.text-block { font-size: 20px; }
 p.text-block { font-size: 12px; line-height: 1.45; white-space: pre-wrap; }
+.chart-page + .chart-page { break-before: page; page-break-before: always; }
+.chart-page .chart { margin-bottom: 8px; }
+p.summary { font-size: 13px; line-height: 1.45; margin: 0; color: #222; white-space: normal; }
 `;
 
 const javascript = "text/javascript; charset=utf-8";

@@ -1,6 +1,7 @@
-// make_chart (DATA-10): the model writes JavaScript that builds a Vega-Lite spec and calls
-// render(spec, data("rN")). The code runs in the isolate; the spec is checked, themed, and
-// drawn on the host. See specs/chart.md for the flow and the reasons behind each step.
+// make_chart (DATA-10): the model writes JavaScript that builds Vega-Lite specs and calls
+// render(spec, data("rN"), summary) once per chart. The code runs in the isolate; the specs are
+// checked, themed, and drawn on the host. One chart prints on the theme's page; several print
+// portrait, a page each, in one PDF. See specs/chart.md for the flow and the reasons.
 
 import { dirname } from "node:path";
 import { z } from "zod";
@@ -15,23 +16,29 @@ import {
   splitOutputPath,
   titleText,
 } from "../../chart/output-naming.ts";
-import { prepareChartSpec } from "../../chart/prepare-spec.ts";
+import { type PreparedChartPage, prepareCharts } from "../../chart/prepare-spec.ts";
 import { type RowSources, traceRowSources } from "../../chart/provenance.ts";
+import { failedCheckText, savedText } from "../../chart/result-text.ts";
 import type { SelfCheck, SelfCheckVerdict } from "../../chart/self-check.ts";
 import { loadTheme } from "../../chart/theme-loader.ts";
-import type {
-  ChartFormat,
-  ChartRenderRequest,
-  ChartRenderResult,
-  Row,
-  Theme,
-  ToolContext,
-  ToolDefinition,
+import {
+  type ChartFormat,
+  type ChartPagesRequest,
+  type ChartRenderRequest,
+  type ChartRenderResult,
+  type Row,
+  type Theme,
+  type ToolContext,
+  type ToolDefinition,
+  ToolError,
 } from "../../contracts/index.ts";
 import { isolateLimitsFrom } from "../../engines/isolate/limits.ts";
 
 const parameters = z.object({
-  code: z.string().min(1).describe('Builds a Vega-Lite spec and calls render(spec, data("rN"))'),
+  code: z
+    .string()
+    .min(1)
+    .describe('Builds Vega-Lite specs; calls render(spec, data("rN"), summary) once per chart'),
   format: z.enum(["pdf", "png", "svg"]).optional().describe("Default pdf"),
   output_path: z.string().optional().describe("Default: next to the data file"),
 });
@@ -40,6 +47,8 @@ type MakeChartArguments = z.infer<typeof parameters>;
 
 export interface MakeChartDependencies extends ChartCodeRunner {
   renderChart(request: ChartRenderRequest, signal?: AbortSignal): Promise<ChartRenderResult>;
+  /** Several charts in one portrait PDF, a page each. */
+  renderChartPages(request: ChartPagesRequest, signal?: AbortSignal): Promise<ChartRenderResult>;
   /** Needed for the self-check only. */
   renderPreview?(
     spec: Record<string, unknown>,
@@ -54,14 +63,15 @@ export interface MakeChartDependencies extends ChartCodeRunner {
 export function createMakeChartTool(
   dependencies: MakeChartDependencies,
 ): ToolDefinition<typeof parameters> {
-  // D29: after one failed self-check, the next chart is written whatever its verdict.
+  // D29: after one failed self-check, the next call is written whatever its verdict.
   let retryAfterFailedCheck = false;
 
   return {
     name: "make_chart",
     description:
-      "Draw a chart with JavaScript that renders a Vega-Lite spec, saved as a file. " +
-      "Aggregate with query_sql first.",
+      "Draw charts with JavaScript that renders Vega-Lite specs, saved as a file. " +
+      "Give each chart a short summary of what it shows. Several charts go into one PDF, " +
+      "a page each. Aggregate with query_sql first.",
     parameters,
     permission: "execute",
     resultTokenCap: 400,
@@ -88,48 +98,91 @@ export function createMakeChartTool(
         limits,
         context.signal,
       );
-      const prepared = await prepareChartSpec(captured.spec, captured.rows, {
-        theme,
-        rowCap: limits.rowCap,
-      });
       const sources = await traceRowSources(args.code, context);
-      const paths = await chooseChartPaths(args, sources, context.workingDirectory, prepared.spec);
+      const target = outputTarget(args, sources, context.workingDirectory);
+      if (captured.charts.length > 1 && target.format !== "pdf") {
+        throw new ToolError(
+          `Several charts go into one PDF, a page each; ${target.format.toUpperCase()} holds one chart. Use format "pdf", or one make_chart call per ${target.format.toUpperCase()} chart.`,
+        );
+      }
+      const prepared = await prepareCharts(captured.charts, { theme, rowCap: limits.rowCap });
+      const charts = prepared.charts;
+      const paths = await chooseChartPaths(target, charts);
 
-      const verdict = await runSelfCheck(prepared.spec, captured.rows, theme, context);
+      const verdict = await runSelfCheck(charts, theme, context);
       if (verdict && !verdict.passed && !retryAfterFailedCheck) {
         retryAfterFailedCheck = true;
         return { text: failedCheckText(verdict) };
       }
       retryAfterFailedCheck = false;
 
-      const rendered = await dependencies.renderChart(
-        {
-          spec: prepared.spec,
-          rows: captured.rows,
-          theme,
-          format: paths.format,
-          outputPath: paths.chart,
-        },
-        context.signal,
-      );
-      const companions = await writeCompanionFiles(paths, args.code, prepared.spec, sources);
-      const notes = [themeProblem, ...prepared.notes, ...(rendered.notes ?? [])].filter(
-        (note): note is string => Boolean(note),
-      );
-      return { text: savedText(rendered, companions, verdict, notes, captured.logs) };
+      const rendered = await renderCharts(charts, theme, paths, context.signal);
+      const specs = charts.map((chart) => chart.spec);
+      const companions = await writeCompanionFiles(paths, args.code, specs, sources);
+      const notes = [
+        themeProblem,
+        ...captured.notes,
+        ...prepared.notes,
+        ...(rendered.notes ?? []),
+      ].filter((note): note is string => Boolean(note));
+      const text = savedText({
+        rendered,
+        format: paths.format,
+        companions,
+        hasSummary: charts.map((chart) => Boolean(chart.summary)),
+        verdict,
+        notes,
+        logs: captured.logs,
+      });
+      return { text };
     },
   };
 
+  function renderCharts(
+    charts: PreparedChartPage[],
+    theme: Theme,
+    paths: ChartOutputPaths,
+    signal?: AbortSignal,
+  ): Promise<ChartRenderResult> {
+    const [only] = charts;
+    if (only && charts.length === 1) {
+      const request: ChartRenderRequest = {
+        spec: only.spec,
+        rows: only.rows,
+        theme,
+        format: paths.format,
+        outputPath: paths.chart,
+      };
+      if (only.summary) request.summary = only.summary;
+      return dependencies.renderChart(request, signal);
+    }
+    return dependencies.renderChartPages({ charts, theme, outputPath: paths.chart }, signal);
+  }
+
+  /**
+   * Checks each chart's preview in order and stops at the first failure, which names the
+   * chart when there are several. The one-retry rule (D29) is per call, not per chart.
+   */
   async function runSelfCheck(
-    spec: Record<string, unknown>,
-    rows: Row[],
+    charts: PreparedChartPage[],
     theme: Theme,
     context: ToolContext,
   ): Promise<SelfCheckVerdict | undefined> {
     const { selfCheck, renderPreview } = dependencies;
     if (!selfCheck || !renderPreview) return undefined;
-    const preview = await renderPreview(spec, rows, theme, context.signal);
-    return selfCheck(preview, titleText(spec), context);
+    let last: SelfCheckVerdict | undefined;
+    for (const [index, chart] of charts.entries()) {
+      const preview = await renderPreview(chart.spec, chart.rows, theme, context.signal);
+      const verdict = await selfCheck(preview, titleText(chart.spec), context);
+      if (!verdict) return undefined;
+      last = verdict;
+      if (!verdict.passed && charts.length > 1) {
+        return { passed: false, verdict: `chart ${index + 1}: ${verdict.verdict}` };
+      }
+      if (!verdict.passed) return verdict;
+    }
+    if (last && charts.length > 1) return { passed: true, verdict: `all ${charts.length} charts.` };
+    return last;
   }
 }
 
@@ -159,41 +212,13 @@ function outputTarget(
   return { folder, format: args.format ?? "pdf" };
 }
 
+/** Named from the first chart's title when no path was given. */
 function chooseChartPaths(
-  args: MakeChartArguments,
-  sources: RowSources,
-  workingDirectory: string,
-  spec: Record<string, unknown>,
+  target: OutputTarget,
+  charts: PreparedChartPage[],
 ): Promise<ChartOutputPaths> {
-  const target = outputTarget(args, sources, workingDirectory);
   const baseName = target.explicitPath
     ? splitOutputPath(target.explicitPath).baseName
-    : baseNameFromTitle(spec);
-  return chooseOutputPaths(target.folder, baseName, target.format);
-}
-
-function failedCheckText(verdict: SelfCheckVerdict): string {
-  return [
-    `Self-check failed: ${verdict.verdict}`,
-    "Nothing was saved. Fix the chart and call make_chart once more; that chart will be saved.",
-  ].join("\n");
-}
-
-function savedText(
-  rendered: ChartRenderResult,
-  companions: string[],
-  verdict: SelfCheckVerdict | undefined,
-  notes: string[],
-  logs: string[],
-): string {
-  const lines = [`Saved chart: ${rendered.path} (${formatSize(rendered.sizeBytes)})`];
-  lines.push(`Saved beside it: ${companions.join(", ")}`);
-  if (verdict) lines.push(`Self-check ${verdict.passed ? "passed" : "failed"}: ${verdict.verdict}`);
-  if (notes.length > 0) lines.push(`Notes: ${notes.slice(0, 5).join(" ")}`);
-  if (logs.length > 0) lines.push(`Console output:\n${logs.slice(-5).join("\n")}`);
-  return lines.join("\n");
-}
-
-function formatSize(sizeBytes: number): string {
-  return sizeBytes < 1024 ? `${sizeBytes} B` : `${Math.round(sizeBytes / 1024)} KB`;
+    : baseNameFromTitle(charts[0]?.spec);
+  return chooseOutputPaths(target.folder, baseName, target.format, charts.length);
 }

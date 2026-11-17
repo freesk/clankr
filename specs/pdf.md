@@ -26,6 +26,7 @@ The browser is the most capable piece of software the harness starts, and it han
 ## Provides
 
 - `renderChart(request)`: takes a `ChartRenderRequest` (validated spec, rows, theme, format, output path) and returns the written file's path and size.
+- `renderChartPages(request)`: takes a `ChartPagesRequest` (charts with their summaries, theme, output path) and writes one portrait PDF with a chart per page.
 - `renderReport(blocks, theme, outputPath)` for DATA-19: charts and text blocks composed into one PDF.
 - A PNG preview on request, for the chart self-check.
 
@@ -96,8 +97,9 @@ Settled 2026-11-17. A D-number means the decision is also recorded in PRD sectio
 | Offline layer 1 | Context-level request interception serves only the page, its bootstrap, and the vendored scripts from a made-up `.invalid` origin. The CSP (no `unsafe-eval`, `connect-src 'none'`) stops some requests before interception; the page reports those through a binding, and both kinds go to the same blocked-request logger. |
 | Offline proof | `offline.test.ts` polls `lsof` for every browser process during PDF, PNG, and SVG renders and expects no internet socket, with a positive control; a local canary server must see zero connections. |
 | Logo and footer | Chromium's PDF header and footer templates. The logo is read on the host and passed as a data URL; the footer is escaped. |
-| Chart size | A single view with no size is fitted to the printable area (PDF) or to 720 x 440 (PNG, SVG, preview). Composed views keep their size; the stylesheet scales them down. |
+| Chart size | A single view with no size is fitted to the printable area less the summary's room (PDF) or to 720 x 440 (PNG, SVG, preview). Facet panels share the area; other composed views keep their size and the finished drawing is scaled to the area. |
 | Exits | Playwright's own SIGINT handler is off; Ctrl-C belongs to the CLI, which must call `close()`. On any process death the browser loses its pipe and exits; tests cover exit, SIGINT, SIGTERM, and SIGKILL. |
+| Chart pages and summaries (task 32) | One chart: the theme's page and orientation, the summary (`ChartRenderRequest.summary`) under the chart. Several charts (`renderChartPages`): always portrait, whatever the theme says, one chart per page in a `section.chart-page` that starts a new sheet; the chart's own title heads each page. Both go through one composer (`composeChartPages`): the printable area less the room the summary needs (`areaAboveSummary`, lines estimated generously from the text length at 13 px), then `fitSpecToArea` (facet sizing included) and `fitLastChart`, then the summary as a `summary` text block in the theme font (set through the CSSOM, not HTML). A draw error or Vega warning among several charts starts "chart N: ". `ChartRenderResult.pageCount` is counted in the written PDF. Checked by eye on a 4-chart sample (bar, multi-line with a 400-character summary, faceted end-label lines, pie without summary): nothing cut off, one page each. |
 | Idle time | `config.data.browserIdleSeconds`, default 60. |
 | Measured times | `make_chart` to PDF on the development machine (Apple silicon; not confirmed to be the M3 Pro reference): cold 853 ms (browser launch and schema compile), warm about 100 ms. The very first launch after `npm run vendor` took about 3 s (first-run checks by macOS). |
 
