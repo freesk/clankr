@@ -87,6 +87,8 @@ function applyEvent(
       outcome.text += event.delta;
       if (!request.json) request.stdout.write(redactSecrets(event.delta, config));
       return;
+    case "model-call-start":
+      return;
     case "reasoning":
       // Never mixed into the answer; one-shot output has no dimmed channel, so it is hidden.
       return;

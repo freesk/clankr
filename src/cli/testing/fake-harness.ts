@@ -102,8 +102,8 @@ export function hangingTurn(): FakeTurn {
 }
 
 /**
- * Drives turns from a ScriptedLmClient, as the agent loop will: text streams through, and
- * each tool call becomes a tool-start and tool-end pair with a fixed result size.
+ * Drives turns from a ScriptedLmClient, as the agent loop will: each request is announced,
+ * text streams through, and each tool call becomes a tool-start and tool-end pair with a fixed result size.
  */
 export function scriptedLmTurn(lm: ScriptedLmClient): FakeTurn {
   return async function* (input, signal) {
@@ -113,6 +113,7 @@ export function scriptedLmTurn(lm: ScriptedLmClient): FakeTurn {
         messages: [{ role: "user" as const, content: input.text }],
       };
       let calledTool = false;
+      yield { type: "model-call-start" };
       for await (const event of lm.chat(request, signal)) {
         if (event.type === "text" || event.type === "reasoning") yield event;
         if (event.type === "tool-call-delta" && event.name) {

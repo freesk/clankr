@@ -50,6 +50,7 @@ describe("runTurn: basic turns", () => {
   it("streams a text-only turn and stores it", async () => {
     const { events, session } = await runOnce({ responses: [respond.text("hello")] });
     expect(events).toEqual([
+      { type: "model-call-start" },
       { type: "text", delta: "hello" },
       { type: "turn-end", reason: "done" },
     ]);
@@ -64,19 +65,21 @@ describe("runTurn: basic turns", () => {
       responses: [respond.toolCall("read_note", { path: "a.md" }), respond.text("done")],
     });
     expect(events.map((event) => event.type)).toEqual([
+      "model-call-start",
       "tool-start",
       "tool-end",
+      "model-call-start",
       "text",
       "turn-end",
     ]);
-    expect(events[0]).toEqual({
+    expect(events[1]).toEqual({
       type: "tool-start",
       callId: "call_1",
       tool: "read_note",
       keyArgument: "a.md",
     });
-    expect(events[1]).toMatchObject({ type: "tool-end", callId: "call_1", validity: "valid" });
-    expect(events[1]).not.toHaveProperty("error");
+    expect(events[2]).toMatchObject({ type: "tool-end", callId: "call_1", validity: "valid" });
+    expect(events[2]).not.toHaveProperty("error");
     expect(toolMessages(session.messages)).toEqual(["contents of a.md"]);
     expect(lm.requests[0]?.tools?.map((tool) => tool.name)).toEqual(["read_note", "write_note"]);
     expect(lm.requests[1]?.messages.at(-1)).toEqual({
@@ -127,6 +130,7 @@ describe("runTurn: basic turns", () => {
       ],
     });
     expect(events).toEqual([
+      { type: "model-call-start" },
       { type: "turn-end", reason: "error", message: "LM Studio is not running" },
     ]);
     expectWellFormed(session.messages);
