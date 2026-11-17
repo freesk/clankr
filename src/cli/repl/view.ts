@@ -6,6 +6,7 @@ import { createElement as h, type ReactElement, useSyncExternalStore } from "rea
 import type { ReplController } from "./controller.ts";
 import { ApprovalView, PickerView, QuestionView } from "./dialog-views.ts";
 import type { EntryKind, LiveTurn, ReplState, TranscriptEntry } from "./repl-state.ts";
+import { reasoningSummary } from "./turn-presenter.ts";
 
 const entryStyles: Record<EntryKind, { color?: string; dimColor?: boolean; prefix: string }> = {
   user: { color: "cyan", prefix: "› " },
@@ -30,7 +31,9 @@ function LiveView({ live }: { live: LiveTurn }): ReactElement {
   return h(
     Box,
     { flexDirection: "column" },
-    live.reasoning ? h(Text, { dimColor: true, italic: true }, live.reasoning) : null,
+    live.reasoning
+      ? h(Text, { dimColor: true, italic: true }, reasoningSummary(live.reasoning, "live"))
+      : null,
     live.text ? h(Text, null, live.text) : null,
     live.runningTool ? h(Text, { dimColor: true }, `  … ${live.runningTool}`) : null,
   );

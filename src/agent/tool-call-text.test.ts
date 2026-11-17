@@ -110,4 +110,9 @@ describe("stripReasoningTags", () => {
   it("removes closed and unclosed think blocks", () => {
     expect(stripReasoningTags("a<think>x</think>b<think>y")).toBe("ab");
   });
+
+  it("removes Gemma 4 reasoning written inline in the answer", () => {
+    expect(stripReasoningTags("<|channel>thought\nplan it<channel|>Answer")).toBe("Answer");
+    expect(stripReasoningTags("Answer<|channel>thought\nstill thinking")).toBe("Answer");
+  });
 });

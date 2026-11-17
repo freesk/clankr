@@ -72,7 +72,7 @@ function commitLive(state: ReplState, config: Config): ReplState {
   if (!live) return state;
   const entries = appendEntries(
     state.entries,
-    { kind: "reasoning", text: live.reasoning.trim() },
+    { kind: "reasoning", text: reasoningSummary(live.reasoning, "done") },
     { kind: "assistant", text: redactSecrets(live.text.trim(), config) },
   );
   return { ...state, entries, live: { ...emptyLiveTurn, runningTool: live.runningTool } };
@@ -92,4 +92,15 @@ function closingEntry(
     case "error":
       return { kind: "error", text: message ?? "The turn failed." };
   }
+}
+
+/**
+ * The model's reasoning is shown as one dim line, not in full: printed out it reads like
+ * the answer and buries it. `/think off` turns reasoning off entirely.
+ */
+export function reasoningSummary(reasoning: string, stage: "live" | "done"): string {
+  const words = reasoning.trim().split(/\s+/).filter(Boolean).length;
+  if (words === 0) return "";
+  const count = `${words.toLocaleString("en-US")} ${words === 1 ? "word" : "words"}`;
+  return stage === "live" ? `thinking… ${count}` : `thought · ${count}`;
 }

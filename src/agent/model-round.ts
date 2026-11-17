@@ -77,9 +77,11 @@ function buildReply(
 }
 
 /**
- * Some models put their reasoning inline in `<think>` tags instead of a separate channel.
- * It must not reach history either (CTX-7).
+ * Some models put their reasoning inline instead of in a separate channel: `<think>` tags,
+ * or Gemma 4's `<|channel>thought … <channel|>`. It must not reach history either (CTX-7).
  */
 export function stripReasoningTags(text: string): string {
-  return text.replace(/<think>[\s\S]*?(<\/think>|$)/g, "");
+  return text
+    .replace(/<think>[\s\S]*?(<\/think>|$)/g, "")
+    .replace(/<\|channel>thought[\s\S]*?(<channel\|>|$)/g, "");
 }

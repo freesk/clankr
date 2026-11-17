@@ -36,6 +36,7 @@ export function planDelimited(
   realPath: string,
   detected: DetectedFormat,
   headerRowFor: HeaderRowFor,
+  utf8CopyPath?: string,
 ): TablePlan[] {
   const label = basename(realPath);
   const delimiter = detected.delimiter ?? (detected.format === "tsv" ? "\t" : ",");
@@ -43,12 +44,13 @@ export function planDelimited(
     .slice(0, headerSearchRows)
     .map((line) => splitDelimitedLine(line, delimiter).map(cellText));
   const headerRow = headerRowFor(label) ?? detectHeaderRow(textRows);
+  const separated = detected.format === "tsv" ? "tab-separated" : "comma-separated";
   return [
     {
       label,
-      description: detected.format === "tsv" ? "tab-separated" : "comma-separated",
+      description: utf8CopyPath ? `${separated}, Windows-1252 text read as UTF-8` : separated,
       headerRow,
-      layout: { headerRow, delimiter },
+      layout: { headerRow, delimiter, ...(utf8CopyPath ? { utf8CopyPath } : {}) },
       hasData: textRows.slice(headerRow).some((cells) => cells.some((cell) => cell !== null)),
     },
   ];

@@ -16,7 +16,7 @@ export interface TableSourceInput {
 /** The one file DuckDB must be allowed to open to read this table. */
 export function fileReadBy(input: TableSourceInput): string {
   if (input.table.rowsHandle) return requireRowsFile(input);
-  return input.realPath;
+  return input.table.layout?.utf8CopyPath ?? input.realPath;
 }
 
 /**
@@ -63,7 +63,8 @@ function readDelimitedSql(path: string, layout: TableLayout, format: "csv" | "ts
     "header = true",
     `skip = ${layout.headerRow - 1}`,
   ];
-  return `read_csv(${quoteLiteral(path)}, ${options.join(", ")})`;
+  if (layout.scanAllRowsForTypes) options.push("sample_size = -1");
+  return `read_csv(${quoteLiteral(layout.utf8CopyPath ?? path)}, ${options.join(", ")})`;
 }
 
 /**

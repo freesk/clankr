@@ -24,6 +24,7 @@ import {
   planXls,
   type TablePlan,
 } from "./table-plans.ts";
+import { isUtf8File, writeUtf8Copy } from "./text-encoding.ts";
 import { planXlsx } from "./xlsx-plan.ts";
 
 export interface ProfileRequest {
@@ -51,8 +52,11 @@ export async function profileFile(
 
   const converted = readsInPlace ? undefined : await planConverted(request, headerRowFor);
   const rowSetHandles = converted ? await storeRowSets(converted.plans, request, context) : [];
+  const utf8CopyPath = await utf8CopyIfNeeded(request, context);
   const database = await openLockedDatabase({
-    allowedFiles: readsInPlace ? [request.realPath] : rowSetFiles(rowSetHandles, context),
+    allowedFiles: readsInPlace
+      ? [utf8CopyPath ?? request.realPath]
+      : rowSetFiles(rowSetHandles, context),
     scratchDirectory: context.clankrPaths.session.scratch,
     memoryLimitMb: context.config.data.sqlMemoryLimitMb,
     loadExcelReader: format === "xlsx",
@@ -62,7 +66,8 @@ export async function profileFile(
       database.connection,
       { timeoutMs: context.config.data.sqlTimeoutMs, signal: context.signal },
       async () => {
-        const plans = converted?.plans ?? (await planInPlace(database, request, headerRowFor));
+        const plans =
+          converted?.plans ?? (await planInPlace(database, request, headerRowFor, utf8CopyPath));
         assertKnownLabel(plans, request.sheet);
         const tables = nameTables(plans, rowSetHandles, request, context);
         const tableProfiles = await profilePlans(database, plans, tables, request, context);
@@ -100,11 +105,23 @@ async function planInPlace(
   database: LockedDatabase,
   request: ProfileRequest,
   headerRowFor: HeaderRowFor,
+  utf8CopyPath: string | undefined,
 ): Promise<TablePlan[]> {
   if (request.detected.format === "xlsx") {
     return planXlsx(database.connection, request.realPath, headerRowFor);
   }
-  return planDelimited(request.realPath, request.detected, headerRowFor);
+  return planDelimited(request.realPath, request.detected, headerRowFor, utf8CopyPath);
+}
+
+/** A delimited file that is not UTF-8 is read through a converted copy (see text-encoding.ts). */
+async function utf8CopyIfNeeded(
+  request: ProfileRequest,
+  context: ToolContext,
+): Promise<string | undefined> {
+  const { format } = request.detected;
+  if (format !== "csv" && format !== "tsv") return undefined;
+  if (await isUtf8File(request.realPath)) return undefined;
+  return writeUtf8Copy(request.realPath, context.clankrPaths.session.scratch);
 }
 
 /** One handle per plan with data, in plan order. */
@@ -191,8 +208,33 @@ async function profilePlans(
       table,
       rowsFilePath: table.rowsHandle ? context.results.rowsFilePath?.(table.rowsHandle) : undefined,
     };
-    const statistics = await profileTable(database.connection, profileSource(input));
+    const statistics = await profileWithFullTypeScan(database, input);
     profiles.push({ ...base, sqlName: table.sqlName, ...statistics });
   }
   return profiles;
+}
+
+/**
+ * DuckDB guesses a delimited file's column types from its first rows. When a later value
+ * breaks the guess (an Age column that reads `90+` after 86,000 numbers), the table is
+ * profiled again with types guessed from every row. The layout keeps that choice, so
+ * query_sql reads the file the same way.
+ */
+async function profileWithFullTypeScan(database: LockedDatabase, input: TableSourceInput) {
+  try {
+    return await profileTable(database.connection, profileSource(input));
+  } catch (error) {
+    const layout = input.table.layout;
+    const delimited = input.format === "csv" || input.format === "tsv";
+    if (!delimited || !layout || layout.scanAllRowsForTypes || !isTypeGuessError(error)) {
+      throw error;
+    }
+    layout.scanAllRowsForTypes = true;
+    return profileTable(database.connection, profileSource(input));
+  }
+}
+
+function isTypeGuessError(error: unknown): boolean {
+  const message = error instanceof Error ? error.message : String(error);
+  return /CSV Error on Line|Conversion Error|Could not convert/i.test(message);
 }

@@ -26,6 +26,13 @@ export interface TableLayout {
   cellRange?: string;
   /** Field delimiter, for `.csv` and `.tsv`. */
   delimiter?: string;
+  /**
+   * A UTF-8 copy in the session's scratch folder, for a delimited file that is not UTF-8.
+   * DuckDB reads the copy instead of the original.
+   */
+  utf8CopyPath?: string;
+  /** Guess column types from every row: set when a value far down the file broke the guess. */
+  scanAllRowsForTypes?: boolean;
 }
 
 export interface DataSource {

@@ -90,8 +90,14 @@ function parseChunk(data: string): Chunk | undefined {
   }
 }
 
+/**
+ * Gemma 4 opens its reasoning with `<|channel>thought` and closes it with `<channel|>`.
+ * LM Studio usually removes them, but on some turns they reach the reasoning text.
+ */
+const channelMarkers = /<\|channel>(?:thought)?|<channel\|>/g;
+
 function* eventsFromDelta(delta: ChunkDelta): Generator<ChatEvent> {
-  const reasoning = delta.reasoning_content ?? delta.reasoning;
+  const reasoning = (delta.reasoning_content ?? delta.reasoning)?.replace(channelMarkers, "");
   if (reasoning) yield { type: "reasoning", delta: reasoning };
   if (delta.content) yield { type: "text", delta: delta.content };
   for (const [position, call] of (delta.tool_calls ?? []).entries()) {

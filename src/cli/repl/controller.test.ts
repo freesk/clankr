@@ -109,7 +109,7 @@ describe("ReplController", () => {
     release();
     const state = await waitFor(controller, idle);
     expect(entryTexts(state).slice(-2)).toEqual([
-      "reasoning: The user greets me.",
+      "reasoning: thought · 4 words",
       "assistant: Hello",
     ]);
   });
@@ -270,5 +270,14 @@ describe("ReplController", () => {
     typeLine(controller, "hi");
     const state = await waitFor(controller, idle);
     expect(entryTexts(state).at(-1)).toBe("error: connection refused, token [redacted]");
+  });
+});
+
+describe("reasoning summary", () => {
+  it("collapses reasoning to a word count and shows nothing when there is none", async () => {
+    const { reasoningSummary } = await import("./turn-presenter.ts");
+    expect(reasoningSummary("Plan: inspect, then query.", "live")).toBe("thinking… 4 words");
+    expect(reasoningSummary("one", "done")).toBe("thought · 1 word");
+    expect(reasoningSummary("  ", "done")).toBe("");
   });
 });
