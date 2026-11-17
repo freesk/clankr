@@ -25,7 +25,7 @@ Build `vix` as described in [PRD.md](PRD.md), part by part, following the waves 
 | 1 | cli | [cli.md](specs/cli.md) | 1 | agent-cli | in progress | Argument parsing, one-shot mode, slash dispatcher; Ink REPL after |
 | 2 | lmstudio | [lmstudio.md](specs/lmstudio.md) | 1 | agent-lmstudio | done (verified) | Merged in `6d1e8c5`; full suite 270 passing + 5 skipped. Verified live: token-missing and token-rejected errors against LM Studio 0.4.20. Not verified live (no `LM_API_TOKEN`): chat stream, usage in stream, SDK token counts, load/switch, reasoning toggle. Run `VIX_LIVE_LMSTUDIO=1 LM_API_TOKEN=… npx vitest run src/lmstudio/live.test.ts` |
 | 3 | agent-loop | [agent-loop.md](specs/agent-loop.md) | 1 | agent-loop | done (verified) | Merged in `59acba2`: 58 agent tests; full suite 328 passing + 5 skipped. Not verified: CTX-5 with the real counter and tools (fake estimate 975 tokens native / 536 prompt), and whether Gemma follows `<tool_call>` |
-| 4 | context | [context.md](specs/context.md) | 1 | agent-context | in progress | On-disk `ResultStore` (JSON Lines rows), `capResult`, budgets |
+| 4 | context | [context.md](specs/context.md) | 1 | agent-context | done (verified) | Merged in `d4792fe`: 40 context tests incl. the M2 criterion (scripted 50-turn session within the window at 16k and 8k); full suite 366 passing + 5 skipped. Not verified: real LM Studio token counts and template-overhead calibration, summary quality from a real model |
 | 5 | permissions | [permissions.md](specs/permissions.md) | 1 | agent-storage-permissions | done (verified) | Merged in `dc8f650` with storage; full suite 238 passing then. Not verified: deny-list paths on a real home folder, audit entries written end to end by the agent loop |
 | 6 | storage | [storage.md](specs/storage.md) | 1 | agent-storage-permissions | done (verified) | Merged in `dc8f650`: modes, wipe, resume, ephemeral cleanup on every exit path incl. signals, all tested in temp roots. Not verified: SIGHUP |
 | 7 | search | [search.md](specs/search.md) | 1 | agent-search | in progress | Vendor step for ripgrep; `list_dir` and `read_file` first. Replace the smoke test in `src/tools/search/` |
@@ -72,9 +72,11 @@ Build `vix` as described in [PRD.md](PRD.md), part by part, following the waves 
 - Risk: `npm audit` reports GHSA-mrhx-c7xc-m3w5 (zod < 4.6.6 memory exhaustion) through `@lmstudio/sdk`'s bundled zod 3.25.76. npm's only fix is downgrading the SDK to 0.3.0. Exposure is limited to messages from the local LM Studio server. Decide: accept, override, or drop the SDK for the character estimate.
 
 - **Conflict to settle in integration:** `ChatRequest.model`. lmstudio and image use `LoadedModel.instanceId` (lmstudio maps it back to the key for profiles); agent-loop sends `model.key`. Change agent-loop to `instanceId`.
-- Compaction write-back: `prepareMessages` may compact but cannot return the new history, so `session.messages` would grow. Context agent asked to close this (add-only); integration wires the loop side.
+- Compaction write-back: resolved by D51. The engine keeps a compacted view; `session.messages` stays complete. Only `/compact` replaces `session.messages`, so the transcript writer must handle a replaced history.
 - agent-loop wiring: `runTurn(dependencies, session, input, signal)` with `AgentDependencies` (`lm`, `context`, `permissions`, `tools`, `createToolContext(signal)`, `config`, `workingDirectory`, optional `toolReferences`, `extraInstructions`). `createToolContext` must fill `model` and `reasoning` (image needs them). cli warns on MOD-6 via `toolCallingStyleFor(model, config)`. Session creator sets `reasoning` from the model profile. Storage should persist `SessionState.activatedToolGroups`. Run `measureFixedOverhead` with real tools and the real counter for CTX-5.
 - Chart must export a `ToolReference` (chart agent told).
+
+- context wiring: `VixContextEngine({ lm, results, config, model? })`, `DiskResultStore(vixPaths.session.results)`, `createReadResultTool(config)`, `createContextCommands(engine)`. agent-loop must call `prepareMessages` before every model call (each tool round), send `maxTokens = engine.budgets().response`, and call `recordUsage` after each chat. lmstudio's switcher must call `engine.onModelChanged(model)`. agent-loop and cli must surface the error when system prompt plus tools exceed the window.
 
 ## Decisions made along the way
 
@@ -91,4 +93,5 @@ Build `vix` as described in [PRD.md](PRD.md), part by part, following the waves 
 | 2026-11-17 | Renamed `src/lmstudio/fake-lm-studio-server.ts` to `.test-support.ts` | Keeps the fake out of `dist` |
 | 2026-11-17 | D48–D50 from agent-loop | See PRD 13.1 |
 | 2026-11-17 | Lint broke on main at `144a275` (long import after a rename), fixed in `ee2d841`; merge checks now use exit codes, not output tails | Rule 2: evidence must be the actual exit status |
+| 2026-11-17 | D51 from context | See PRD 13.1 |
 | 2026-11-17 | Config `data.rowCap` is one number for the chart row cap and the isolate helper cap | specs/sandbox.md requires them to be defined once |
