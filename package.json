@@ -26,6 +26,7 @@
   },
   "dependencies": {
     "@duckdb/node-api": "1.4.5-r.1",
+    "@lmstudio/sdk": "2.1.0",
     "isolated-vm": "6.2.0",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz",
     "zod": "^4.6.7"
