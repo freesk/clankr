@@ -68,4 +68,15 @@ describe("inspect_data on real-world CSV exports", () => {
     expect(output.text).toContain("30,001 rows x 3 columns");
     expect(await sql("SELECT people FROM population WHERE age = '90+'")).toContain("12");
   });
+
+  it("notes when an identifier repeats across rows, with the SQL that counts it", async () => {
+    await setUp();
+    // 150 licences over 450 rows: one row per licence per purpose, as real exports do.
+    const lines = ["Licence Number,purpose,volume"];
+    for (let row = 0; row < 450; row++) lines.push(`L${row % 150},P${row % 3},${row}`);
+    const path = await test.writeFixture("licences.csv", `${lines.join("\n")}\n`);
+    const output = await inspectDataTool.run({ path }, test.context);
+    expect(output.text).toContain('several rows share each "Licence Number"');
+    expect(output.text).toContain('COUNT(DISTINCT "Licence Number")');
+  });
 });

@@ -59,7 +59,8 @@ describe.skipIf(!isBrowserVendored())("prepareChartSpec (needs the vendored sche
       range: { category: defaultTheme.palette },
     });
     expect(prepared.spec.data).toEqual({ name: "table" });
-    expect(prepared.spec.encoding).toEqual(spec.encoding);
+    // The model's encoding survives; polish may only add axis settings (spec-polish.ts).
+    expect(prepared.spec.encoding).toMatchObject(spec.encoding);
   });
 
   it("names the bad property in a short error", async () => {

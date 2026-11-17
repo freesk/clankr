@@ -94,7 +94,33 @@ function tableLines(table: TableProfile, options: FormatOptions): string[] {
       : "";
     lines.push(`(${hidden} more columns not shown.${where})`);
   }
+  const repeated = repeatedIdentifierNote(table);
+  if (repeated) lines.push(repeated);
   return lines;
+}
+
+/** Names that usually identify one thing: "Authorization Number", "employee_id", "EMP_KEY". */
+const identifierName = /(^|[\s_])(id|number|no|num|key|code|uid)$/i;
+
+/**
+ * Says when an identifier repeats across rows, with the SQL that counts the things it names.
+ * A small model counted rows as licences (151,322 for 6,115 licences) even when the chart
+ * reference told it otherwise; the profile is what it reads right before writing SQL.
+ */
+function repeatedIdentifierNote(table: TableProfile): string | undefined {
+  const repeated = table.columns.find(
+    (column) =>
+      identifierName.test(column.name.trim()) &&
+      column.distinctCount >= 100 &&
+      column.distinctCount < (table.rowCount - column.nullCount) * 0.9,
+  );
+  if (!repeated) return undefined;
+  const distinct = `${repeated.distinctApproximate ? "about " : ""}${repeated.distinctCount.toLocaleString("en-US")}`;
+  return (
+    `Note: several rows share each "${repeated.name}" (${distinct} distinct in ` +
+    `${table.rowCount.toLocaleString("en-US")} rows). To count them, use ` +
+    `COUNT(DISTINCT "${repeated.name}"), not COUNT(*).`
+  );
 }
 
 function columnLine(column: ColumnProfile, sensitiveColumns: Set<string>): string {

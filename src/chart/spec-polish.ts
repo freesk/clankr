@@ -40,8 +40,8 @@ function barsOverYearsAsCategories(spec: SpecObject, rows: Row[]): void {
 const longLabelCharacters = 10;
 
 /**
- * Vega-Lite turns long category labels on an x axis 90 degrees, which is hard to read.
- * They are angled at -35 degrees instead, unless the model chose an angle.
+ * Vega-Lite turns category labels on an x axis 90 degrees, which is hard to read. Short ones
+ * are drawn level and long ones angled at -35 degrees, unless the model chose an angle.
  */
 function angleLongCategoryLabels(spec: SpecObject, rows: Row[]): void {
   forEachView(spec, (view) => {
@@ -52,10 +52,13 @@ function angleLongCategoryLabels(spec: SpecObject, rows: Row[]): void {
     if (definition.axis === null) return;
     const field = definition.field;
     const longest = Math.max(0, ...rows.map((row) => String(row[field] ?? "").length));
-    if (longest <= longLabelCharacters) return;
     const axis = isPlainObject(definition.axis) ? definition.axis : {};
     if (axis.labelAngle !== undefined) return;
-    definition.axis = { ...axis, labelAngle: -35, labelAlign: "right" };
+    // Short labels such as years read best level; Vega-Lite turns them on their side too.
+    definition.axis =
+      longest <= longLabelCharacters
+        ? { ...axis, labelAngle: 0 }
+        : { ...axis, labelAngle: -35, labelAlign: "right" };
   });
 }
 

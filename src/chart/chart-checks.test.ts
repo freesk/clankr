@@ -137,3 +137,14 @@ describe("polishSpec bars and labels", () => {
     expect((spec.encoding.x as { axis?: { labelAngle?: number } }).axis?.labelAngle).toBe(-35);
   });
 });
+
+describe("polishSpec short category labels", () => {
+  it("draws short labels such as years level", () => {
+    const spec = {
+      mark: "bar",
+      encoding: { x: { field: "year", type: "ordinal" }, y: { field: "n", type: "quantitative" } },
+    };
+    polishSpec(spec, [{ year: 2020, n: 1 }]);
+    expect((spec.encoding.x as { axis?: { labelAngle?: number } }).axis?.labelAngle).toBe(0);
+  });
+});
