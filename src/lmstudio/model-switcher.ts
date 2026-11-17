@@ -16,12 +16,14 @@ import { contextLengthFor, planLoad, reloadNotice } from "./profiles.ts";
 export type Notify = (text: string) => void;
 
 export class ModelSwitcher {
+  readonly lm: LmClient;
   private readonly listeners = new Set<ModelChangedListener>();
+  private readonly config: Config;
 
-  constructor(
-    readonly lm: LmClient,
-    private readonly config: Config,
-  ) {}
+  constructor(lm: LmClient, config: Config) {
+    this.lm = lm;
+    this.config = config;
+  }
 
   /** Subscribe to model changes. Returns the function that unsubscribes. */
   onModelChanged(listener: ModelChangedListener): () => void {

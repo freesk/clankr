@@ -30,8 +30,11 @@ const otherModel: ModelInfo = {
 
 /** A scripted client whose loads of one key fail, like a model too big for memory. */
 class FailingLoadClient extends ScriptedLmClient {
-  constructor(private readonly failingKey: string) {
+  private readonly failingKey: string;
+
+  constructor(failingKey: string) {
     super([], [testModel, otherModel]);
+    this.failingKey = failingKey;
   }
 
   override async loadModel(key: string, options: { contextLength: number }): Promise<LoadedModel> {

@@ -48,7 +48,10 @@ export class FakeLmStudioServer {
   private readonly instances = new Map<string, Instance[]>();
   private instanceCounter = 0;
 
-  constructor(private readonly options: FakeServerOptions = {}) {
+  private readonly options: FakeServerOptions;
+
+  constructor(options: FakeServerOptions = {}) {
+    this.options = options;
     for (const model of options.models ?? []) {
       this.instances.set(
         model.key,

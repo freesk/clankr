@@ -14,6 +14,7 @@ export {
   toyWriteTool,
 } from "./agent-loop-kit.ts";
 export { InMemoryResultStore } from "./in-memory-result-store.ts";
+export { OnDiskResultStore } from "./on-disk-result-store.ts";
 export { QueuedApprovalPrompter } from "./queued-approval-prompter.ts";
 export {
   respond,

@@ -17,8 +17,7 @@ import type {
   ToolOutput,
   UsageSnapshot,
 } from "../contracts/index.ts";
-
-const charactersPerToken = 4;
+import { charactersPerToken } from "../shared/index.ts";
 
 /**
  * Sends the system prompt and the whole history, and never stores a result. A result over

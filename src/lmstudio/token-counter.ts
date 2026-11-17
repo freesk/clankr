@@ -22,7 +22,11 @@ const silentLogger = { info() {}, warn() {}, error() {}, debug() {} };
 export class SdkTokenCounter implements TokenCounter {
   private client: Promise<SdkClient> | undefined;
 
-  constructor(private readonly transport: LmStudioTransport) {}
+  private readonly transport: LmStudioTransport;
+
+  constructor(transport: LmStudioTransport) {
+    this.transport = transport;
+  }
 
   async count(messages: ChatMessage[], instanceId: string): Promise<number> {
     const client = await this.connect();
@@ -122,21 +126,4 @@ function parseArguments(argumentsJson: string): Record<string, unknown> {
   } catch {
     return {};
   }
-}
-
-const charactersPerToken = 4;
-
-/** The fallback when the SDK cannot answer: about four characters per token. */
-export function estimateTokens(messages: ChatMessage[]): number {
-  let characters = 0;
-  for (const message of messages) {
-    if (typeof message.content === "string") characters += message.content.length;
-    else characters += userText(message.content).length;
-    if (message.role === "assistant") {
-      for (const call of message.toolCalls ?? []) {
-        characters += call.name.length + call.argumentsJson.length;
-      }
-    }
-  }
-  return Math.ceil(characters / charactersPerToken);
 }

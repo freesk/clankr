@@ -60,7 +60,11 @@ export function sameFingerprint(expected: Fingerprint, actual: Fingerprint): boo
 }
 
 export class SnapshotStore {
-  constructor(private readonly directory: string) {}
+  private readonly directory: string;
+
+  constructor(directory: string) {
+    this.directory = directory;
+  }
 
   /** Starts recording a change. Call `finish` on the recorder whether or not the change worked. */
   async begin(description: string): Promise<ChangeRecorder> {
@@ -106,11 +110,15 @@ export class ChangeRecorder {
   private readonly steps: UndoStep[] = [];
   private backupCount = 0;
 
-  constructor(
-    private readonly store: SnapshotStore,
-    private readonly directory: string,
-    private readonly description: string,
-  ) {}
+  private readonly store: SnapshotStore;
+  private readonly directory: string;
+  private readonly description: string;
+
+  constructor(store: SnapshotStore, directory: string, description: string) {
+    this.store = store;
+    this.directory = directory;
+    this.description = description;
+  }
 
   /** Saves a full copy of a file or folder tree and returns where the copy is. */
   async backup(path: string): Promise<string> {

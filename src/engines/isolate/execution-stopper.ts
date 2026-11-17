@@ -9,12 +9,12 @@ export class ExecutionStopper {
   private stopReason: StopReason | undefined;
   private readonly timer: NodeJS.Timeout;
   private readonly onAbort = () => this.stop("cancelled");
+  private readonly isolate: Isolate;
+  private readonly signal: AbortSignal | undefined;
 
-  constructor(
-    private readonly isolate: Isolate,
-    timeoutMs: number,
-    private readonly signal?: AbortSignal,
-  ) {
+  constructor(isolate: Isolate, timeoutMs: number, signal?: AbortSignal) {
+    this.isolate = isolate;
+    this.signal = signal;
     this.timer = setTimeout(() => this.stop("timeout"), timeoutMs);
     signal?.addEventListener("abort", this.onAbort, { once: true });
   }

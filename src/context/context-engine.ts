@@ -55,7 +55,8 @@ export class VixContextEngine implements ContextEngine {
   private readonly results: ResultStore;
   private readonly settings: ContextSettings;
   private readonly ledger: TokenLedger;
-  private modelKey: string;
+  /** Sent as `ChatRequest.model`: the loaded instance id, or the configured key before a load. */
+  private modelId: string;
   private currentBudgets: ContextBudgets;
   private limits: WindowLimits;
   private compactor: Compactor;
@@ -68,7 +69,7 @@ export class VixContextEngine implements ContextEngine {
     this.results = options.results;
     this.settings = options.config.context;
     this.ledger = new TokenLedger(options.lm);
-    this.modelKey = options.model?.key ?? options.config.model.default;
+    this.modelId = options.model?.instanceId ?? options.config.model.default;
     const contextLength = options.model?.contextLength ?? options.config.model.contextLength;
     this.currentBudgets = computeBudgets(contextLength, this.settings);
     this.limits = computeWindowLimits(this.currentBudgets, this.settings);
@@ -132,7 +133,7 @@ export class VixContextEngine implements ContextEngine {
 
   /** MOD-7: recompute every budget for the new window and compact now if the conversation no longer fits. */
   async onModelChanged(model: LoadedModel): Promise<void> {
-    this.modelKey = model.key;
+    this.modelId = model.instanceId;
     this.ledger.reset();
     this.currentBudgets = computeBudgets(model.contextLength, this.settings);
     this.limits = computeWindowLimits(this.currentBudgets, this.settings);
@@ -143,7 +144,7 @@ export class VixContextEngine implements ContextEngine {
   private buildCompactor(): Compactor {
     return new Compactor({
       lm: this.lm,
-      modelKey: this.modelKey,
+      modelId: this.modelId,
       ledger: this.ledger,
       results: this.results,
       settings: this.settings,

@@ -2,7 +2,6 @@
 // so this part never imports sandbox's implementation. Inside the isolate, `render(spec, rows)`
 // only records its arguments; all checking and drawing happen on the host afterwards.
 
-import type { Config } from "../config/schema.ts";
 import {
   type IsolateHelper,
   type IsolateLimits,
@@ -25,15 +24,6 @@ export interface CapturedChart {
 export interface ChartCodeRunner {
   runInIsolate: RunInIsolate;
   createStandardHelpers: StandardHelpersFactory;
-}
-
-/** Built from config the same way as run_js's limits, so both tools share one set of numbers. */
-export function chartIsolateLimits(config: Config): IsolateLimits {
-  return {
-    timeoutMs: config.data.isolateTimeoutMs,
-    memoryLimitMb: config.data.isolateMemoryLimitMb,
-    rowCap: config.data.rowCap,
-  };
 }
 
 export async function runChartCode(

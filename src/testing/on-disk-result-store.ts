@@ -1,6 +1,6 @@
 // Test fake: a ResultStore that writes row sets as JSON Lines files, so DuckDB can read
 // them through `rowsFilePath`, as it will with context's real store. The shared
-// InMemoryResultStore has no files. Test code only; move to src/testing/ at integration.
+// InMemoryResultStore has no files. Test code only.
 
 import { appendFile, readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
@@ -11,7 +11,7 @@ import type {
   ResultStore,
   Row,
   TextRange,
-} from "../../../contracts/index.ts";
+} from "../contracts/index.ts";
 
 export class OnDiskResultStore implements ResultStore {
   private readonly metas = new Map<ResultHandle, ResultMeta>();

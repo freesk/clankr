@@ -2,7 +2,7 @@ import { existsSync } from "node:fs";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import type { ToolContext } from "../../contracts/index.ts";
 import { createTestToolContext, FixedPathPolicy } from "../../testing/index.ts";
-import { type FixtureTree, writeFixtureTree } from "./fixture-tree.ts";
+import { type FixtureTree, writeFixtureTree } from "./fixture-tree.test-support.ts";
 import { ripgrepBinaryPath } from "./ripgrep.ts";
 import { searchContentTool } from "./search-content.ts";
 

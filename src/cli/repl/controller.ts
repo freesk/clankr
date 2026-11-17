@@ -137,6 +137,11 @@ export class ReplController {
     });
   }
 
+  /** A message from outside a turn, such as an LM Studio warning. */
+  showNotice(text: string): void {
+    this.appendEntry("info", text);
+  }
+
   choose(prompt: string, options: ChoiceOption[]): Promise<string | undefined> {
     this.cancelChoice();
     return new Promise((resolve) => {

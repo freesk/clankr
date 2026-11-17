@@ -19,6 +19,11 @@ export interface StartReplRequest {
 export async function startRepl(request: StartReplRequest): Promise<ExitCode> {
   const { command, config, environment } = request;
   const prompter = new ReplApprovalPrompter();
+  // Notices from opening the harness arrive before the REPL exists; they are shown once it does.
+  const earlyNotices: string[] = [];
+  let showNotice = (text: string) => {
+    earlyNotices.push(text);
+  };
   let harness: Harness;
   try {
     harness = await environment.composition.openHarness({
@@ -27,6 +32,7 @@ export async function startRepl(request: StartReplRequest): Promise<ExitCode> {
       ephemeral: command.ephemeral,
       resume: command.resume,
       workingDirectory: environment.workingDirectory,
+      notify: (text) => showNotice(text),
     });
   } catch (error) {
     environment.stderr.write(`vix: ${redactSecrets(errorMessage(error), config)}\n`);
@@ -38,6 +44,8 @@ export async function startRepl(request: StartReplRequest): Promise<ExitCode> {
     workingDirectory: environment.workingDirectory,
   });
   prompter.connect(controller);
+  showNotice = (text) => controller.showNotice(text);
+  for (const notice of earlyNotices) controller.showNotice(notice);
   const { mountReplView } = await import("./view.ts");
   const instance = mountReplView(controller, environment);
   try {

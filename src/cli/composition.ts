@@ -1,109 +1,63 @@
-// Wires the other parts into the one dependency object the cli uses. This is the only
-// file that changes at integration: replace each "not wired" piece with the real part
-// (storage's openSession, wipe, and VixPaths, lmstudio's LmClient, context's engine and
-// result store, permissions' gate fed by `options.approvalPrompter`, agent-loop's runTurn,
-// and every part's SlashCommand registrations).
+// Wires the other parts into the one dependency object the cli uses. The real harness lives
+// in src/app/ and is imported only when a session opens, so `--help`, `--version`, and
+// `wipe` stay fast (startup rule, PRD section 9).
 
-import { homedir } from "node:os";
-import { join } from "node:path";
+import type { LmConnection } from "../app/lm-connection.ts";
 import { loadConfig } from "../config/index.ts";
-import type {
-  AgentEvent,
-  ChatMessage,
-  LmClient,
-  ResultStore,
-  SessionState,
-} from "../contracts/index.ts";
+import type { Config, WipeReport } from "../contracts/index.ts";
+import { buildRootPaths, resolveVixRoot, wipe } from "../storage/index.ts";
+import type { FileToolDependencies } from "../tools/fs/index.ts";
 import type { CliComposition, Harness, HarnessOptions } from "./harness.ts";
 
-export function createComposition(): CliComposition {
+/** What tests replace. Every field defaults to the real thing. */
+export interface CompositionOverrides {
+  /** Read for `VIX_HOME`; defaults to the process environment. */
+  environment?: Record<string, string | undefined>;
+  /** The home folder for `~` and the deny list. */
+  homeDirectory?: string;
+  /** Builds the model connection; defaults to the real LM Studio client. */
+  createLmConnection?: (config: Config, notify: (text: string) => void) => Promise<LmConnection>;
+  /** The Trash used by `delete` and `/undo`; tests pass a private one (D54). */
+  fileTools?: FileToolDependencies;
+}
+
+export function createComposition(overrides: CompositionOverrides = {}): CliComposition {
+  const root = () => resolveVixRoot(overrides.environment ?? process.env, overrides.homeDirectory);
   return {
     loadConfig: ({ flags, workingDirectory, environment }) =>
       loadConfig({
-        // Placeholder until storage's VixPaths provides `configFile`.
-        configFilePath: join(homedir(), ".vix", "config.json"),
+        configFilePath: buildRootPaths(root()).configFile,
         workingDirectory,
         environment,
         flags,
       }),
-    openHarness: async (options) => createUnwiredHarness(options),
-    wipe: async () => {
-      throw new Error(notWired("vix wipe", "storage"));
-    },
+    openHarness: (options) => openRealHarness(options, root(), overrides),
+    wipe: () => wipeEverything(root()),
   };
 }
 
-function notWired(feature: string, part: string): string {
-  return `${feature} is not wired yet: the ${part} part is still being built.`;
+async function openRealHarness(
+  options: HarnessOptions,
+  root: string,
+  overrides: CompositionOverrides,
+): Promise<Harness> {
+  const [{ openHarness }, { createLmStudioConnection }, { moveToSystemTrash }] = await Promise.all([
+    import("../app/open-harness.ts"),
+    import("../app/lm-connection.ts"),
+    import("../tools/fs/index.ts"),
+  ]);
+  const notify = options.notify ?? (() => {});
+  const createConnection = overrides.createLmConnection ?? createLmStudioConnection;
+  return openHarness(options, {
+    root,
+    connection: await createConnection(options.config, notify),
+    fileTools: overrides.fileTools ?? { trash: moveToSystemTrash },
+    ...(overrides.homeDirectory ? { homeDirectory: overrides.homeDirectory } : {}),
+  });
 }
 
-function createSessionState(options: HarnessOptions): SessionState {
-  return {
-    id: new Date().toISOString(),
-    messages: [],
-    model: undefined,
-    permissionMode: options.config.permissions.mode,
-    grants: { tools: new Set(), dataFiles: new Set() },
-    reasoning: "off",
-    ephemeral: options.ephemeral,
-  };
+// The cli has already asked for confirmation (D32), so storage is told yes.
+async function wipeEverything(root: string): Promise<WipeReport> {
+  const { plan } = await wipe(root, { yes: true });
+  return { sessionsRemoved: plan.sessionCount, bytesFreed: plan.sizeBytes };
 }
-
-function createUnwiredHarness(options: HarnessOptions): Harness {
-  if (options.resume) throw new Error(notWired("--resume", "storage"));
-  let session = createSessionState(options);
-  return {
-    config: options.config,
-    lm: unwiredLmClient,
-    results: unwiredResultStore,
-    slashCommands: [],
-    resumed: false,
-    session: () => session,
-    runTurn: (_input, _signal) => unwiredTurn(),
-    usage: () => undefined,
-    startNewSession: async () => {
-      session = createSessionState(options);
-    },
-    close: async () => {},
-  };
-}
-
-async function* unwiredTurn(): AsyncIterable<AgentEvent> {
-  yield {
-    type: "turn-end",
-    reason: "error",
-    message: notWired("Running a turn", "agent-loop"),
-  };
-}
-
-const charactersPerToken = 4;
-
-const unwiredLmClient: LmClient = {
-  listModels: async () => {
-    throw new Error(notWired("Listing models", "lmstudio"));
-  },
-  loadModel: async () => {
-    throw new Error(notWired("Loading a model", "lmstudio"));
-  },
-  unloadModel: async () => {
-    throw new Error(notWired("Unloading a model", "lmstudio"));
-  },
-  chat: () => {
-    throw new Error(notWired("Chat", "lmstudio"));
-  },
-  // An estimate, so piped stdin can still be measured against the cap.
-  countTokens: async (messages: ChatMessage[]) =>
-    Math.ceil(JSON.stringify(messages).length / charactersPerToken),
-};
-
-function unwiredResults(): never {
-  throw new Error(notWired("The result store", "context"));
-}
-
-const unwiredResultStore: ResultStore = {
-  putText: async () => unwiredResults(),
-  putRows: async () => unwiredResults(),
-  readText: async () => unwiredResults(),
-  readRows: () => unwiredResults(),
-  describe: async () => unwiredResults(),
-};

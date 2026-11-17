@@ -9,9 +9,13 @@ import type {
   DataTable,
   ToolContext,
 } from "../../../contracts/index.ts";
-import { createTestToolContext, InMemoryDataSourceRegistry } from "../../../testing/index.ts";
+import {
+  createTestToolContext,
+  InMemoryDataSourceRegistry,
+  OnDiskResultStore,
+} from "../../../testing/index.ts";
+
 import { closeSessionEngine } from "../session-engine.ts";
-import { OnDiskResultStore } from "./on-disk-result-store.ts";
 
 export interface SqlTestContext {
   context: ToolContext;

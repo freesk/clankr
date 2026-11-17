@@ -1,9 +1,14 @@
 // Ink loads only for the REPL (specs/cli.md). Each case runs the real entry point in a
 // fresh Node process with a resolve hook that records whether Ink or React was loaded.
+// Node strips the types itself here, so this also checks that everything one-shot mode
+// loads is erasable TypeScript (no enums, no constructor parameter properties).
 
 import { spawnSync } from "node:child_process";
+import { existsSync, mkdtempSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { describe, expect, it } from "vitest";
+import { afterAll, describe, expect, it } from "vitest";
 
 const recordingHook = `
 import { registerHooks } from "node:module";
@@ -23,11 +28,26 @@ const hookUrl = `data:text/javascript,${encodeURIComponent(recordingHook)}`;
 const mainPath = fileURLToPath(new URL("./main.ts", import.meta.url));
 const viewPath = fileURLToPath(new URL("./repl/view.ts", import.meta.url));
 
+// The real ~/.vix is never touched: every run gets a private VIX_HOME. Without a token, a
+// one-shot run stops at LM Studio's startup check whether or not LM Studio is running.
+const scratch = mkdtempSync(join(tmpdir(), "vix-startup-"));
+const vixHome = join(scratch, ".vix");
+const environment: NodeJS.ProcessEnv = { ...process.env, VIX_HOME: vixHome };
+delete environment.LM_API_TOKEN;
+
+afterAll(() => rmSync(scratch, { recursive: true, force: true }));
+
 function run(script: string, argv: string[]) {
   const result = spawnSync(
     process.execPath,
     ["--disable-warning=ExperimentalWarning", "--import", hookUrl, script, ...argv],
-    { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"], timeout: 15_000 },
+    {
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "pipe"],
+      timeout: 15_000,
+      env: environment,
+      cwd: scratch,
+    },
   );
   const loaded = /LOADED=(.*)/.exec(result.stderr)?.[1];
   return {
@@ -38,11 +58,14 @@ function run(script: string, argv: string[]) {
 }
 
 describe("startup", () => {
-  it("one-shot mode does not load Ink or React", () => {
-    const result = run(mainPath, ["-p", "hello"]);
-    expect(result.stderr).toContain("not wired yet");
+  it("one-shot mode loads the real harness but not Ink or React", () => {
+    const result = run(mainPath, ["-p", "hello", "--base-url", "http://127.0.0.1:9"]);
+    // The startup error and its fix (MOD-8): no token, or nothing listening on port 9.
+    expect(result.stderr).toMatch(/Fix: /);
     expect(result.status).toBe(1);
     expect(result.loaded).toEqual([]);
+    // A start that failed before the model connected leaves nothing on disk.
+    expect(existsSync(join(vixHome, "sessions"))).toBe(false);
   });
 
   it("wipe, --help, and --version do not load Ink or React", () => {

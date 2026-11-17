@@ -2,7 +2,7 @@
 // things happen, so a crash loses at most the line being written.
 
 import { stat } from "node:fs/promises";
-import type { ChatMessage, SessionTranscript } from "../contracts/index.ts";
+import type { ChatMessage, SessionTranscript, ToolGroup } from "../contracts/index.ts";
 import { appendPrivateFile, isMissingFileError } from "./private-files.ts";
 
 /** Bumped if the record shapes change, so an old transcript can still be read. */
@@ -11,7 +11,10 @@ export const transcriptFormatVersion = 1;
 export type TranscriptRecord =
   | { type: "session"; version: number; id: string; createdAt: string }
   | { type: "message"; at: string; message: ChatMessage }
-  | { type: "model"; at: string; modelKey: string };
+  | { type: "model"; at: string; modelKey: string }
+  /** Replaces every message recorded before it (compaction). */
+  | { type: "history"; at: string; messages: ChatMessage[] }
+  | { type: "tool-groups"; at: string; groups: ToolGroup[] };
 
 /**
  * Appends to `transcript.jsonl`. The file, and its header record, are created on the
@@ -35,6 +38,14 @@ export class FileTranscript implements SessionTranscript {
 
   recordModel(modelKey: string): Promise<void> {
     return this.enqueue({ type: "model", at: nowIso(), modelKey });
+  }
+
+  replaceHistory(messages: ChatMessage[]): Promise<void> {
+    return this.enqueue({ type: "history", at: nowIso(), messages });
+  }
+
+  recordToolGroups(groups: ToolGroup[]): Promise<void> {
+    return this.enqueue({ type: "tool-groups", at: nowIso(), groups });
   }
 
   private enqueue(record: TranscriptRecord): Promise<void> {
@@ -74,6 +85,8 @@ export class FileTranscript implements SessionTranscript {
 export class DiscardingTranscript implements SessionTranscript {
   async appendMessage(): Promise<void> {}
   async recordModel(): Promise<void> {}
+  async replaceHistory(): Promise<void> {}
+  async recordToolGroups(): Promise<void> {}
 }
 
 /** Parses transcript text. Lines that do not parse are skipped: a crash can cut the last one. */

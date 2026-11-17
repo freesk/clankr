@@ -63,6 +63,7 @@ async function runOneShotSession(
       ephemeral: command.ephemeral,
       resume: command.resume,
       workingDirectory: environment.workingDirectory,
+      notify: (text) => environment.stderr.write(`vix: ${redactSecrets(text, config)}\n`),
     })
     .catch((error: unknown) => reportFailure(environment, config, error));
   if (!harness) return exitCodes.failed;

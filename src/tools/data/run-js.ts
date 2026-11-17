@@ -16,7 +16,12 @@ import type {
   ToolDefinition,
 } from "../../contracts/index.ts";
 import { ToolError } from "../../contracts/index.ts";
-import { createStandardHelpers, isRowArray, runInIsolate } from "../../engines/isolate/index.ts";
+import {
+  createStandardHelpers,
+  isolateLimitsFrom,
+  isRowArray,
+  runInIsolate,
+} from "../../engines/isolate/index.ts";
 
 const runJsParameters = z.object({
   code: z
@@ -29,8 +34,6 @@ const runJsParameters = z.object({
 
 type RunJsArguments = z.infer<typeof runJsParameters>;
 
-/** Rows shown in the result; the full row set stays behind its handle. */
-const previewRowCount = 20;
 /** Console lines kept in an error message, which must stay short. */
 const errorLogLineCount = 10;
 const maxErrorLogLineLength = 200;
@@ -65,7 +68,7 @@ export const runJsTool: ToolDefinition<typeof runJsParameters> = {
     const result = await runInIsolate(args.code, helpers, limits, context.signal);
     if (!result.ok) throw new ToolError(failureText(result));
 
-    const body = await describeValue(result.value, args, context.results, limits);
+    const body = await describeValue(result.value, args, context, limits);
     const sections = [body.text, savedText(savedHandles), logsText(result.logs)];
     return {
       text: sections.filter((section) => section.length > 0).join("\n\n"),
@@ -74,12 +77,9 @@ export const runJsTool: ToolDefinition<typeof runJsParameters> = {
   },
 };
 
-export function isolateLimitsFrom(config: Config): IsolateLimits {
-  return {
-    timeoutMs: config.data.isolateTimeoutMs,
-    memoryLimitMb: config.data.isolateMemoryLimitMb,
-    rowCap: config.data.rowCap,
-  };
+/** `run_js` with its result cap taken from the loaded config, not the built-in default. */
+export function createRunJsTool(config: Config): ToolDefinition<typeof runJsParameters> {
+  return { ...runJsTool, resultTokenCap: config.context.defaultResultTokenCap };
 }
 
 // Wraps `save` so the tool can tell the model which handles the code created.
@@ -107,7 +107,7 @@ interface DescribedValue {
 async function describeValue(
   value: JsonValue | undefined,
   args: RunJsArguments,
-  results: ResultStore,
+  context: ToolContext,
   limits: IsolateLimits,
 ): Promise<DescribedValue> {
   if (value === undefined) {
@@ -116,7 +116,11 @@ async function describeValue(
       handles: [],
     };
   }
-  if (isRowArray(value) && value.length > 0) return await storeRows(value, args, results, limits);
+  if (isRowArray(value) && value.length > 0) {
+    // The same preview length as query_sql, so both tools show stored rows the same way.
+    const previewRows = context.config.data.sqlPreviewRows;
+    return await storeRows(value, args, context.results, limits, previewRows);
+  }
   return { text: typeof value === "string" ? value : JSON.stringify(value), handles: [] };
 }
 
@@ -127,6 +131,7 @@ async function storeRows(
   args: RunJsArguments,
   results: ResultStore,
   limits: IsolateLimits,
+  previewRowCount: number,
 ): Promise<DescribedValue> {
   if (rows.length > limits.rowCap) {
     throw new ToolError(

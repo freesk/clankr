@@ -77,6 +77,18 @@ describe("openSession", () => {
     expect(saved.modelKey).toBe("model/a");
     expect(saved.createdAt).toMatch(/^\d{4}-/);
   });
+
+  it("reads a replaced history and the tool groups back on resume", async () => {
+    const session = await openSession({ root });
+    await session.transcript.appendMessage({ role: "user", content: "old one" });
+    await session.transcript.appendMessage({ role: "assistant", content: "old two" });
+    await session.transcript.replaceHistory([{ role: "user", content: "summary note" }]);
+    await session.transcript.appendMessage({ role: "assistant", content: "after" });
+    await session.transcript.recordToolGroups(["data"]);
+    const saved = await new FileSessionStore(root).load(session.paths.session.id);
+    expect(saved.messages.map((message) => message.content)).toEqual(["summary note", "after"]);
+    expect(saved.activatedToolGroups).toEqual(["data"]);
+  });
 });
 
 describe("FileSessionStore", () => {

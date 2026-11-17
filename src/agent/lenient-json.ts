@@ -2,6 +2,10 @@
 // fences, leave trailing commas, or encode the object twice; each is fixed here when the
 // fix is unambiguous, and reported so the call counts as repaired rather than valid.
 
+import { isPlainObject } from "../shared/index.ts";
+
+export { isPlainObject };
+
 export type LenientParseResult =
   | { ok: true; value: Record<string, unknown>; repaired: boolean }
   | { ok: false };
@@ -39,10 +43,6 @@ function asObject(value: unknown, repaired: boolean): LenientParseResult {
     }
   }
   return { ok: false };
-}
-
-export function isPlainObject(value: unknown): value is Record<string, unknown> {
-  return value !== null && typeof value === "object" && !Array.isArray(value);
 }
 
 function tryParse(text: string): { parsed: true; value: unknown } | { parsed: false } {

@@ -20,6 +20,13 @@ import type { AgentDependencies, TurnInput } from "./types.ts";
 
 type TurnEndEvent = Extract<AgentEvent, { type: "turn-end" }>;
 
+let roundsStarted = 0;
+
+function nextRoundNumber(): number {
+  roundsStarted += 1;
+  return roundsStarted;
+}
+
 /**
  * Runs one user turn and yields its events, ending with exactly one `turn-end`. The
  * session's history is updated in place as the turn goes, and stays well-formed: every
@@ -64,8 +71,8 @@ async function* runRounds(
     // Checked every round, so a data path in the last tool result switches the group on now.
     activateGroupsFromHistory(session);
     const plan = planRound(dependencies, registry, model, session);
-    // History only grows, so its length makes fallback call ids unique within the session.
-    const callIdPrefix = `call_${session.messages.length}`;
+    // Compaction can shorten history (D51), so fallback call ids come from a process-wide count.
+    const callIdPrefix = `call_${nextRoundNumber()}`;
     const reply = yield* askModel(dependencies, plan, session, model, callIdPrefix, signal);
     recordReply(session.messages, reply);
     if (reply.cancelled) return turnEnd("cancelled");
@@ -100,6 +107,9 @@ async function* askModel(
     tools: toolSchemasToSend(plan),
     history: session.messages,
   });
+  // D51: the engine returns the history to keep (compacted when a threshold was crossed),
+  // so the session never grows past the window.
+  session.messages = prepared.slice(1);
   return yield* streamModelReply({
     lm: dependencies.lm,
     context: dependencies.context,

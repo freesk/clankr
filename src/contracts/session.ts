@@ -90,6 +90,13 @@ export interface SessionTranscript {
   appendMessage(message: ChatMessage): Promise<void>;
   /** The model the session switched to, so a resume can reload it. */
   recordModel(modelKey: string): Promise<void>;
+  /**
+   * The history was replaced rather than extended (compaction, `/compact`). A resume reads
+   * this list in place of every message recorded before it; the older lines stay on disk.
+   */
+  replaceHistory(messages: ChatMessage[]): Promise<void>;
+  /** The tool groups switched on so far (D15), so a resume keeps them. */
+  recordToolGroups(groups: ToolGroup[]): Promise<void>;
 }
 
 export interface SessionSummary {
@@ -108,6 +115,8 @@ export interface SavedSession {
   messages: ChatMessage[];
   /** The last model the session used. The cli falls back to the default if it is gone. */
   modelKey: string | undefined;
+  /** Tool groups switched on during the session, from the last record that named them. */
+  activatedToolGroups?: ToolGroup[];
 }
 
 /** Saved sessions on disk. Sessions with no messages are not listed. */
