@@ -156,7 +156,9 @@ export class ClankrContextEngine implements ContextEngine {
   private async fixedTokens(input: PrepareMessagesInput): Promise<number> {
     const system: ChatMessage = { role: "system", content: input.systemPrompt };
     return (
-      (await this.ledger.countMessages([system])) + (await this.ledger.countTools(input.tools))
+      (await this.ledger.countMessages([system])) +
+      (await this.ledger.countTools(input.tools)) +
+      this.ledger.fixedOverhead()
     );
   }
 

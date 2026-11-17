@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { defaultConfig } from "../config/index.ts";
-import type { ChatEvent, LoadedModel } from "../contracts/index.ts";
+import type { ChatEvent, ChatMessage, LoadedModel } from "../contracts/index.ts";
 import { InMemoryResultStore, ScriptedLmClient, testModel } from "../testing/index.ts";
 import { ClankrContextEngine } from "./context-engine.ts";
 
@@ -134,6 +134,23 @@ describe("token ledger", () => {
     await engine.prepareMessages(input);
     // Same request, now estimated with the measured overhead: matches what was reported.
     expect(engine.usage().usedTokens).toBe(estimated + 40);
+  });
+
+  it("treats the reported gap as a per-request cost that does not grow with history", async () => {
+    const { engine } = createEngine();
+    await engine.prepareMessages(input);
+    const estimated = engine.usage().usedTokens;
+    // A short request whose template adds 1,000 tokens (tool rendering, framing).
+    engine.recordUsage({ promptTokens: estimated + 1_000, completionTokens: 1 });
+    const longHistory: ChatMessage[] = Array.from({ length: 40 }, (_, index) =>
+      index % 2 === 0
+        ? { role: "user", content: `question ${index}` }
+        : { role: "assistant", content: `answer ${index}` },
+    );
+    await engine.prepareMessages({ ...input, history: longHistory });
+    const used = engine.usage().usedTokens;
+    // Spread per message, 1,000 tokens over a 2-message request would add about 20,000 here.
+    expect(used).toBeLessThan(estimated + 1_000 + 40 * 20);
   });
 
   it("ignores a usage report with no prompt count", async () => {

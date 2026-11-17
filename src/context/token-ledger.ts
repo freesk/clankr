@@ -10,10 +10,13 @@ import type {
 } from "../contracts/index.ts";
 
 /**
- * Tokens a chat template adds around each message, assumed until the first reported usage
- * replaces it with a measured value. Erring high only makes compaction start a little early.
+ * Tokens a chat template adds around each message. Kept fixed: the gap between our count and
+ * what LM Studio reports is mostly a per-request cost (the template's rendering of the tool
+ * definitions), so it is learned as `requestOverhead` instead. Spreading that gap over the
+ * messages of a short request, as an earlier version did, made a long turn look many times
+ * its real size and ended it with a false "does not fit" error.
  */
-const initialPerMessageOverhead = 4;
+const perMessageOverhead = 4;
 
 export type UsageCategories = UsageSnapshot["byCategory"];
 
@@ -28,7 +31,8 @@ export interface RequestMeasurement {
 export class TokenLedger {
   private readonly lm: LmClient;
   private readonly cache = new Map<string, number>();
-  private perMessageOverhead = initialPerMessageOverhead;
+  /** Learned from reported usage: what a request costs beyond its counted content. */
+  private requestOverhead = 0;
   private lastMeasurement: RequestMeasurement | undefined;
   private lastReportedPromptTokens: number | undefined;
 
@@ -51,10 +55,15 @@ export class TokenLedger {
     return this.countCached(`tools:${schemaText}`, [{ role: "system", content: schemaText }]);
   }
 
+  /** The per-request overhead learned so far, for anything that sums a request's size. */
+  fixedOverhead(): number {
+    return this.requestOverhead;
+  }
+
   async countMessages(messages: ChatMessage[]): Promise<number> {
     let total = 0;
     for (const message of messages) total += await this.countMessage(message);
-    return Math.ceil(total + messages.length * this.perMessageOverhead);
+    return Math.ceil(total + messages.length * perMessageOverhead);
   }
 
   async measure(
@@ -96,9 +105,9 @@ export class TokenLedger {
     const measurement = this.lastMeasurement;
     if (!measurement || usage.promptTokens <= 0) return;
     this.lastReportedPromptTokens = usage.promptTokens;
-    const contentTotal = sumCategories(measurement.content);
-    const overhead = usage.promptTokens - contentTotal;
-    this.perMessageOverhead = Math.max(0, overhead / measurement.messageCount);
+    const counted =
+      sumCategories(measurement.content) + measurement.messageCount * perMessageOverhead;
+    this.requestOverhead = usage.promptTokens - counted;
   }
 
   snapshot(contextLength: number): UsageSnapshot {
@@ -114,19 +123,18 @@ export class TokenLedger {
   /** A new model has a new tokenizer and chat template: start counting afresh. */
   reset(): void {
     this.cache.clear();
-    this.perMessageOverhead = initialPerMessageOverhead;
+    this.requestOverhead = 0;
     this.lastMeasurement = undefined;
     this.lastReportedPromptTokens = undefined;
   }
 
   private withOverhead(measurement: RequestMeasurement): UsageCategories {
-    const overhead = this.perMessageOverhead;
     const counts = measurement.messagesByCategory;
     return {
-      system: measurement.content.system + counts.system * overhead,
-      toolDefinitions: measurement.content.toolDefinitions,
-      history: measurement.content.history + counts.history * overhead,
-      toolResults: measurement.content.toolResults + counts.toolResults * overhead,
+      system: measurement.content.system + counts.system * perMessageOverhead,
+      toolDefinitions: measurement.content.toolDefinitions + this.requestOverhead,
+      history: measurement.content.history + counts.history * perMessageOverhead,
+      toolResults: measurement.content.toolResults + counts.toolResults * perMessageOverhead,
     };
   }
 
