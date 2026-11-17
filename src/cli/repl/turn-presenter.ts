@@ -74,7 +74,7 @@ function commitLive(state: ReplState, config: Config): ReplState {
   if (!live) return state;
   const entries = appendEntries(
     state.entries,
-    { kind: "reasoning", text: reasoningSummary(live.reasoning, "done") },
+    { kind: "reasoning", text: reasoningSummary(live.reasoning) },
     { kind: "assistant", text: redactSecrets(live.text.trim(), config) },
   );
   return { ...state, entries, live: { ...emptyLiveTurn, runningTool: live.runningTool } };
@@ -97,12 +97,12 @@ function closingEntry(
 }
 
 /**
- * The model's reasoning is shown as one dim line, not in full: printed out it reads like
- * the answer and buries it. `/think off` turns reasoning off entirely.
+ * Finished reasoning is kept as one dim line, not in full: printed out it reads like the
+ * answer and buries it. While it streams, the activity line counts it instead.
+ * `/think off` turns reasoning off entirely.
  */
-export function reasoningSummary(reasoning: string, stage: "live" | "done"): string {
+export function reasoningSummary(reasoning: string): string {
   const words = reasoning.trim().split(/\s+/).filter(Boolean).length;
   if (words === 0) return "";
-  const count = `${words.toLocaleString("en-US")} ${words === 1 ? "word" : "words"}`;
-  return stage === "live" ? `thinking… ${count}` : `thought · ${count}`;
+  return `thought · ${words.toLocaleString("en-US")} ${words === 1 ? "word" : "words"}`;
 }

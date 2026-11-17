@@ -47,10 +47,12 @@ class FakeStdin extends EventEmitter {
 class FakeStdout extends EventEmitter {
   readonly isTTY = true;
   readonly columns = 100;
-  readonly rows = 40;
+  rows = 40;
   written = "";
+  readonly chunks: string[] = [];
   write(chunk: string, callback?: () => void): boolean {
     this.written += chunk;
+    this.chunks.push(chunk);
     callback?.();
     return true;
   }
@@ -64,13 +66,14 @@ afterEach(() => {
   for (const unmount of unmounts.splice(0)) unmount();
 });
 
-function mount(turn: FakeTurn) {
+function mount(turn: FakeTurn, terminalRows = 40) {
   const prompter = new ReplApprovalPrompter();
   const harness = createFakeHarness({ turn, approvalPrompter: prompter });
   const controller = new ReplController({ harness, workingDirectory: "/work" });
   prompter.connect(controller);
   const stdin = new FakeStdin();
   const stdout = new FakeStdout();
+  stdout.rows = terminalRows;
   const instance = mountReplView(controller, {
     stdin: stdin as unknown as NodeJS.ReadStream,
     stdout: stdout as unknown as NodeJS.WriteStream,
@@ -165,6 +168,50 @@ describe("REPL view (Ink)", () => {
     expect(text).toContain("[d] deny with feedback");
     stdin.type("a");
     await eventually(() => stdout.text.includes("answer was session"), "the answer");
+  });
+
+  it("keeps every redrawn frame shorter than the terminal, so scrollback gets no copies", async () => {
+    const terminalRows = 20;
+    const sql = Array.from({ length: 60 }, (_, index) => `  column_${index},`).join("\n");
+    const answerLines = Array.from({ length: 30 }, (_, index) => `answer line ${index}`);
+    const turn: FakeTurn = async function* (_input, signal, context) {
+      yield { type: "text", delta: answerLines.join("\n") };
+      const answer = await context.approvalPrompter.ask(
+        {
+          tool: { name: "query_sql", permission: "execute" },
+          preview: { summary: "Run SQL over data.csv", code: sql, targetPaths: [] },
+          reason: "runs code on /work/data.csv",
+        },
+        signal,
+      );
+      yield { type: "text", delta: ` answer was ${answer.kind}` };
+      yield { type: "turn-end", reason: "done" };
+    };
+    const { stdin, stdout } = mount(turn, terminalRows);
+    stdin.type("run");
+    stdin.type("\r");
+    await eventually(() => stdout.text.includes("Allow query_sql?"), "the approval prompt");
+    // Let the activity spinner redraw the frame a few times.
+    await new Promise((resolve) => setTimeout(resolve, 400));
+
+    const frames = stdout.chunks
+      .map((chunk) => stripVTControlCharacters(chunk))
+      .filter((frame) => frame.includes("Allow query_sql?"));
+    expect(frames.length).toBeGreaterThan(0);
+    for (const frame of frames) {
+      expect(frame.replace(/\n$/, "").split("\n").length).toBeLessThan(terminalRows);
+    }
+    const lastFrame = frames.at(-1) ?? "";
+    expect(lastFrame).toContain("[o] once");
+    expect(lastFrame).toContain("more lines");
+    // The newest streamed rows stay visible; the oldest are cut while the dialog is open.
+    expect(lastFrame).toContain("answer line 29");
+    expect(lastFrame).not.toContain("answer line 0\n");
+
+    stdin.type("o");
+    await eventually(() => stdout.text.includes("answer was once"), "the answer");
+    // The committed answer reaches the transcript in full.
+    expect(stdout.text).toContain("answer line 0\n");
   });
 
   it("draws a secret question's answer as asterisks only", async () => {

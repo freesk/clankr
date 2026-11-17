@@ -297,8 +297,8 @@ describe("ReplController", () => {
 describe("reasoning summary", () => {
   it("collapses reasoning to a word count and shows nothing when there is none", async () => {
     const { reasoningSummary } = await import("./turn-presenter.ts");
-    expect(reasoningSummary("Plan: inspect, then query.", "live")).toBe("thinking… 4 words");
-    expect(reasoningSummary("one", "done")).toBe("thought · 1 word");
-    expect(reasoningSummary("  ", "done")).toBe("");
+    expect(reasoningSummary("Plan: inspect, then query.")).toBe("thought · 4 words");
+    expect(reasoningSummary("one")).toBe("thought · 1 word");
+    expect(reasoningSummary("  ")).toBe("");
   });
 });

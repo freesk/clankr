@@ -8,7 +8,11 @@ import { filteredOptions } from "./key-handling.ts";
 import type { PendingApproval, PendingChoice, PendingQuestion } from "./repl-state.ts";
 
 const maximumPreviewLines = 40;
+/** Even on a tiny terminal the user sees a little of what they are approving. */
+const minimumPreviewRows = 3;
 const visiblePickerRows = 10;
+/** Two borders, the prompt, and the filter line around the visible options. */
+export const pickerRows = visiblePickerRows + 4;
 
 function diffLineColor(line: string): string | undefined {
   if (line.startsWith("+++") || line.startsWith("---")) return "gray";
@@ -18,46 +22,94 @@ function diffLineColor(line: string): string | undefined {
   return undefined;
 }
 
-function clippedLines(text: string): string[] {
-  const lines = text.replace(/\n$/, "").split("\n");
-  if (lines.length <= maximumPreviewLines) return lines;
-  const hidden = lines.length - maximumPreviewLines;
-  return [...lines.slice(0, maximumPreviewLines), `… ${hidden} more lines`];
+interface PreviewLine {
+  text: string;
+  color: string | undefined;
 }
 
-function PreviewBody({ preview }: { preview: ChangePreview }): ReactElement {
-  const blocks: ReactElement[] = [];
-  if (preview.diff) {
-    clippedLines(preview.diff).forEach((line, index) => {
-      blocks.push(h(Text, { key: `diff-${index}`, color: diffLineColor(line) }, line));
-    });
-  }
-  if (preview.code) {
-    clippedLines(preview.code).forEach((line, index) => {
-      blocks.push(h(Text, { key: `code-${index}`, color: "yellow" }, line));
-    });
-  }
+function splitLines(text: string): string[] {
+  return text.replace(/\n$/, "").split("\n");
+}
+
+function previewLines(preview: ChangePreview): PreviewLine[] {
+  const diff = preview.diff ? splitLines(preview.diff) : [];
+  const code = preview.code ? splitLines(preview.code) : [];
+  return [
+    ...diff.map((text) => ({ text, color: diffLineColor(text) })),
+    ...code.map((text) => ({ text, color: "yellow" })),
+  ];
+}
+
+/** Keeps the first lines that fit, the last row saying how many were left out. */
+function clipLines(lines: PreviewLine[], maximumRows: number): PreviewLine[] {
+  if (lines.length <= maximumRows) return lines;
+  if (maximumRows <= 0) return [];
+  const kept = lines.slice(0, maximumRows - 1);
+  const hidden = lines.length - kept.length;
+  return [...kept, { text: `… ${hidden} more lines`, color: "gray" }];
+}
+
+/** Rows the approval box takes besides its preview: two borders, title, summary, footer. */
+function approvalChromeRows(approval: PendingApproval): number {
+  return 5 + (approval.request.preview.targetPaths.length > 0 ? 1 : 0);
+}
+
+/** Every line of the box is one terminal row (long lines are truncated), so this is exact. */
+export function approvalRows(approval: PendingApproval, maximumRows: number): number {
+  const previewBudget = previewRowBudget(approval, maximumRows);
+  const shown = Math.min(previewLines(approval.request.preview).length, previewBudget);
+  return approvalChromeRows(approval) + shown;
+}
+
+function previewRowBudget(approval: PendingApproval, maximumRows: number): number {
+  // The preview is cut before the box can outgrow the screen: a frame taller than the
+  // terminal leaves a copy of its top in scrollback on every redraw.
+  const fitting = maximumRows - approvalChromeRows(approval);
+  return Math.max(minimumPreviewRows, Math.min(maximumPreviewLines, fitting));
+}
+
+function PreviewBody({
+  preview,
+  maximumRows,
+}: {
+  preview: ChangePreview;
+  maximumRows: number;
+}): ReactElement {
+  const blocks = clipLines(previewLines(preview), maximumRows).map((line, index) =>
+    h(Text, { key: `line-${index}`, color: line.color, wrap: "truncate-end" }, line.text || " "),
+  );
   if (preview.targetPaths.length > 0) {
     blocks.push(
-      h(Text, { key: "targets", dimColor: true }, `Writes to: ${preview.targetPaths.join(", ")}`),
+      h(
+        Text,
+        { key: "targets", dimColor: true, wrap: "truncate-end" },
+        `Writes to: ${preview.targetPaths.join(", ")}`,
+      ),
     );
   }
   return h(Box, { flexDirection: "column" }, ...blocks);
 }
 
-export function ApprovalView({ approval }: { approval: PendingApproval }): ReactElement {
+export function ApprovalView({
+  approval,
+  maximumRows,
+}: {
+  approval: PendingApproval;
+  maximumRows: number;
+}): ReactElement {
   const { request } = approval;
   const footer =
     approval.stage === "feedback"
       ? h(
           Text,
-          null,
+          // Truncated from the start so the end of what is being typed stays in view.
+          { wrap: "truncate-start" },
           "Tell the model why (Enter to deny, Esc to go back): ",
           h(Text, { color: "cyan" }, `${approval.feedback}█`),
         )
       : h(
           Text,
-          null,
+          { wrap: "truncate-end" },
           h(Text, { bold: true }, "[o]"),
           " once   ",
           h(Text, { bold: true }, "[a]"),
@@ -71,12 +123,15 @@ export function ApprovalView({ approval }: { approval: PendingApproval }): React
     { flexDirection: "column", borderStyle: "round", borderColor: "yellow", paddingX: 1 },
     h(
       Text,
-      { bold: true },
+      { bold: true, wrap: "truncate-end" },
       `Allow ${request.tool.name}? `,
       h(Text, { dimColor: true }, request.reason),
     ),
-    h(Text, null, request.preview.summary),
-    h(PreviewBody, { preview: request.preview }),
+    h(Text, { wrap: "truncate-end" }, splitLines(request.preview.summary)[0]),
+    h(PreviewBody, {
+      preview: request.preview,
+      maximumRows: previewRowBudget(approval, maximumRows),
+    }),
     footer,
   );
 }
@@ -94,7 +149,7 @@ export function PickerView({ choice }: { choice: PendingChoice }): ReactElement 
     const selected = firstRow + offset === choice.highlighted;
     return h(
       Text,
-      { key: option.value, color: selected ? "cyan" : undefined },
+      { key: option.value, color: selected ? "cyan" : undefined, wrap: "truncate-end" },
       `${selected ? "❯" : " "} ${option.label}`,
     );
   });
@@ -102,8 +157,12 @@ export function PickerView({ choice }: { choice: PendingChoice }): ReactElement 
   return h(
     Box,
     { flexDirection: "column", borderStyle: "round", borderColor: "cyan", paddingX: 1 },
-    h(Text, { bold: true }, choice.prompt),
-    h(Text, { dimColor: true }, `Filter: ${choice.filter}█  (↑↓ move, Enter choose, Esc cancel)`),
+    h(Text, { bold: true, wrap: "truncate-end" }, choice.prompt),
+    h(
+      Text,
+      { dimColor: true, wrap: "truncate-end" },
+      `Filter: ${choice.filter}█  (↑↓ move, Enter choose, Esc cancel)`,
+    ),
     ...rows,
     empty,
   );
