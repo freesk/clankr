@@ -8,5 +8,11 @@
     "declaration": false
   },
   "include": ["src"],
-  "exclude": ["src/**/*.test.ts", "src/**/*.test-support.ts", "src/testing", "src/**/testing"]
+  "exclude": [
+    "src/**/*.test.ts",
+    "src/**/*.test-support.ts",
+    "src/**/test-support.ts",
+    "src/testing",
+    "src/**/testing"
+  ]
 }

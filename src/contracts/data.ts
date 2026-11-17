@@ -56,4 +56,6 @@ export interface ChartRenderRequest {
 export interface ChartRenderResult {
   path: string;
   sizeBytes: number;
+  /** Things the model or user should know: a replaced font, a left-out logo, Vega warnings. */
+  notes?: string[];
 }

@@ -90,6 +90,16 @@ Settled 2026-11-17. A D-number means the decision is also recorded in PRD sectio
 | Browser lifetime | Kept alive for about 60 s after the last render, then closed (D30). |
 | Where Chromium is installed | Inside the project's `vendor/` directory, so `vix wipe` cannot touch it (D31). |
 | Default theme font | A macOS system font. No font is vendored (D31). |
+| Browser build | Chrome headless shell 156.0.8078.4 for mac-arm64, the build `playwright-core` 1.64.1 expects, installed by the `chromium` vendor step (checksummed). Vega 6.4.0, Vega-Lite 6.5.0, and vega-interpreter 2.3.2 come from the npm registry tarballs via the `vega` step. |
+| Default font | Helvetica Neue (`systemFontFamily`). Whether a theme font is installed is measured in the page; a missing one is swapped in the spec's `config` and noted in `ChartRenderResult.notes`. |
+| Isolation per render | A fresh browser context and page per render, not only a fresh page. |
+| Offline layer 1 | Context-level request interception serves only the page, its bootstrap, and the vendored scripts from a made-up `.invalid` origin. The CSP (no `unsafe-eval`, `connect-src 'none'`) stops some requests before interception; the page reports those through a binding, and both kinds go to the same blocked-request logger. |
+| Offline proof | `offline.test.ts` polls `lsof` for every browser process during PDF, PNG, and SVG renders and expects no internet socket, with a positive control; a local canary server must see zero connections. |
+| Logo and footer | Chromium's PDF header and footer templates. The logo is read on the host and passed as a data URL; the footer is escaped. |
+| Chart size | A single view with no size is fitted to the printable area (PDF) or to 720 x 440 (PNG, SVG, preview). Composed views keep their size; the stylesheet scales them down. |
+| Exits | Playwright's own SIGINT handler is off; Ctrl-C belongs to the CLI, which must call `close()`. On any process death the browser loses its pipe and exits; tests cover exit, SIGINT, SIGTERM, and SIGKILL. |
+| Idle time | `config.data.browserIdleSeconds`, default 60. |
+| Measured times | `make_chart` to PDF on the development machine (Apple silicon; not confirmed to be the M3 Pro reference): cold 853 ms (browser launch and schema compile), warm about 100 ms. The very first launch after `npm run vendor` took about 3 s (first-run checks by macOS). |
 
 ## Open questions
 
