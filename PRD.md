@@ -489,7 +489,7 @@ O1, O2, and O4 were resolved by D36, D19, and D23. Questions local to one part a
 - **Target model:** `google/gemma-4-12b-qat`. 12B parameters, GGUF, minimum 7 GB system memory. Supports image input, native tool use, and reasoning (on by default). Recommended sampling: temperature 1, top-k 64, top-p 0.95. Maximum context length is not published on the model page and is read from the API at run time.
 - **Development machine:** Apple M3 Pro, 18 GB RAM, macOS 26.6, Node.js 22.22.
 - **LM Studio:** running on `localhost:1234` with API token authentication enabled.
-- **Models currently downloaded:** `google/gemma-4-e4b` (loaded), `orpheus-3b-0.1-ft`, and the `nomic-embed-text-v1.5` embedding model. The target 12B model is not downloaded yet.
+- **Models currently downloaded:** `google/gemma-4-12b-qat` (maximum context 262,144; vision, tool use, reasoning), `google/gemma-4-e4b`, `orpheus-3b-0.1-ft`, and the `nomic-embed-text-v1.5` embedding model. The target 12B model is not downloaded yet.
 
 ## Appendix B: Tool inventory (v1)
 

@@ -51,7 +51,11 @@ export class BrowserSession {
         await page.goto(`${renderOrigin}${renderPagePath}`);
         await page.waitForFunction(() => (globalThis as { vixReady?: boolean }).vixReady === true);
         signal?.throwIfAborted();
-        return await runUnlessAborted(work(page), signal);
+        try {
+          return await runUnlessAborted(work(page), signal);
+        } finally {
+          await flushBlockedReports(page);
+        }
       } finally {
         await context.close().catch(() => undefined);
       }
@@ -121,4 +125,16 @@ function runUnlessAborted<T>(work: Promise<T>, signal: AbortSignal | undefined):
     if (signal.aborted) return onAbort();
     signal.addEventListener("abort", onAbort, { once: true });
   });
+}
+
+/**
+ * Content-security-policy violations are dispatched as queued page tasks and reported to
+ * the host through a binding, so a blocked request can be reported after the work that
+ * caused it has finished. Letting queued tasks run, then waiting for the round trip,
+ * keeps those reports from being lost when the context closes (DATA-14).
+ */
+async function flushBlockedReports(page: Page): Promise<void> {
+  await page
+    .evaluate(() => new Promise<void>((resolve) => setTimeout(resolve, 0)))
+    .catch(() => undefined);
 }

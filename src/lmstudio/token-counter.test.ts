@@ -1,5 +1,10 @@
 import { describe, expect, it, vi } from "vitest";
-import { SdkTokenCounter, toSdkHistory, toWebSocketUrl } from "./token-counter.ts";
+import {
+  closeTrailingToolCalls,
+  SdkTokenCounter,
+  toSdkHistory,
+  toWebSocketUrl,
+} from "./token-counter.ts";
 import { LmStudioTransport } from "./transport.ts";
 
 describe("toSdkHistory", () => {
@@ -59,5 +64,21 @@ describe("SdkTokenCounter", () => {
     const counter = new SdkTokenCounter(transport);
     await expect(counter.count([], "any")).rejects.toMatchObject({ kind: "host-not-allowed" });
     await counter.dispose();
+  });
+});
+
+describe("closeTrailingToolCalls", () => {
+  it("answers a trailing assistant tool call with an empty result so templates can render it", () => {
+    const call = { id: "c1", name: "list_dir", argumentsJson: "{}" };
+    const closed = closeTrailingToolCalls([{ role: "assistant", content: "", toolCalls: [call] }]);
+    expect(closed).toEqual([
+      { role: "assistant", content: "", toolCalls: [call] },
+      { role: "tool", toolCallId: "c1", content: "" },
+    ]);
+  });
+
+  it("leaves any other history unchanged", () => {
+    const history = [{ role: "user" as const, content: "hi" }];
+    expect(closeTrailingToolCalls(history)).toBe(history);
   });
 });

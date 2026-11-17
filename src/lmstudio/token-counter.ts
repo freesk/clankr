@@ -34,7 +34,7 @@ export class SdkTokenCounter implements TokenCounter {
     const model = loaded.find((candidate) => candidate.identifier === instanceId);
     // Never call `client.llm.model(key)` here: it would load a model as a side effect.
     if (!model) throw new Error(`model instance ${instanceId} is not loaded`);
-    const prompt = await model.applyPromptTemplate(toSdkHistory(messages));
+    const prompt = await model.applyPromptTemplate(toSdkHistory(closeTrailingToolCalls(messages)));
     return model.countTokens(prompt);
   }
 
@@ -72,6 +72,23 @@ export function toWebSocketUrl(httpUrl: string): string {
   const url = new URL(httpUrl);
   url.protocol = url.protocol === "https:" ? "wss:" : "ws:";
   return url.toString().replace(/\/+$/, "");
+}
+
+/**
+ * Chat templates refuse to render a history that ends with an assistant message holding
+ * tool calls ("Cannot continue an assistant message that contains tool calls"), and the
+ * context ledger counts messages one at a time. Answering each call with an empty result
+ * makes the history renderable; the few extra tokens over-count, which is the safe side.
+ */
+export function closeTrailingToolCalls(messages: ChatMessage[]): ChatMessage[] {
+  const last = messages.at(-1);
+  if (last?.role !== "assistant" || !last.toolCalls?.length) return messages;
+  const emptyResults: ChatMessage[] = last.toolCalls.map((call) => ({
+    role: "tool",
+    toolCallId: call.id,
+    content: "",
+  }));
+  return [...messages, ...emptyResults];
 }
 
 /** Images are left out: their token cost is model-specific and corrected by usage afterwards. */
