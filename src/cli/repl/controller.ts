@@ -4,6 +4,7 @@
 import type {
   ApprovalAnswer,
   ApprovalRequest,
+  SlashCommand,
   SlashCommandContext,
 } from "../../contracts/index.ts";
 import { untilAborted } from "../abortable.ts";
@@ -12,7 +13,7 @@ import type { Harness } from "../harness.ts";
 import { errorMessage, redactSecrets } from "../secrets.ts";
 import { isSlashCommand, SlashCommandDispatcher } from "../slash-commands.ts";
 import { formatStatusLine } from "../status-line.ts";
-import { approvalKey, choiceKey, editLine, isCtrlC } from "./key-handling.ts";
+import { approvalKey, choiceKey, editLine, isCtrlC, questionKey } from "./key-handling.ts";
 import {
   appendEntries,
   type ChoiceOption,
@@ -27,6 +28,8 @@ export interface ReplControllerOptions {
   workingDirectory: string;
   /** Reasoning is drawn dimmed when shown; never mixed into the answer. */
   showReasoning?: boolean;
+  /** Commands the cli adds beside the harness's own, such as `/config`. */
+  cliCommands?: readonly SlashCommand[];
 }
 
 const exitHint = "Press Ctrl+C again to exit.";
@@ -41,7 +44,8 @@ export class ReplController {
   private turnAbort: AbortController | undefined;
   private exitArmed = false;
   private resolveApproval: ((answer: ApprovalAnswer) => void) | undefined;
-  private resolveChoice: ((value: string | undefined) => void) | undefined;
+  /** Answers the open picker or question; undefined means it was cancelled. */
+  private resolveDialog: ((value: string | undefined) => void) | undefined;
   private readonly exited: Promise<void>;
   private resolveExited: () => void = () => {};
 
@@ -49,7 +53,8 @@ export class ReplController {
     this.harness = options.harness;
     this.workingDirectory = options.workingDirectory;
     this.showReasoning = options.showReasoning ?? true;
-    this.dispatcher = new SlashCommandDispatcher(options.harness.slashCommands, {
+    const commands = [...(options.cliCommands ?? []), ...options.harness.slashCommands];
+    this.dispatcher = new SlashCommandDispatcher(commands, {
       requestExit: () => this.exit(),
       startNewSession: () => this.harness.startNewSession(),
     });
@@ -64,6 +69,7 @@ export class ReplController {
       notice: undefined,
       approval: undefined,
       choice: undefined,
+      question: undefined,
       busy: false,
       exited: false,
     };
@@ -91,6 +97,7 @@ export class ReplController {
     }
     if (this.state.approval) this.handleApprovalKey(input, key);
     else if (this.state.choice) this.handleChoiceKey(input, key);
+    else if (this.state.question) this.handleQuestionKey(input, key);
     else if (!this.state.busy) this.handleInputKey(input, key);
   }
 
@@ -101,7 +108,7 @@ export class ReplController {
       return;
     }
     this.exitArmed = true;
-    this.cancelChoice();
+    this.cancelDialog();
     if (this.turnAbort && !this.turnAbort.signal.aborted) {
       this.turnAbort.abort();
       this.answerApproval({ kind: "deny", feedback: "The user cancelled the turn." });
@@ -143,10 +150,19 @@ export class ReplController {
   }
 
   choose(prompt: string, options: ChoiceOption[]): Promise<string | undefined> {
-    this.cancelChoice();
+    this.cancelDialog();
     return new Promise((resolve) => {
-      this.resolveChoice = resolve;
+      this.resolveDialog = resolve;
       this.update({ choice: { prompt, options, filter: "", highlighted: 0 } });
+    });
+  }
+
+  /** A typed answer on the input line. Ctrl+C or Esc resolves to undefined. */
+  ask(prompt: string, options: { secret?: boolean } = {}): Promise<string | undefined> {
+    this.cancelDialog();
+    return new Promise((resolve) => {
+      this.resolveDialog = resolve;
+      this.update({ question: { prompt, secret: options.secret === true, answer: "" } });
     });
   }
 
@@ -197,6 +213,7 @@ export class ReplController {
       lm: this.harness.lm,
       print: (text) => this.appendEntry("info", text),
       choose: (prompt, options) => this.choose(prompt, options),
+      ask: (prompt, options) => this.ask(prompt, options),
     };
   }
 
@@ -221,9 +238,18 @@ export class ReplController {
     const choice = this.state.choice;
     if (!choice) return;
     const result = choiceKey(choice, input, key);
-    if (result.kind === "select") this.finishChoice(result.value);
-    else if (result.kind === "cancel") this.finishChoice(undefined);
+    if (result.kind === "select") this.finishDialog(result.value);
+    else if (result.kind === "cancel") this.finishDialog(undefined);
     else if (result.kind === "update") this.update({ choice: result.choice });
+  }
+
+  private handleQuestionKey(input: string, key: KeyPress): void {
+    const question = this.state.question;
+    if (!question) return;
+    const result = questionKey(question, input, key);
+    if (result.kind === "submit") this.finishDialog(result.answer);
+    else if (result.kind === "cancel") this.finishDialog(undefined);
+    else if (result.kind === "update") this.update({ question: result.question });
   }
 
   private answerApproval(answer: ApprovalAnswer): void {
@@ -233,20 +259,20 @@ export class ReplController {
     resolve?.(answer);
   }
 
-  private cancelChoice(): void {
-    if (this.resolveChoice) this.finishChoice(undefined);
+  private cancelDialog(): void {
+    if (this.resolveDialog) this.finishDialog(undefined);
   }
 
-  private finishChoice(value: string | undefined): void {
-    const resolve = this.resolveChoice;
-    this.resolveChoice = undefined;
-    this.update({ choice: undefined });
+  private finishDialog(value: string | undefined): void {
+    const resolve = this.resolveDialog;
+    this.resolveDialog = undefined;
+    this.update({ choice: undefined, question: undefined });
     resolve?.(value);
   }
 
   private exit(): void {
     this.turnAbort?.abort();
-    this.cancelChoice();
+    this.cancelDialog();
     this.update({ exited: true });
     this.resolveExited();
   }

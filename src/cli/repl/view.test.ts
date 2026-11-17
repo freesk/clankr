@@ -162,4 +162,15 @@ describe("REPL view (Ink)", () => {
     stdin.type("a");
     await eventually(() => stdout.text.includes("answer was session"), "the answer");
   });
+
+  it("draws a secret question's answer as asterisks only", async () => {
+    const { stdin, stdout, controller } = mount(hangingTurn());
+    const answer = controller.ask("API token: ", { secret: true });
+    await eventually(() => stdout.text.includes("API token: "), "the question");
+    stdin.type("sk-abc");
+    await eventually(() => stdout.text.includes("API token: ******"), "the masked answer");
+    stdin.type("\r");
+    expect(await answer).toBe("sk-abc");
+    expect(stdout.text).not.toContain("sk-abc");
+  });
 });

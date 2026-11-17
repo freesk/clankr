@@ -42,8 +42,8 @@ export function tokenMissing(): LmStudioError {
   return new LmStudioError(
     "token-missing",
     "LM Studio requires an API token and none is configured.",
-    "Create a token in LM Studio (Developer > Server Settings) and set the LM_API_TOKEN " +
-      "environment variable, or lmStudio.apiToken in ~/.vix/config.json.",
+    "Create a token in LM Studio (Developer > Server Settings) and save it with `vix config`, " +
+      "or set the LM_API_TOKEN environment variable.",
   );
 }
 
@@ -51,8 +51,8 @@ export function tokenRejected(): LmStudioError {
   return new LmStudioError(
     "token-rejected",
     "LM Studio rejected the configured API token.",
-    "Check that LM_API_TOKEN (or lmStudio.apiToken in ~/.vix/config.json) holds a current " +
-      "token from LM Studio's Developer > Server Settings.",
+    "Run `vix config` to save a current token from LM Studio's Developer > Server Settings. " +
+      "When LM_API_TOKEN is set, it overrides the saved token, so check it too.",
   );
 }
 

@@ -2,6 +2,14 @@ import { describe, expect, it } from "vitest";
 import { parseCliArguments } from "./arguments.ts";
 
 describe("parseCliArguments", () => {
+  it("reads the config subcommand, which takes no options", () => {
+    expect(parseCliArguments(["config"])).toEqual({ ok: true, command: { kind: "config" } });
+    expect(parseCliArguments(["config", "--model", "x"])).toEqual({
+      ok: false,
+      error: "config takes no arguments.",
+    });
+  });
+
   it("starts a session with no arguments", () => {
     expect(parseCliArguments([])).toEqual({
       ok: true,

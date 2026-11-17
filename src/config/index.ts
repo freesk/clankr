@@ -1,4 +1,11 @@
-export { ConfigError, type ConfigFlags, type LoadConfigOptions, loadConfig } from "./load.ts";
+export {
+  ConfigError,
+  type ConfigFlags,
+  describeIssues,
+  type LoadConfigOptions,
+  loadConfig,
+  readConfigFile,
+} from "./load.ts";
 export { type Config, type ConfigInput, configSchema, type ModelProfile } from "./schema.ts";
 
 import { type Config, configSchema } from "./schema.ts";

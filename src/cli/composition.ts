@@ -23,10 +23,12 @@ export interface CompositionOverrides {
 
 export function createComposition(overrides: CompositionOverrides = {}): CliComposition {
   const root = () => resolveVixRoot(overrides.environment ?? process.env, overrides.homeDirectory);
+  const configFilePath = () => buildRootPaths(root()).configFile;
   return {
+    configFilePath,
     loadConfig: ({ flags, workingDirectory, environment }) =>
       loadConfig({
-        configFilePath: buildRootPaths(root()).configFile,
+        configFilePath: configFilePath(),
         workingDirectory,
         environment,
         flags,

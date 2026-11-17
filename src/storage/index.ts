@@ -23,6 +23,7 @@ export {
   ensurePrivateDirectory,
   privateDirectoryMode,
   privateFileMode,
+  writePrivateFile,
 } from "./private-files.ts";
 export { type OpenSessionOptions, openSession, type StorageSession } from "./session.ts";
 export { chooseResumeModel, FileSessionStore } from "./session-store.ts";

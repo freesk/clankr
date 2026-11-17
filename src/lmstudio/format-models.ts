@@ -3,7 +3,7 @@
 
 import type { ModelInfo } from "../contracts/index.ts";
 
-function formatCount(value: number): string {
+export function formatCount(value: number): string {
   return value.toLocaleString("en-US");
 }
 

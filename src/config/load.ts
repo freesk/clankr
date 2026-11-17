@@ -37,7 +37,8 @@ export async function loadConfig(options: LoadConfigOptions): Promise<Config> {
   return withResolvedAllowedRoots(parsed.data, options.workingDirectory);
 }
 
-async function readConfigFile(configFilePath: string): Promise<ConfigInput> {
+/** The file as written, before defaults. A missing file is `{}`; invalid JSON is a ConfigError. */
+export async function readConfigFile(configFilePath: string): Promise<ConfigInput> {
   let text: string;
   try {
     text = await readFile(configFilePath, "utf8");
@@ -86,7 +87,7 @@ function withResolvedAllowedRoots(config: Config, workingDirectory: string): Con
 }
 
 // Issue paths and messages only: values are left out because one of them may be the API token.
-function describeIssues(error: z.ZodError): string {
+export function describeIssues(error: z.ZodError): string {
   return error.issues
     .map((issue) => `${issue.path.join(".") || "(root)"}: ${issue.message}`)
     .join("; ");
