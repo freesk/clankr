@@ -15,9 +15,9 @@ import { resolveExistingPath } from "./paths.ts";
 const maxBytesToCountLines = 20 * 1024 * 1024;
 
 const readFileParameters = z.object({
-  path: z.string().min(1).describe("The file to read."),
-  start_line: z.number().int().min(1).optional().describe("First line to return. Default: 1."),
-  line_count: z.number().int().min(1).optional().describe("How many lines. Default: 200."),
+  path: z.string().min(1),
+  start_line: z.number().int().min(1).optional(),
+  line_count: z.number().int().min(1).optional(),
 });
 
 type ReadFileArguments = z.infer<typeof readFileParameters>;
@@ -25,7 +25,7 @@ type ReadFileArguments = z.infer<typeof readFileParameters>;
 export const readFileTool: ToolDefinition<typeof readFileParameters> = {
   name: "read_file",
   description:
-    "Read a text file, or a range of its lines, with line numbers. For images use view_image; for spreadsheets and Word documents use inspect_data.",
+    "Read a text file's lines with line numbers. For images use view_image; for spreadsheets and Word files use inspect_data.",
   parameters: readFileParameters,
   permission: "read",
   resultTokenCap: defaultConfig().context.defaultResultTokenCap,

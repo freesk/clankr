@@ -16,24 +16,16 @@ import { dropDeniedPaths, resolveFolder } from "./paths.ts";
 import { nameMatchQuality, rankHits } from "./ranking.ts";
 import { macSpotlight, type SpotlightIndex } from "./spotlight.ts";
 
-const dateHint = 'Date such as "2025-01-31" or an age such as "7d".';
-
 const findFilesParameters = z.object({
-  pattern: z
-    .string()
-    .optional()
-    .describe('Name glob such as "*.pdf" or "report-202?.*", or plain text the name contains.'),
-  root: z
-    .string()
-    .optional()
-    .describe('Folder to search. Default: the home folder. "/" searches the whole machine.'),
-  type: z.enum(fileKinds).optional().describe("Only this kind of entry."),
-  min_size: z.union([z.string(), z.number()]).optional().describe('For example "10MB".'),
-  max_size: z.union([z.string(), z.number()]).optional().describe('For example "500KB".'),
-  modified_after: z.string().optional().describe(dateHint),
-  modified_before: z.string().optional().describe(dateHint),
-  created_after: z.string().optional().describe(dateHint),
-  created_before: z.string().optional().describe(dateHint),
+  pattern: z.string().optional().describe('Name glob like "*.pdf", or text in the name'),
+  root: z.string().optional().describe('Default: home folder. "/" searches the whole disk'),
+  type: z.enum(fileKinds).optional(),
+  min_size: z.string().optional(),
+  max_size: z.string().optional(),
+  modified_after: z.string().optional(),
+  modified_before: z.string().optional(),
+  created_after: z.string().optional(),
+  created_before: z.string().optional(),
   ...excludeParameters,
 });
 
@@ -45,7 +37,7 @@ export function createFindFilesTool(
   return {
     name: "find_files",
     description:
-      'Find files and folders by name, type, size, or date, ranked best first. Searches the home folder unless root is given; pass root "/" to search the whole machine.',
+      'Find files and folders by name, type, size, or date, best first. Sizes like "10MB"; dates like "2025-01-31" or an age like "7d".',
     parameters: findFilesParameters,
     permission: "read",
     resultTokenCap: defaultConfig().context.defaultResultTokenCap,

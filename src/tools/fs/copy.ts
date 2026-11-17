@@ -14,9 +14,7 @@ import {
 
 export const copyTool = plannedTool({
   name: "copy",
-  description:
-    "Copy files or whole folders; several sources go into one destination folder. " +
-    "Never overwrites an existing file.",
+  description: "Copy files or whole folders. Never overwrites a file.",
   parameters: transferParameters,
   keyArgument: "destination",
   plan: planCopy,

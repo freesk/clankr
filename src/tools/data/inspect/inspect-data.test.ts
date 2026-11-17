@@ -25,7 +25,7 @@ async function setUp(): Promise<SqlTestContext> {
   return test;
 }
 
-async function inspect(path: string, extra: { sheet?: string; headerRow?: number } = {}) {
+async function inspect(path: string, extra: { sheet?: string; header_row?: number } = {}) {
   return inspectDataTool.run({ path, ...extra }, test.context);
 }
 
@@ -89,7 +89,7 @@ describe("inspect_data on delimited files", () => {
   it("accepts a header row override", async () => {
     await setUp();
     const path = await test.writeFixture("raw.csv", "1,2\nx,y\n3,4\n");
-    const output = await inspect(path, { headerRow: 2 });
+    const output = await inspect(path, { header_row: 2 });
     expect(output.text).toContain("header row 2");
     expect(output.text).toMatch(/\nx \| number/);
   });
@@ -183,7 +183,7 @@ describe.skipIf(needsExcel)("inspect_data on .xlsx (needs npm run vendor)", () =
     await setUp();
     const path = join(test.dataDirectory, "plan.xlsx");
     await writeWorkbook(path, [{ name: "Plan", rows: [["a"], [1]] }], "xlsx");
-    await expect(inspect(path, { sheet: "Budget", headerRow: 2 })).rejects.toThrow(
+    await expect(inspect(path, { sheet: "Budget", header_row: 2 })).rejects.toThrow(
       'No sheet or table "Budget". This file has: "Plan".',
     );
   });

@@ -24,10 +24,7 @@ import {
 } from "./run-sub-agent.ts";
 
 const delegateParameters = z.object({
-  brief: z
-    .string()
-    .min(1)
-    .describe("The whole task: folders, files, what to find, and what to report"),
+  brief: z.string().min(1).describe("Folders, files, what to find, and what to report"),
 });
 
 /** Room for the turn-limit note around the summary, so the summary itself is never stored. */
@@ -61,8 +58,8 @@ export function createDelegateTool(
   return {
     name: delegateToolName,
     description:
-      "Hand a broad read-only task, such as searching several folders, to a sub-agent that returns a short summary. " +
-      "It sees none of this conversation, so the brief must say everything it needs.",
+      "Hand a broad read-only task, such as searching several folders, to a sub-agent that returns a summary. " +
+      "It cannot see this conversation, so the brief must say everything.",
     parameters: delegateParameters,
     permission: "read",
     resultTokenCap: limits.summaryTokenCap + resultOverheadTokens,

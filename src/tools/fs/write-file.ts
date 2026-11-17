@@ -20,15 +20,14 @@ import {
 } from "./text-file.ts";
 
 const parameters = z.object({
-  path: z.string().describe("File to create or overwrite."),
-  content: z.string().describe("The complete new contents of the file."),
+  path: z.string(),
+  content: z.string().describe("The whole file"),
 });
 
 export const writeFileTool = plannedTool({
   name: "write_file",
   description:
-    "Create a text file, creating missing folders, or replace a whole file you have read. " +
-    "To change part of a file, use edit_file.",
+    "Create a text file (and its folders), or replace a whole file you have read. To change part of a file, use edit_file.",
   parameters,
   keyArgument: "path",
   plan: planWrite,

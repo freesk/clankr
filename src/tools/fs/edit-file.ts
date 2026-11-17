@@ -14,20 +14,16 @@ import { normalizeLineEndings, readTextFile, shapeLike, writeFileAtomically } fr
 import { planReplacement, type Replacement } from "./text-match.ts";
 
 const parameters = z.object({
-  path: z.string().describe("File to edit."),
-  old: z.string().describe("The exact text to replace, copied from the file."),
-  new: z.string().describe("The text to put in its place."),
-  replace_all: z
-    .boolean()
-    .default(false)
-    .describe("Replace every occurrence instead of requiring exactly one."),
+  path: z.string(),
+  old: z.string(),
+  new: z.string(),
+  replace_all: z.boolean().default(false),
 });
 
 export const editFileTool = plannedTool({
   name: "edit_file",
   description:
-    "Replace text in a file: old must match exactly once unless replace_all is true. " +
-    "Copy old from read_file output.",
+    "Replace text in a file. old is copied exactly from read_file output and must match once, unless replace_all is true.",
   parameters,
   keyArgument: "path",
   plan: planEdit,

@@ -20,12 +20,9 @@ import {
 } from "./sub-call.ts";
 
 const viewImageParameters = z.object({
-  path: z.string().describe("The image file, absolute or relative to the working folder."),
-  question: z.string().optional().describe("What to find out. Optional in transcribe mode."),
-  mode: z
-    .enum(["answer", "transcribe"])
-    .default("answer")
-    .describe('"transcribe" returns all text in the image, for screenshots, receipts, and scans.'),
+  path: z.string(),
+  question: z.string().optional().describe("Optional in transcribe mode"),
+  mode: z.enum(["answer", "transcribe"]).default("answer"),
 });
 
 type ViewImageArguments = z.infer<typeof viewImageParameters>;
@@ -36,8 +33,8 @@ const viewImageResultTokenCap = 1500;
 export const viewImageTool: ToolDefinition<typeof viewImageParameters> = {
   name: "view_image",
   description:
-    "Look at a local image (JPEG, PNG, WebP, HEIC, GIF, TIFF, BMP) and answer a question about it. " +
-    'Use mode "transcribe" to extract all text from a screenshot, receipt, or scan.',
+    "Answer a question about a local image (JPEG, PNG, WebP, HEIC, GIF, TIFF, BMP). " +
+    'Mode "transcribe" extracts all text from a screenshot, receipt, or scan.',
   parameters: viewImageParameters,
   permission: "read",
   resultTokenCap: viewImageResultTokenCap,

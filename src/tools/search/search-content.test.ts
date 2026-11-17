@@ -1,4 +1,5 @@
 import { existsSync } from "node:fs";
+import { join } from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import type { ToolContext } from "../../contracts/index.ts";
 import { createTestToolContext, FixedPathPolicy } from "../../testing/index.ts";
@@ -63,19 +64,21 @@ describe.skipIf(!existsSync(ripgrepBinaryPath))("search_content", () => {
     expect(listedFiles((await search({ pattern: "a.pha" })).text)).toEqual(["notes/plan.md"]);
   });
 
-  it("respects the default excludes and the override", async () => {
+  it("respects the default excludes unless the root is inside one", async () => {
     const defaults = listedFiles((await search({ pattern: "ship search" })).text);
     expect(defaults).not.toContain("node_modules/pkg/index.js");
     expect(defaults).not.toContain(".git/config");
-    const everything = listedFiles(
-      (await search({ pattern: "ship search", default_excludes: false })).text,
-    );
-    expect(everything).toContain("node_modules/pkg/index.js");
-    expect(everything).toContain(".git/config");
+    const inside = await search({ pattern: "ship search", root: join(tree.root, ".git") });
+    expect(listedFiles(inside.text)).toEqual(["config"]);
+  });
+
+  it("applies extra excludes from the call", async () => {
+    const output = await search({ pattern: "ship search", exclude: ["deep"] });
+    expect(listedFiles(output.text)).not.toContain("deep/a/b/c/plan.txt");
   });
 
   it("never returns a denied path", async () => {
-    const output = await search({ pattern: "ship search", default_excludes: false });
+    const output = await search({ pattern: "ship search" });
     expect(output.text).not.toContain("keys.txt");
   });
 

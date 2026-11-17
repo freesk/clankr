@@ -31,15 +31,9 @@ import type {
 import { isolateLimitsFrom } from "../../engines/isolate/limits.ts";
 
 const parameters = z.object({
-  code: z
-    .string()
-    .min(1)
-    .describe('JavaScript that builds a Vega-Lite spec and calls render(spec, data("rN")).'),
-  format: z.enum(["pdf", "png", "svg"]).optional().describe("Output format. Default pdf."),
-  output_path: z
-    .string()
-    .optional()
-    .describe("Where to save. Default: next to the data file, named from the chart title."),
+  code: z.string().min(1).describe('Builds a Vega-Lite spec and calls render(spec, data("rN"))'),
+  format: z.enum(["pdf", "png", "svg"]).optional().describe("Default pdf"),
+  output_path: z.string().optional().describe("Default: next to the data file"),
 });
 
 type MakeChartArguments = z.infer<typeof parameters>;
@@ -66,8 +60,8 @@ export function createMakeChartTool(
   return {
     name: "make_chart",
     description:
-      'Draw a chart: run JavaScript that builds a Vega-Lite spec and calls render(spec, data("rN")). ' +
-      "Saves a PDF (or PNG or SVG) next to the data file; aggregate with query_sql first.",
+      "Draw a chart with JavaScript that renders a Vega-Lite spec, saved as a file. " +
+      "Aggregate with query_sql first.",
     parameters,
     permission: "execute",
     resultTokenCap: 400,

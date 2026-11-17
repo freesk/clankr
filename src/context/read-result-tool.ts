@@ -14,10 +14,10 @@ import { truncateEnd } from "./message-text.ts";
 import { linesFrom, type NumberedLine } from "./result-pages.ts";
 
 const readResultParameters = z.object({
-  handle: z.string().describe("Result handle, for example r12"),
-  start_line: z.number().int().min(1).optional().describe("First line to read, default 1"),
-  line_count: z.number().int().min(1).optional().describe("Most lines to return"),
-  search: z.string().min(1).optional().describe("Return only lines containing this text"),
+  handle: z.string(),
+  start_line: z.number().int().min(1).optional(),
+  line_count: z.number().int().min(1).optional(),
+  search: z.string().min(1).optional().describe("Only lines containing this text"),
 });
 
 type ReadResultArguments = z.infer<typeof readResultParameters>;
@@ -30,8 +30,7 @@ export function createReadResultTool(config: Config): ToolDefinition<typeof read
   return {
     name: "read_result",
     description:
-      "Read a stored tool result by its handle (for example r12), one page of lines at a time. " +
-      "Give search to list only the lines that contain that text.",
+      "Read a stored tool result by its handle, such as r12, one page of lines at a time.",
     parameters: readResultParameters,
     permission: "read",
     resultTokenCap: tokenCap,

@@ -14,14 +14,14 @@ import { profileFile } from "./profile-file.ts";
 import { formatProfile } from "./profile-format.ts";
 
 const parameters = z.object({
-  path: z.string().min(1).describe("A .xlsx, .xls, .csv, .tsv, or .docx file."),
-  sheet: z.string().optional().describe("Sheet or table label that headerRow applies to."),
-  headerRow: z
+  path: z.string().min(1),
+  sheet: z.string().optional().describe("Sheet or table that header_row applies to"),
+  header_row: z
     .number()
     .int()
     .positive()
     .optional()
-    .describe("1-based header row, only when the detected one is wrong."),
+    .describe("1-based; only if the detected one is wrong"),
 });
 
 type InspectArguments = z.infer<typeof parameters>;
@@ -29,7 +29,7 @@ type InspectArguments = z.infer<typeof parameters>;
 export const inspectDataTool: ToolDefinition<typeof parameters> = {
   name: "inspect_data",
   description:
-    "Profile a spreadsheet, CSV/TSV, or Word file: sheets, columns, types, and samples. Prints the SQL table names that query_sql uses.",
+    "Profile a .xlsx, .xls, .csv, .tsv, or .docx file: sheets, columns, types, samples, and the table names for query_sql.",
   parameters,
   permission: "read",
   resultTokenCap: 1_500,
@@ -102,7 +102,7 @@ function profilingError(error: unknown, context: ToolContext): ToolError {
 function overrides(args: InspectArguments): { sheet?: string; headerRow?: number } {
   return {
     ...(args.sheet !== undefined ? { sheet: args.sheet } : {}),
-    ...(args.headerRow !== undefined ? { headerRow: args.headerRow } : {}),
+    ...(args.header_row !== undefined ? { headerRow: args.header_row } : {}),
   };
 }
 

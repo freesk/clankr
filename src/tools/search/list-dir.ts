@@ -1,6 +1,8 @@
 // `list_dir` (SRCH-4): one folder's entries with type, size, and modified date, or a
 // depth-limited tree. Excluded folders are listed but not opened, so the model knows
-// they exist without paying for their contents.
+// they exist without paying for their contents. There is no per-call override: to see
+// inside one, the model lists it by path, and a root inside an excluded folder is listed
+// normally. Leaving the override out saves fixed overhead on every request (CTX-5).
 
 import type { Dirent } from "node:fs";
 import { readdir, stat } from "node:fs/promises";
@@ -8,7 +10,7 @@ import { join, relative } from "node:path";
 import { z } from "zod";
 import { defaultConfig } from "../../config/index.ts";
 import type { ToolContext, ToolDefinition } from "../../contracts/index.ts";
-import { type ExcludeRules, excludeParameters, excludeRulesFor } from "./excludes.ts";
+import { type ExcludeRules, excludeRulesFor } from "./excludes.ts";
 import { countLabel, displayRoot, formatDate, formatSize } from "./format.ts";
 import { buildHitList } from "./hit-list.ts";
 import { mapWithConcurrency, resolveFolder } from "./paths.ts";
@@ -18,23 +20,21 @@ const maxDepth = 5;
 const maxTreeEntries = 10_000;
 
 const listDirParameters = z.object({
-  path: z.string().optional().describe("Folder to list. Default: the folder vix was started in."),
+  path: z.string().optional().describe("Default: working folder"),
   depth: z
     .number()
     .int()
     .min(1)
     .max(maxDepth)
     .optional()
-    .describe(`1 lists the folder only; up to ${maxDepth} shows a tree.`),
-  ...excludeParameters,
+    .describe(`1-${maxDepth}; above 1 shows a tree`),
 });
 
 type ListDirArguments = z.infer<typeof listDirParameters>;
 
 export const listDirTool: ToolDefinition<typeof listDirParameters> = {
   name: "list_dir",
-  description:
-    "List a folder's entries with size and modified date, optionally as a tree a few levels deep. Folders end in /.",
+  description: "List a folder's entries with size and modified date. Folders end in /.",
   parameters: listDirParameters,
   permission: "read",
   resultTokenCap: defaultConfig().context.defaultResultTokenCap,
@@ -65,7 +65,7 @@ async function listDir(args: ListDirArguments, context: ToolContext) {
   const run: ListingRun = {
     root,
     depth: args.depth ?? 1,
-    excludes: excludeRulesFor(root, args),
+    excludes: excludeRulesFor(root, {}),
     context,
     listing,
   };

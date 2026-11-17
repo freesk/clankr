@@ -9,13 +9,13 @@ import { displayPath, resolveEntryPath } from "./resolve-path.ts";
 import type { FileToolDependencies } from "./trash.ts";
 
 const parameters = z.object({
-  path: z.string().describe("File or folder to move to the Trash."),
+  path: z.string(),
 });
 
 export function createDeleteTool(dependencies: FileToolDependencies) {
   return plannedTool({
     name: "delete",
-    description: "Move a file or folder to the Trash, where the user can restore it.",
+    description: "Move a file or folder to the Trash.",
     parameters,
     keyArgument: "path",
     plan: (args, context) => planDelete(args, context, dependencies),

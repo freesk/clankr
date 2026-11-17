@@ -28,7 +28,7 @@ const runJsParameters = z.object({
     .string()
     .min(1)
     .describe(
-      'JavaScript to run. End with an expression or use return. Example: data("r12").filter((row) => row.total > 0)',
+      'End with an expression or return. Example: data("r12").filter((row) => row.total > 0)',
     ),
 });
 
@@ -41,8 +41,8 @@ const maxErrorLogLineLength = 200;
 export const runJsTool: ToolDefinition<typeof runJsParameters> = {
   name: "run_js",
   description:
-    "Run JavaScript in a sandbox with no file, network, or module access, to reshape stored rows. " +
-    "data(handle) returns a row set, save(name, rows) stores rows and returns a handle, and console.log output is shown.",
+    "Run sandboxed JavaScript (no files, network, or modules) to reshape stored rows. " +
+    "data(handle) returns rows; save(name, rows) stores rows and returns a handle.",
   parameters: runJsParameters,
   permission: "execute",
   resultTokenCap: defaultConfig().context.defaultResultTokenCap,

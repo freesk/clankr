@@ -4,30 +4,14 @@
 
 import { ToolRegistry } from "../../src/agent/registry.ts";
 import { buildSystemPrompt } from "../../src/agent/system-prompt.ts";
-import { buildToolSet } from "../../src/app/tool-set.ts";
+import { inspectToolDefinitions, offeredToolSets } from "../../src/app/tool-set.ts";
 import { defaultConfig } from "../../src/config/index.ts";
 
 const modelKey = process.argv[2] ?? "google/gemma-4-12b-qat";
 const token = process.env.LM_API_TOKEN;
 if (!token) throw new Error("Set LM_API_TOKEN");
 
-const config = defaultConfig();
-const { tools } = buildToolSet({
-  config,
-  renderer: {} as never,
-  // Never called: the script only reads tool definitions.
-  fileTools: { trash: async () => {} },
-  currentModel: () => undefined,
-  permissions: { check: async () => ({ allowed: true }) },
-  onSubAgentEvent: () => {},
-  currentAudit: () => ({ record: async () => {} }) as never,
-});
-
-const groups: Record<string, (groups: string[]) => boolean> = {
-  core: (toolGroups) => toolGroups.includes("core"),
-  "core+vision": (toolGroups) => toolGroups.some((group) => group === "core" || group === "vision"),
-  all: () => true,
-};
+const tools = inspectToolDefinitions(defaultConfig());
 
 async function promptTokens(
   messages: unknown[],
@@ -45,7 +29,7 @@ async function promptTokens(
 
 const userMessage = { role: "user", content: "hi" };
 const baseline = await promptTokens([userMessage], undefined);
-for (const [label, include] of Object.entries(groups)) {
+for (const [label, include] of Object.entries(offeredToolSets)) {
   const selected = new ToolRegistry(tools.filter((tool) => include(tool.groups))).list();
   const systemPrompt = buildSystemPrompt({
     workingDirectory: "/Users/me/work",

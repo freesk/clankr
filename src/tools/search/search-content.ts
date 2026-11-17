@@ -21,17 +21,11 @@ const matchesCountedPerFile = 20;
 const maxTotalMatches = 20_000;
 
 const searchContentParameters = z.object({
-  pattern: z.string().min(1).describe("Regex to search for, or plain text with literal: true."),
-  root: z
-    .string()
-    .optional()
-    .describe("Folder or file to search. Default: the folder vix was started in."),
-  literal: z.boolean().optional().describe("Search for the pattern as written, not as a regex."),
-  case_sensitive: z
-    .boolean()
-    .optional()
-    .describe("Default: case-sensitive only if the pattern has capitals."),
-  file_pattern: z.string().optional().describe('Only files whose name matches, e.g. "*.md".'),
+  pattern: z.string().min(1).describe("Regex, or plain text if literal is true"),
+  root: z.string().optional().describe("Folder or file. Default: working folder"),
+  literal: z.boolean().optional(),
+  case_sensitive: z.boolean().optional().describe("Default: only if pattern has capitals"),
+  file_pattern: z.string().optional().describe('File name glob, e.g. "*.md"'),
   ...excludeParameters,
 });
 
@@ -40,7 +34,7 @@ type SearchContentArguments = z.infer<typeof searchContentParameters>;
 export const searchContentTool: ToolDefinition<typeof searchContentParameters> = {
   name: "search_content",
   description:
-    "Search inside text files for a regex or literal text, ranked by match count, recency, and depth. Shows matching lines with line numbers.",
+    "Search inside text files for a regex or literal text. Shows the best files first, with matching lines and line numbers.",
   parameters: searchContentParameters,
   permission: "read",
   resultTokenCap: defaultConfig().context.defaultResultTokenCap,

@@ -80,12 +80,12 @@ Settled while building wave 1 (2026-11-17), internal to this part:
 | Topic | Decision |
 |---|---|
 | ripgrep version | 15.2.0, the macOS arm64 and x64 release archives, pinned by SHA-256 in `scripts/vendor/ripgrep.ts`. The step installs the archive for the machine's architecture to `vendor/ripgrep/rg`. |
-| Parameter names | snake_case, matching the tool names: `min_size`, `modified_after`, `start_line`, `default_excludes`. |
+| Parameter names | snake_case, matching the tool names: `min_size`, `modified_after`, `start_line`, `exclude`. |
 | Spotlight is a pre-filter | The metadata query only narrows. Every path it returns passes the same `matchesCriteria` check as the walk, so both backends return the same files; Spotlight's own wildcard and diacritic rules cannot leak into results. |
 | Index health check | Not covered when the root has a hidden segment, when `mdutil -s` does not report indexing enabled for the volume, or when Spotlight knows none of up to three of the root's visible children by name. A volume root skips the child probe. |
 | Whole-machine scope | Root `/` runs `mdfind` with no `-onlyin`. Measured: `-onlyin /` takes about 2 s for a query that takes 0.2 s unscoped, and the child probe on `/` took up to 5 s. |
 | Ranking | `0.5 * match + 0.3 * recency + 0.2 * shallowness`, each 0..1, documented in `ranking.ts`. Recency halves at 30 days; shallowness is `1 / (1 + depth)`. |
-| Excludes | One list in `excludes.ts`, three pattern forms (a name, a segment sequence, an absolute folder). Checks run on the path relative to the root, so a root inside an excluded folder is searched normally. ripgrep runs with `--no-ignore --hidden` and the same list as globs, so `.gitignore` does not make it differ from the other paths. |
+| Excludes | One list in `excludes.ts`, three pattern forms (a name, a segment sequence, an absolute folder). Checks run on the path relative to the root, so a root inside an excluded folder is searched normally. ripgrep runs with `--no-ignore --hidden` and the same list as globs, so `.gitignore` does not make it differ from the other paths. The per-call override is `exclude` (add patterns) on `find_files` and `search_content`; there is no switch to drop the defaults, and `list_dir` has no override, to save fixed overhead (CTX-5, see the [context](context.md) decisions). |
 | Default root of `search_content` and `list_dir` | The working folder. A content search of the whole home folder is slow, and D24 covers only `find_files`. |
 | Limits | New `search` section in the config: `maxHits` 50, `maxListEntries` 200, `maxLineLength` 300, `readFileDefaultLines` 200, `spotlightMaxResults` 20,000, `walkTimeLimitMs` 10 s, `walkMaxEntries` 500,000. |
 

@@ -2,8 +2,8 @@
 //
 // The real core tools belong to other parts and the real token counter needs LM Studio, so
 // this measures stand-ins shaped like the PRD Appendix B core tools with the fake counter
-// (4 characters per token). Integration repeats the measurement with the real tools and
-// counter through measureFixedOverhead.
+// (4 characters per token). `src/app/fixed-overhead.test.ts` guards the real tools with
+// tighter ceilings; `scripts/measure/fixed-overhead.ts` measures them on the real model.
 
 import { describe, expect, it } from "vitest";
 import { z } from "zod";
