@@ -75,9 +75,32 @@ Settled 2026-11-17. A D-number means the decision is also recorded in PRD sectio
 | Default scope of `find_files` | The user's home folder. The whole machine is searched only when the model passes `/` as the root (D24). |
 | Document content not indexed (SRCH-8) | Fall back to extracting text from the documents locally and searching that (D25). |
 
+Settled while building wave 1 (2026-11-17), internal to this part:
+
+| Topic | Decision |
+|---|---|
+| ripgrep version | 15.2.0, the macOS arm64 and x64 release archives, pinned by SHA-256 in `scripts/vendor/ripgrep.ts`. The step installs the archive for the machine's architecture to `vendor/ripgrep/rg`. |
+| Parameter names | snake_case, matching the tool names: `min_size`, `modified_after`, `start_line`, `default_excludes`. |
+| Spotlight is a pre-filter | The metadata query only narrows. Every path it returns passes the same `matchesCriteria` check as the walk, so both backends return the same files; Spotlight's own wildcard and diacritic rules cannot leak into results. |
+| Index health check | Not covered when the root has a hidden segment, when `mdutil -s` does not report indexing enabled for the volume, or when Spotlight knows none of up to three of the root's visible children by name. A volume root skips the child probe. |
+| Whole-machine scope | Root `/` runs `mdfind` with no `-onlyin`. Measured: `-onlyin /` takes about 2 s for a query that takes 0.2 s unscoped, and the child probe on `/` took up to 5 s. |
+| Ranking | `0.5 * match + 0.3 * recency + 0.2 * shallowness`, each 0..1, documented in `ranking.ts`. Recency halves at 30 days; shallowness is `1 / (1 + depth)`. |
+| Excludes | One list in `excludes.ts`, three pattern forms (a name, a segment sequence, an absolute folder). Checks run on the path relative to the root, so a root inside an excluded folder is searched normally. ripgrep runs with `--no-ignore --hidden` and the same list as globs, so `.gitignore` does not make it differ from the other paths. |
+| Default root of `search_content` and `list_dir` | The working folder. A content search of the whole home folder is slow, and D24 covers only `find_files`. |
+| Limits | New `search` section in the config: `maxHits` 50, `maxListEntries` 200, `maxLineLength` 300, `readFileDefaultLines` 200, `spotlightMaxResults` 20,000, `walkTimeLimitMs` 10 s, `walkMaxEntries` 500,000. |
+
+## Measurements (2026-11-17)
+
+Apple M3 Pro, macOS 26.6.2, warm runs, through the real tools (Spotlight query, stat, deny filter, ranking, formatting).
+
+| Target (PRD section 9) | Measured |
+|---|---|
+| Whole-disk name search under 1 s | `*.pdf` 198 to 353 ms (341 hits); `invoice` 159 to 164 ms; images over 5 MB from the last year 405 ms; `report` 285 to 387 ms. Met. A broad home query (`*.md`, 48,000 raw Spotlight matches) took 1.4 to 3.3 s, almost all of it `mdfind` streaming paths. |
+| Content search under 3 s on 10 GB of text | 1.9 to 3.0 s over 10,240 files of 1 MB (six runs: literal and regex, median about 2.2 s). The corpus had just been written, so much of it was likely in the page cache; a cold-cache run was not measured. At the limit, not clearly met. |
+
 ## Open questions
 
-Both follow from the SRCH-8 fallback decision.
+SRCH-8 (P1) and SRCH-9 (P2) are not built yet. Both questions below remain open.
 
 - **Which extractors?** `.docx` text can come from the parser in [inspect](inspect.md) and `.xlsx` text through DuckDB, but PDF text needs a library that is not in the PRD's technology table. It must work offline.
 - **What bounds the fallback?** Extracting text from every document under a large folder is slow, and the content-search target in PRD section 9 is 3 s. Proposed: a limit on files and time, with the result saying how much was covered.

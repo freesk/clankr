@@ -1,2 +1,23 @@
-// search part. See specs/search.md. Empty until wave 1 builds it.
-export {};
+// search part (specs/search.md): the four read-only tools for finding and reading files.
+
+import type { ToolDefinition } from "../../contracts/index.ts";
+import { findFilesTool } from "./find-files.ts";
+import { listDirTool } from "./list-dir.ts";
+import { readFileTool } from "./read-file.ts";
+import { searchContentTool } from "./search-content.ts";
+
+export { defaultExcludes } from "./excludes.ts";
+export { createFindFilesTool, findFilesTool } from "./find-files.ts";
+export { listDirTool } from "./list-dir.ts";
+export { readFileTool } from "./read-file.ts";
+export { ripgrepBinaryPath } from "./ripgrep.ts";
+export { searchContentTool } from "./search-content.ts";
+export { type Coverage, macSpotlight, type SpotlightIndex } from "./spotlight.ts";
+
+/** Every search tool, for the agent loop's registry. */
+export const searchTools: ToolDefinition[] = [
+  findFilesTool,
+  searchContentTool,
+  listDirTool,
+  readFileTool,
+];
