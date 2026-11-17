@@ -1,11 +1,10 @@
-// Where a chart is written and what it is called (D28): next to the data file, named from
-// the chart title, with a number appended when the name is taken. Nothing is overwritten,
-// and the DATA-20 companion files share the chart's base name, so they are checked too.
+// What a chart's files are called (D28): next to the data file, named from the chart title,
+// with a number appended when the name is taken. The DATA-20 companion files share the chart's
+// base name, so they are checked too. The naming rules themselves are in src/output/naming.ts.
 
-import { access } from "node:fs/promises";
-import { homedir } from "node:os";
-import { basename, extname, isAbsolute, join, resolve } from "node:path";
-import type { ChartFormat } from "../contracts/index.ts";
+import { join } from "node:path";
+import type { OutputFormat } from "../contracts/index.ts";
+import { firstFreeName, slugFromTitle } from "../output/naming.ts";
 import { isPlainObject } from "./spec-tree.ts";
 
 export interface ChartOutputPaths {
@@ -14,23 +13,12 @@ export interface ChartOutputPaths {
   /** One spec file per chart: `name.vl.json`, or `name.1.vl.json`, `name.2.vl.json`, ... */
   specs: string[];
   sql: string;
-  format: ChartFormat;
+  format: OutputFormat;
 }
-
-const chartFormats: ChartFormat[] = ["pdf", "png", "svg"];
-const maxNameLength = 60;
-const maxNumberedAttempts = 999;
 
 /** A file-name-safe base name from the spec's title, or "chart" when it has none. */
 export function baseNameFromTitle(spec: unknown): string {
-  const title = titleText(spec);
-  const slug = title
-    .toLowerCase()
-    .replaceAll(/[^\p{L}\p{N}]+/gu, "-")
-    .replaceAll(/^-+|-+$/g, "")
-    .slice(0, maxNameLength)
-    .replace(/-+$/, "");
-  return slug || "chart";
+  return slugFromTitle(titleText(spec), "chart");
 }
 
 export function titleText(spec: unknown): string {
@@ -41,43 +29,25 @@ export function titleText(spec: unknown): string {
   return "";
 }
 
-/** The format an explicit output path asks for by its extension, if it names one. */
-export function formatFromPath(path: string): ChartFormat | undefined {
-  const extension = extname(path).slice(1).toLowerCase();
-  return chartFormats.find((format) => format === extension);
-}
-
-/** `~` is the home folder; relative paths resolve against the working directory. */
-export function resolveUserPath(path: string, workingDirectory: string): string {
-  if (path === "~" || path.startsWith("~/")) return join(homedir(), path.slice(1));
-  return isAbsolute(path) ? path : resolve(workingDirectory, path);
-}
-
-/** Picks the first free name: "sales", then "sales-2", "sales-3", and so on. */
+/** Picks the first name under which neither the chart nor a companion file exists. */
 export async function chooseOutputPaths(
   folder: string,
   baseName: string,
-  format: ChartFormat,
+  format: OutputFormat,
   chartCount = 1,
 ): Promise<ChartOutputPaths> {
-  for (let number = 1; number <= maxNumberedAttempts; number++) {
-    const name = number === 1 ? baseName : `${baseName}-${number}`;
+  const allPaths = (name: string) => {
     const paths = pathsFor(folder, name, format, chartCount);
-    if (!(await anyExists([paths.chart, paths.code, ...paths.specs, paths.sql]))) return paths;
-  }
-  throw new Error(`No free file name for ${baseName} in ${folder}`);
-}
-
-/** Base name and folder from an explicit output path, which also gets a number if taken. */
-export function splitOutputPath(path: string): { folder: string; baseName: string } {
-  const extension = formatFromPath(path) ? extname(path) : "";
-  return { folder: resolve(path, ".."), baseName: basename(path, extension) };
+    return [paths.chart, paths.code, ...paths.specs, paths.sql];
+  };
+  const name = await firstFreeName(folder, baseName, allPaths);
+  return pathsFor(folder, name, format, chartCount);
 }
 
 function pathsFor(
   folder: string,
   name: string,
-  format: ChartFormat,
+  format: OutputFormat,
   chartCount: number,
 ): ChartOutputPaths {
   const specs =
@@ -93,16 +63,4 @@ function pathsFor(
     sql: join(folder, `${name}.sql`),
     format,
   };
-}
-
-async function anyExists(paths: string[]): Promise<boolean> {
-  for (const path of paths) {
-    try {
-      await access(path);
-      return true;
-    } catch {
-      // Not there, which is what we want.
-    }
-  }
-  return false;
 }

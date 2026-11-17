@@ -27,7 +27,7 @@ export { type RegisteredTool, ToolRegistry } from "./registry.ts";
 export { buildSystemPrompt } from "./system-prompt.ts";
 export { thinkCommand } from "./think-command.ts";
 export { buildToolSchema } from "./tool-schema.ts";
-export { mentionsDataFile, toolCallingStyleFor } from "./tool-scope.ts";
+export { lastUserText, mentionsDataFile, toolCallingStyleFor } from "./tool-scope.ts";
 export { runTurn } from "./turn.ts";
 export type {
   AgentDependencies,

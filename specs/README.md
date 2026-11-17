@@ -25,6 +25,7 @@ Interfaces and file paths in these specs are proposals until the code exists. On
 | [sandbox.md](sandbox.md) | `run_js` and the V8 isolate engine | `src/engines/isolate/`, `src/tools/data/run-js.ts` | M4 | 1 |
 | [chart.md](chart.md) | `make_chart`: chart code to a validated, themed Vega-Lite spec | `src/chart/`, `src/tools/data/make-chart.ts` | M4 | 1 |
 | [pdf.md](pdf.md) | Offline headless browser that renders a spec to PDF, PNG, or SVG | `src/engines/browser/` | M4 | 1 |
+| [output.md](output.md) | Output formats, how the user chooses one, the Word and Excel writers, `export_table`, `/format` | `src/output/`, `src/tools/data/export-table.ts` | M4 | 4 |
 | [evals.md](evals.md) | Golden task suite, metrics, and the no-network test | `evals/`, `test/network/` | M5 | 1 |
 | [subagents.md](subagents.md) | `delegate` and the sub-agent runner | `src/subagent/` | M2 | 2 |
 
@@ -70,6 +71,8 @@ Each row is a place where two parts meet. The contract named here is defined in 
 | Profiling a tabular file | The DuckDB engine module | sql | inspect |
 | Running model-written JS | `runInIsolate` | sandbox | chart |
 | Turning a spec into a file | `renderChart` | pdf | chart |
+| Choosing the output format | `OutputFormatContext` on `ToolContext`, `OutputFormatPrompter` | output (the order), cli (the picker) | chart, output |
+| Printing a table, drawing a picture for a document | `renderTable`, `renderChartImage` | pdf | output, chart |
 | Where a session writes | `ClankrPaths` | storage | context, permissions, files, sql |
 | Registering a slash command | `SlashCommand` | lmstudio, context, permissions, files, agent-loop | cli |
 
@@ -87,7 +90,9 @@ Most requirement IDs belong to one spec. These are split, and each spec states i
 | FS-7 | files builds the preview; permissions decides whether to show it; cli draws it |
 | CTX-7 | lmstudio sends the reasoning setting; agent-loop strips reasoning from history and owns `/think` |
 | DATA-9 | sql and sandbox each enforce their own limits; context stores the result |
-| DATA-15 | chart applies palette and fonts to the spec; pdf applies page size, logo, and footer |
+| DATA-13 | output owns the list of formats; pdf draws PDF, PNG, and SVG; output writes Word and Excel files |
+| DATA-15 | chart applies palette and fonts to the spec; pdf applies page size, logo, and footer; output applies page size, font, and footer to a Word document |
+| DATA-22 | output owns the order; cli parses `--format` and lends the picker; chart and output's `export_table` call it |
 | PERM-6 | agent-loop's registry has no shell tool; evals asserts it |
 | SEC-3 | foundation sets the vendoring convention; search, sql, chart, and pdf each vendor their own assets |
 | SEC-4 | sql, sandbox, and pdf each prove their own isolation; evals runs the whole-process network test |

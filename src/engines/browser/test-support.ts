@@ -155,10 +155,7 @@ function decodeHexStrings(operand: string, font: Map<number, string>): string {
   return text;
 }
 
-/** Width and height from a PNG header. */
-export function pngSize(png: Buffer): { width: number; height: number } {
-  return { width: png.readUInt32BE(16), height: png.readUInt32BE(20) };
-}
+export { pngSize } from "../../shared/png-size.ts";
 
 async function listPids(arguments_: string[]): Promise<number[]> {
   try {

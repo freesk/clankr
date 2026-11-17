@@ -3,8 +3,8 @@
 // same on every run.
 
 import { z } from "zod";
+import { createZip } from "../../../src/shared/zip-writer.ts";
 import { boardReport } from "../datasets.ts";
-import { createZip } from "./zip.ts";
 
 export const docxOptions = z.object({ document: z.enum(["board-report"]) });
 

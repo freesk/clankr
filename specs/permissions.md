@@ -60,6 +60,7 @@ A path on the deny list is refused in every mode, for reads as well as writes, a
 - Session grants for `write` tools and `delete` are keyed by tool.
 - Session grants for the execute class are keyed by data file. The first `query_sql` or `run_js` against a file asks; the grant then covers later queries, scripts, and `make_chart` calls on data from that file for the rest of the session. Later calls are still shown as tool lines and written to the audit log.
 - A chart's output file is a separate matter: it is a write, so a location outside the allowed roots asks even when the data file is already granted.
+- `export_table` is a `write` tool, not an execute-class one: it runs no model-written code, only writes rows an approved query already produced. Its preview lists the output location in `targetPaths` and the data files the rows came from in `dataSourcePaths`, so a denied data file is refused. The data file's grant does not cover it (D89).
 - A refusal message tells the model what would work instead, for example that the session is read-only.
 - With no `ApprovalPrompter` available (one-shot mode), anything that would ask is denied, and the message names the `--permission-mode` flag described in [cli.md](cli.md).
 
@@ -92,6 +93,7 @@ Settled 2026-11-17. A D-number means the decision is also recorded in PRD sectio
 |---|---|
 | How often `query_sql` and `run_js` prompt | Once per data file per session (D19, resolves O2). |
 | `make_chart` approval | Covered by the data file's grant. Writing the output file still follows the write rules in PERM-3 (D19). |
+| `export_table` approval | The write column of the decision table: asks in `ask` mode (grantable for the session by tool), runs in `auto-edit` inside the allowed roots, always asks outside them, refused in `read-only`. In one-shot mode `--permission-mode auto-edit` allows it; `--allow-data` alone does not (D89). |
 | `delete` in auto-edit mode | Still asks, as PERM-5 says, unless granted for the session (D20). |
 | No prompter available (one-shot mode) | Anything that would ask is denied, unless `--permission-mode` pre-authorized it (D14). |
 

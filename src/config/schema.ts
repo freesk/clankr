@@ -2,6 +2,7 @@
 // Parts that need a new setting add a field here; they do not hard-code a default.
 
 import { z } from "zod";
+import { outputFormats } from "../contracts/output.ts";
 
 /**
  * How LM Studio loads a model, beyond its context length. Only settings LM Studio's REST
@@ -133,6 +134,22 @@ const searchSchema = z.object({
   walkMaxEntries: z.number().int().positive().default(500_000),
 });
 
+/** Excel's sheet limit is 1,048,576 rows; one of them is the header row. */
+const excelDataRowLimit = 1_048_575;
+
+const outputSchema = z.object({
+  /**
+   * The format a chart or table is saved in when neither the request nor the session
+   * (`--format`, `/format`) names one. Unset by default: clankr asks, or in one-shot mode
+   * returns an error that names `--format` (D85).
+   */
+  defaultFormat: z.enum(outputFormats).optional(),
+  /** Most rows `export_table` puts in a Word or PDF table; above it the model must aggregate. */
+  maxDocumentTableRows: z.number().int().positive().default(2_000),
+  /** Most data rows `export_table` puts on one Excel sheet. */
+  maxSheetRows: z.number().int().positive().max(excelDataRowLimit).default(excelDataRowLimit),
+});
+
 export const configSchema = z.object({
   lmStudio: lmStudioSchema.prefault({}),
   model: modelSchema.prefault({}),
@@ -143,6 +160,7 @@ export const configSchema = z.object({
   image: imageSchema.prefault({}),
   data: dataSchema.prefault({}),
   search: searchSchema.prefault({}),
+  output: outputSchema.prefault({}),
 });
 
 export type Config = z.infer<typeof configSchema>;

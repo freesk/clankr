@@ -20,4 +20,5 @@ export const plannedToolNames = [
   "query_sql",
   "run_js",
   "make_chart",
+  "export_table",
 ] as const;

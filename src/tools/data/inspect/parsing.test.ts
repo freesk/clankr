@@ -2,12 +2,12 @@
 // .docx walker, .xls date conversion, and delimited line splitting.
 
 import { describe, expect, it } from "vitest";
+import { serialToIsoDate } from "../../../shared/excel-dates.ts";
 import { columnLetters, columnNumber, parseCellRange } from "./cell-range.ts";
 import { headingLevelsByStyle, parseDocument } from "./docx-document.ts";
 import { detectHeaderRow } from "./header-detection.ts";
 import { gridToRows, headerNames, numbersFromText } from "./row-grid.ts";
 import { splitDelimitedLine } from "./table-plans.ts";
-import { serialToIsoDate } from "./xls-conversion.ts";
 
 describe("detectHeaderRow", () => {
   it("skips a title block and blank rows", () => {

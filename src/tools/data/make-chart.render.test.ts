@@ -1,4 +1,4 @@
-// make_chart with the real renderer: chart code to a PDF on disk, and the PRD section 9 target
+// make_chart with the real renderer: chart code to a PDF or a Word document on disk, and the PRD section 9 target
 // (chart to PDF in under 5 s once the data is aggregated) measured cold and warm. The isolate is
 // still the test stand-in; the real one is sandbox's and is wired in at integration.
 
@@ -18,6 +18,8 @@ import {
   pdfPageTexts,
   pdfText,
 } from "../../engines/browser/test-support.ts";
+import { readPackagePart, textutilText } from "../../output/testing/read-back.ts";
+import { isPng, pngSize } from "../../shared/png-size.ts";
 import {
   createTestToolContext,
   InMemoryResultStore,
@@ -65,17 +67,22 @@ describe.skipIf(!isBrowserVendored())(
       await test.cleanup();
     });
 
-    it("turns chart code into a one-page PDF, cold and warm, each under 5 s", async () => {
-      const tool = createMakeChartTool({
+    function realTool() {
+      return createMakeChartTool({
         runInIsolate: fakeRunInIsolate,
         createStandardHelpers: fakeStandardHelpers(new Map([["r1", rows]])),
         renderChart: renderer.renderChart,
         renderChartPages: renderer.renderChartPages,
+        renderChartImage: renderer.renderChartImage,
       });
+    }
+
+    it("turns chart code into a one-page PDF, cold and warm, each under 5 s", async () => {
+      const tool = realTool();
       const timings: number[] = [];
       for (let run = 0; run < 3; run++) {
         const started = performance.now();
-        const output = await tool.run({ code }, context);
+        const output = await tool.run({ code, format: "pdf" }, context);
         timings.push(Math.round(performance.now() - started));
         expect(output.text).toContain("Saved chart:");
       }
@@ -90,12 +97,7 @@ describe.skipIf(!isBrowserVendored())(
     });
 
     it("turns several render calls into one portrait PDF with a summary per page", async () => {
-      const tool = createMakeChartTool({
-        runInIsolate: fakeRunInIsolate,
-        createStandardHelpers: fakeStandardHelpers(new Map([["r1", rows]])),
-        renderChart: renderer.renderChart,
-        renderChartPages: renderer.renderChartPages,
-      });
+      const tool = realTool();
       const twoCharts = `${code
         .replace("Revenue by month and region", "Two views")
         .replace('data("r1"));', 'data("r1"), "Every month, East earns the most.");')}
@@ -103,7 +105,7 @@ render({ title: "Revenue by region", mark: "bar", encoding: {
   x: { field: "region", type: "nominal" },
   y: { field: "revenue", type: "quantitative", aggregate: "sum" } } }, data("r1"),
   "East leads the year; North trails.");`;
-      const output = await tool.run({ code: twoCharts }, context);
+      const output = await tool.run({ code: twoCharts, format: "pdf" }, context);
       expect(output.text).toContain("Saved 2 charts:");
       expect(output.text).toContain("2 pages, portrait, one chart per page");
       expect(output.text).toContain("Summaries: printed under each chart.");
@@ -115,6 +117,25 @@ render({ title: "Revenue by region", mark: "bar", encoding: {
       expect(pages[1]).toContain("Eastleadstheyear;Northtrails.");
       const size = pdfPageSize(pdf);
       expect(size.height).toBeGreaterThan(size.width);
+    });
+
+    it("embeds the drawn chart in a Word document at print resolution", async () => {
+      const summary = "Every month, East earns the most.";
+      const withSummary = code
+        .replace("Revenue by month and region", "Revenue for Word")
+        .replace('data("r1"));', `data("r1"), "${summary}");`);
+      const output = await realTool().run({ code: withSummary, format: "docx" }, context);
+      const path = join(context.workingDirectory, "revenue-for-word.docx");
+      expect(output.text).toContain(`Saved chart: ${path}`);
+
+      const picture = await readPackagePart(path, "word/media/image1.png");
+      expect(isPng(picture)).toBe(true);
+      expect(pngSize(picture)).toEqual({ width: 2160, height: 1320 });
+      // A drawn chart, not a blank canvas: a 2160 x 1320 picture of nothing compresses to a few KB.
+      expect(picture.length).toBeGreaterThan(20_000);
+      const text = await textutilText(path);
+      expect(text).toContain("Revenue for Word");
+      expect(text).toContain(summary);
     });
   },
 );

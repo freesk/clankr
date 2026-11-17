@@ -119,5 +119,43 @@
       { "kind": "answer-contains", "anyOf": ["revenue"] },
       { "kind": "answer-contains", "anyOf": ["office"] }
     ]
+  },
+  {
+    "id": "s7-export-totals-excel",
+    "scenario": "S7",
+    "title": "Save a query result as an Excel file",
+    "requires": ["inspect_data", "query_sql", "export_table"],
+    "fixtures": [
+      {
+        "kind": "generated",
+        "generator": "csv",
+        "path": "sales.csv",
+        "options": {
+          "dataset": "sales",
+          "rows": 1000
+        }
+      }
+    ],
+    "steps": [
+      {
+        "prompt": "Work out the total quantity per region in sales.csv and save the totals as an Excel file."
+      }
+    ],
+    "assertions": [
+      {
+        "kind": "tool-called",
+        "tool": "export_table"
+      },
+      {
+        "kind": "file-count",
+        "directory": ".",
+        "suffix": ".xlsx",
+        "count": 1
+      },
+      {
+        "kind": "file-unchanged",
+        "path": "sales.csv"
+      }
+    ]
   }
 ]

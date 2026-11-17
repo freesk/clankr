@@ -111,6 +111,29 @@ function addText(kind, text) {
   contentArea().append(element);
 }
 
+// A data table (export_table). Every cell arrives as a string and is set with textContent,
+// so cell text is never read as markup. The header row repeats on each printed page.
+function addTable(columns, rows, numericColumns) {
+  const table = document.createElement("table");
+  table.className = "data-table";
+  const headerRow = table.createTHead().insertRow();
+  for (const name of columns) {
+    const cell = document.createElement("th");
+    cell.textContent = name;
+    headerRow.append(cell);
+  }
+  const body = table.createTBody();
+  for (const cells of rows) {
+    const row = body.insertRow();
+    cells.forEach((text, index) => {
+      const cell = row.insertCell();
+      cell.textContent = text;
+      if (numericColumns[index]) cell.className = "number";
+    });
+  }
+  contentArea().append(table);
+}
+
 // For PDF: scales the last drawn chart to fill the printable area, up or down, keeping its
 // proportions. The drawing is SVG, so scaling up loses no quality.
 function fitLastChart(width, height) {
@@ -153,6 +176,7 @@ function isFontInstalled(family) {
 window.clankr = {
   renderChart,
   addText,
+  addTable,
   startPage,
   setTextFont,
   fitLastChart,

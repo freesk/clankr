@@ -39,7 +39,8 @@ function marginsFor(decorations: PageDecorations): Margins {
   };
 }
 
-function orientedPageMillimetres(page: Theme["page"]): { width: number; height: number } {
+/** The sheet as it is turned: a landscape page swaps width and height. */
+export function orientedPageMillimetres(page: Theme["page"]): { width: number; height: number } {
   const { width, height } = pageSizeMillimetres[page.size];
   return page.orientation === "landscape" ? { width: height, height: width } : { width, height };
 }

@@ -9,7 +9,7 @@
 
 ## 1. Summary
 
-`clankr` is a command-line agent harness, written in TypeScript on Node.js, that drives a small local model hosted by LM Studio. It lets the user search their file system, create and edit text files and folders, read images, and turn local spreadsheets and Word documents into charts and PDF reports.
+`clankr` is a command-line agent harness, written in TypeScript on Node.js, that drives a small local model hosted by LM Studio. It lets the user search their file system, create and edit text files and folders, read images, and turn local spreadsheets and Word documents into charts, PDF reports, and new Word and Excel files.
 
 Everything runs on the user's machine. The data it is built for is sensitive and must never leave the computer, which is the reason for using a local model at all.
 
@@ -24,7 +24,7 @@ The target model is small (Gemma 4 12B QAT), so the harness is designed around a
 3. Read image content (describe, transcribe text, answer questions about an image).
 4. Switch between models available in LM Studio with a `/model` command.
 5. Keep a small model effective through aggressive context optimization and delegation.
-6. Build charts and graphs from large local spreadsheets and `.docx` files, exported as PDF, without the full data set entering the model context or leaving the machine.
+6. Build charts and graphs from large local spreadsheets and `.docx` files, and save charts and query results as PDF, Word, Excel, or image files in the format the user chooses, without the full data set entering the model context or leaving the machine.
 
 ### Non-goals (v1)
 
@@ -74,7 +74,7 @@ Priorities: **P0** = required for v1, **P1** = should have, **P2** = later.
 |---|---|---|
 | CLI-1 | Interactive REPL started with `clankr`, with streamed model output. | P0 |
 | CLI-2 | One-shot mode: `clankr -p "prompt"` prints the result and exits with a status code. Accepts piped stdin. | P0 |
-| CLI-3 | Slash commands: `/model`, `/context`, `/compact`, `/clear`, `/think`, `/permissions`, `/config`, `/undo`, `/help`, `/exit`. | P0 |
+| CLI-3 | Slash commands: `/model`, `/context`, `/compact`, `/clear`, `/think`, `/permissions`, `/format`, `/config`, `/undo`, `/help`, `/exit`. | P0 |
 | CLI-4 | Tool calls are shown as one compact line each (tool, key argument, result size, duration). | P0 |
 | CLI-5 | `Ctrl+C` cancels the current generation or tool run without exiting; a second press exits. | P0 |
 | CLI-6 | `clankr wipe` deletes all saved sessions, stored tool results, and logs. | P0 |
@@ -83,6 +83,7 @@ Priorities: **P0** = required for v1, **P1** = should have, **P2** = later.
 | CLI-9 | Sessions are saved to disk and can be resumed with `clankr --resume`. | P1 |
 | CLI-10 | Image and file paths can be attached by typing or dragging a path into the prompt. | P1 |
 | CLI-11 | `--json` output for one-shot mode, for scripting. | P2 |
+| CLI-12 | `--format <name>` sets the format charts and tables are saved in when a request names none (`xlsx`, `docx`, `pdf`, `png`, `svg`, `csv`), in the REPL and in one-shot mode. `/format` shows or changes it during a session. | P0 |
 
 Configuration, sessions, and the theme file live in `~/.clankr/`.
 
@@ -164,11 +165,13 @@ This is the core differentiator of the harness. See [section 7](#7-context-strat
 The data path has four steps, each a separate tool:
 
 ```
-file ──► inspect_data ──► query_sql ──► run_js (optional) ──► make_chart ──► PDF
+file ──► inspect_data ──► query_sql ──► run_js (optional) ──► make_chart ──► file
          profile only     DuckDB on     reshape in a          Vega-Lite spec built
          reaches model    the host      V8 isolate            in the isolate, rendered
                                                               in an offline browser
 ```
+
+The file is a PDF, a Word document, an Excel workbook, or an image, in the format the user chooses (DATA-22). `export_table` saves a `query_sql` or `run_js` result as a file without drawing a chart.
 
 **Inspecting data**
 
@@ -196,7 +199,7 @@ file ──► inspect_data ──► query_sql ──► run_js (optional) ─�
 | DATA-10 | `make_chart`: the model writes JavaScript that builds a Vega-Lite spec and calls `render(spec, data(handle))`. There is no separate declarative chart tool. | P0 |
 | DATA-11 | Chart code runs in the same V8 isolate as `run_js`. The resulting spec is validated against the Vega-Lite schema, and errors are returned to the model as short, fixable messages. | P0 |
 | DATA-12 | Rendering happens in a headless browser page that contains only vendored Vega-Lite, the validated spec, and the data. Model-written code never executes in the browser. | P0 |
-| DATA-13 | Output is PDF by default. PNG and SVG export are also available. | P0 |
+| DATA-13 | A chart is saved as PDF, Word (`.docx`), Excel (`.xlsx`), PNG, or SVG. There is no built-in default format: the user chooses (DATA-22). | P0 |
 | DATA-14 | The headless browser runs fully offline. All outbound requests are blocked and logged. | P0 |
 | DATA-15 | Styling comes from `~/.clankr/theme.json`: palette, fonts, page size, and an optional logo and footer. The harness applies it to every chart; the model does not set styling. A built-in default theme is used when the file is absent. | P0 |
 | DATA-16 | A short Vega-Lite reference with worked examples is added to the context only while the chart tool is in use. | P0 |
@@ -204,6 +207,9 @@ file ──► inspect_data ──► query_sql ──► run_js (optional) ─�
 | DATA-18 | After rendering, the harness can show the chart image to the model to self-check, on vision-capable models. A failed check triggers one automatic retry. | P1 |
 | DATA-19 | Multi-chart reports: several charts and text blocks composed into one PDF. | P1 |
 | DATA-20 | The SQL, chart code, and final spec are saved next to the output so a chart can be reproduced without the model. | P1 |
+| DATA-21 | `export_table`: save a stored row set as an Excel workbook with typed cells, a Word table, a paginated PDF table, or a CSV file. Word and PDF tables are capped (default 2,000 rows) and an Excel sheet at what Excel holds; above a cap the tool tells the model to aggregate with `query_sql` first. | P1 |
+| DATA-22 | The user chooses the output format. It is the format the request names; else the session's (`--format`, `/format`); else config `output.defaultFormat`; else the REPL asks before anything is written. One-shot mode cannot ask, so the tool fails with a message that names the formats and `--format`. | P0 |
+| DATA-23 | Office output is new files only. A chart `.docx` holds each chart's title, the chart as an embedded image, and its summary as text, on the theme's page. A chart `.xlsx` holds a summary sheet and, per chart, a sheet with the rows it was drawn from, with numbers and dates as typed cells. | P1 |
 
 ### 5.8 Permissions and safety
 
@@ -289,6 +295,8 @@ The V8 isolate was chosen over an OS-level sandbox because Apple's `sandbox-exec
 | Images | `sharp` | Resize and convert |
 | Query engine | DuckDB 1.4.5, embedded, through `@duckdb/node-api` 1.4.5-r.1 | Reads CSV/TSV natively; Excel reader vendored (D37) |
 | Legacy `.xls` | SheetJS 0.20.3, from the SheetJS CDN | Converted to a row set, then read by DuckDB (D36) |
+| Excel output | SheetJS 0.20.3 | The same library, loaded when a workbook is written (D88) |
+| Word output | A direct OOXML writer | No document library; a `.docx` is a ZIP of a few XML parts (D88) |
 | JS sandbox | `isolated-vm` 7.0.2 | Native addon, prebuilt for Node 24; install script not run (D77) |
 | Word documents | `mammoth` or direct OOXML parsing | Tables are extracted and loaded into DuckDB |
 | Chart library | Vega-Lite, vendored | Spec validated before render |
@@ -478,6 +486,11 @@ Milestones give the order in which scenarios must pass. The work itself is split
 | D77 | Node version | Node 24 LTS (24.22+), pinned by `.nvmrc`, with `isolated-vm` 7.0.2 (replaces D37's 6.2.0) and `@types/node` 24. Not Node 26 yet: with `isolated-vm` 7.0.2, stream and file I/O on the host never completes while the isolate waits in a helper, so `data()` on a stored row set timed out on 40 of 40 runs (0 of 40 on Node 24). A regression test catches it. npm's install scripts for `isolated-vm` and `fsevents` are declined in `allowScripts`; prebuilt binaries are used (D31) | User asked for the latest LTS; Node 26 fails the sandbox, Node 24 is supported until April 2028. Revisit when `isolated-vm` fixes the stall |
 | D78 | Model load settings | clankr sends load settings with the context length: `parallel` (default 1), and optionally `flashAttention`, `offloadKvCacheToGpu`, `evalBatchSize`, set under `model.load` and overridable per model in a profile's `load`. A loaded instance whose reported settings differ is reloaded, with a notice (extends D22). GPU offload and KV-cache quantization are not in LM Studio's REST load API (it rejects unknown keys), so they stay LM Studio's choice | Measured on Gemma 4 12B at 16k: `parallel` 4 → 1 cut LM Studio's memory from 9,747 to 8,829 MB with identical speed (16.5 vs 16.6 tok/s); clankr sends one request at a time |
 | D79 | License and source | clankr is MIT-licensed (`LICENSE`, `package.json`), and the source is public at <https://github.com/freesk/clankr>. `"private": true` stays in `package.json`: it only blocks an accidental `npm publish`. npm dependencies and vendored assets keep their own licenses; none is committed to the repo | User decision, 2026-11-17 |
+| D85 | Who chooses the output format | The user. One order for every tool that writes a chart or a table: the format the request names (the tool's optional `format`, or the extension of `output_path`); else the session's format (`--format`, `/format`, or a pick kept in the REPL); else config `output.defaultFormat`, unset by default; else the REPL asks with its picker before anything is written, and the pick is for that file or, if the user says so, for the session. One-shot mode cannot ask (D14), so the tool returns an error naming the formats and `--format`. A session or config format that cannot hold the output (`png` for a table) is skipped. PDF is no longer a built-in default | User request, 2026-11-17: the user picks the format "with a parameter or required output option". A required tool parameter would make a small model guess on every call, which hides the choice from the user |
+| D86 | A format the user did not name | A `format` argument or `output_path` extension counts as the request's (D85) only when the user's latest message names that format, found by a fixed vocabulary (`pdf`; `docx`, `doc`, `word`; `xlsx`, `excel`, `spreadsheet`, `workbook`; `png`, `image`, `picture`; `svg`; `csv`). Otherwise it is treated as absent. The check can only add a question, never pick a format. A follow-up that names no format asks once; a request in another language needs the question or `--format` | A small model fills an optional parameter from habit (`make_chart` said "Default pdf" until now), and a guessed format would skip the question D85 exists for. Same kind of check as the chart trigger words (D48) |
+| D87 | What the office files hold | A chart `.docx`: per chart a heading with its title, the chart as a PNG drawn by the offline browser at 2,160 x 1,320 pixels without its own title, and the summary as text; the theme's page size, orientation, font, and footer apply, and several charts print portrait, a page each, as in the PDF. A chart `.xlsx`: a `Summary` sheet (title and summary per chart) and one sheet per chart with its rows; no picture, and the tool result says so. Cells are typed: numbers and booleans per cell, and a column whose every value is an ISO date as Excel dates in a built-in date format. The theme's logo is not placed in a `.docx`. All are new files; the non-goal on editing office files stands | Word users want text they can edit and search; Excel users want the numbers behind a chart. SheetJS cannot embed a picture. Built-in date formats are the ones DuckDB's Excel reader recognises, so an exported file reads back with the same types |
+| D88 | Office writers | `.xlsx` through SheetJS 0.20.3, already a dependency (D36), loaded at the point of use. `.docx` through a direct OOXML writer in `src/output/`, not the `docx` npm package | The document needs four kinds of block (heading, paragraph, picture, table); the project already reads this XML itself (D17) and had a ZIP writer; a new dependency tree would need auditing for install scripts and network use (SEC-1 to SEC-3). Checked by reading files back through the project's reader, macOS `textutil`, and Quick Look; not yet opened in Word |
+| D89 | `export_table` | A `write` tool in the `data` group: it runs no model-written code, only writes rows an approved query produced. The file goes beside the data file (D28), is never overwritten, and follows the write rules: `ask` mode asks, `auto-edit` runs inside the allowed folders, outside always asks, and one-shot mode needs `--permission-mode auto-edit` (`--allow-data`, D74, covers only the query). Formats `xlsx`, `docx`, `pdf` (a paginated table drawn by the offline browser from text cells), and `csv`; `png` and `svg` are refused with a pointer to `make_chart`. Row caps: `output.maxDocumentTableRows` 2,000 for Word and PDF, `output.maxSheetRows` 1,048,575 for Excel (the config cannot exceed Excel's limit); CSV is streamed and uncapped. Its definition costs about 148 estimated tokens, so the data tool set's estimated overhead ceiling rose from 1,835 to 1,927 | A query result had no way to become a file. Its own tool keeps `make_chart` about charts and keeps the cost out of the core tool set, which is already over the CTX-5 budget |
 
 Decisions internal to one part (limits, cache rules, eviction age) are recorded in that part's spec under [specs/](specs/README.md).
 
@@ -518,4 +531,5 @@ O1, O2, and O4 were resolved by D36, D19, and D23. Questions local to one part a
 | data | `inspect_data` | read | Profile a spreadsheet or document |
 | data | `query_sql` | execute | Read-only SQL over a data file |
 | data | `run_js` | execute | JavaScript in a V8 isolate |
-| data | `make_chart` | execute | Chart code to PDF, PNG, or SVG |
+| data | `make_chart` | execute | Chart code to PDF, Word, Excel, PNG, or SVG |
+| data | `export_table` | write | Save a stored row set as Excel, Word, PDF, or CSV |

@@ -2,7 +2,12 @@
 
 import { parseArgs } from "node:util";
 import type { ConfigFlags } from "../config/index.ts";
-import type { PermissionMode } from "../contracts/index.ts";
+import {
+  isOutputFormat,
+  type OutputFormat,
+  outputFormats,
+  type PermissionMode,
+} from "../contracts/index.ts";
 
 export interface SessionCommand {
   kind: "session";
@@ -13,6 +18,8 @@ export interface SessionCommand {
   allowData: boolean;
   ephemeral: boolean;
   resume: boolean;
+  /** `--format`: the format files are saved in when a request names none (D85). */
+  outputFormat: OutputFormat | undefined;
   configFlags: ConfigFlags;
 }
 
@@ -40,6 +47,8 @@ Options:
                              inside the allowed folders
       --model <key>          Model to use instead of the configured default
       --permission-mode <m>  ask | auto-edit | read-only, for this run
+      --format <name>        Save charts and tables as ${outputFormats.join(" | ")}
+                             when a request names no format
       --base-url <url>       LM Studio address instead of the configured one
       --ephemeral            Leave nothing on disk when the session ends
       --resume               Reopen the most recent saved session
@@ -55,6 +64,7 @@ const optionSpecification = {
   "allow-data": { type: "boolean" },
   model: { type: "string" },
   "permission-mode": { type: "string" },
+  format: { type: "string" },
   "base-url": { type: "string" },
   ephemeral: { type: "boolean" },
   resume: { type: "boolean" },
@@ -117,6 +127,10 @@ function parseSession(values: ParsedValues): ParseResult {
       error: `--permission-mode must be one of ${permissionModes.join(", ")}.`,
     };
   }
+  const outputFormat = values.format?.toLowerCase();
+  if (outputFormat !== undefined && !isOutputFormat(outputFormat)) {
+    return { ok: false, error: `--format must be one of ${outputFormats.join(", ")}.` };
+  }
   if (values.print !== undefined && values.print.trim() === "") {
     return { ok: false, error: "-p needs a prompt." };
   }
@@ -129,6 +143,7 @@ function parseSession(values: ParsedValues): ParseResult {
       allowData: values["allow-data"] === true,
       ephemeral: values.ephemeral === true,
       resume: values.resume === true,
+      outputFormat,
       configFlags: {
         model: values.model,
         permissionMode,

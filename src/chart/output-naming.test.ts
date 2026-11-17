@@ -2,7 +2,7 @@ import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { baseNameFromTitle, chooseOutputPaths, splitOutputPath } from "./output-naming.ts";
+import { baseNameFromTitle, chooseOutputPaths } from "./output-naming.ts";
 
 describe("baseNameFromTitle", () => {
   it.each([
@@ -51,13 +51,5 @@ describe("chooseOutputPaths", () => {
     await writeFile(join(folder, "sales-2.sql"), "");
     const paths = await chooseOutputPaths(folder, "sales", "pdf");
     expect(paths.chart).toBe(join(folder, "sales-3.pdf"));
-  });
-
-  it("splits an explicit path into folder and base name", () => {
-    expect(splitOutputPath("/a/b/q1 report.pdf")).toEqual({
-      folder: "/a/b",
-      baseName: "q1 report",
-    });
-    expect(splitOutputPath("/a/b/notes")).toEqual({ folder: "/a/b", baseName: "notes" });
   });
 });

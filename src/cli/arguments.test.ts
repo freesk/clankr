@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { parseCliArguments } from "./arguments.ts";
+import { parseCliArguments, usageText } from "./arguments.ts";
 
 describe("parseCliArguments", () => {
   it("reads the config subcommand, which takes no options", () => {
@@ -50,6 +50,23 @@ describe("parseCliArguments", () => {
     });
   });
 
+  it("reads --format for the REPL and for one-shot mode, whatever its case", () => {
+    expect(parseCliArguments(["--format", "docx"])).toMatchObject({
+      ok: true,
+      command: { kind: "session", prompt: undefined, outputFormat: "docx" },
+    });
+    expect(parseCliArguments(["-p", "chart it", "--format", "XLSX"])).toMatchObject({
+      ok: true,
+      command: { prompt: "chart it", outputFormat: "xlsx" },
+    });
+    expect(parseCliArguments([])).toMatchObject({ command: { outputFormat: undefined } });
+  });
+
+  it("names every format in the usage text", () => {
+    expect(usageText).toContain("--format <name>");
+    expect(usageText).toContain("xlsx | docx | pdf | png | svg | csv");
+  });
+
   it("recognises wipe, help, and version", () => {
     expect(parseCliArguments(["wipe"])).toEqual({
       ok: true,
@@ -62,6 +79,8 @@ describe("parseCliArguments", () => {
 
   it.each([
     [["--permission-mode", "yolo"], /--permission-mode must be one of/],
+    [["--format", "pptx"], /--format must be one of xlsx, docx, pdf, png, svg, csv\./],
+    [["config", "--format", "pdf"], /config takes no arguments/],
     [["--ephemeral", "--resume"], /cannot be combined/],
     [["hello"], /Unexpected argument "hello"/],
     [["--nope"], /nope/],

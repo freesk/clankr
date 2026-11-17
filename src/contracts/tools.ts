@@ -4,6 +4,7 @@ import type { z } from "zod";
 import type { Config } from "../config/schema.ts";
 import type { DataSourceRegistry } from "./data.ts";
 import type { LmClient, LoadedModel, ReasoningSetting } from "./model.ts";
+import type { OutputFormatContext } from "./output.ts";
 import type { ChangePreview, PathPolicy } from "./permissions.ts";
 import type { ResultHandle, ResultStore } from "./results.ts";
 import type { ClankrPaths, ReadTracker } from "./session.ts";
@@ -30,6 +31,8 @@ export interface ToolContext {
   model?: LoadedModel;
   /** The session's `/think` setting, for tools that make their own model call. */
   reasoning?: ReasoningSetting;
+  /** The session's output format and the format question, for tools that write a file (D85). */
+  outputFormat?: OutputFormatContext;
 }
 
 /** Tools return full output. The agent loop caps it, so no tool truncates on its own. */

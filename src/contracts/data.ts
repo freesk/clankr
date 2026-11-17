@@ -1,5 +1,6 @@
 // Data files and chart rendering (seams: inspect → sql, sandbox, chart; chart → pdf).
 
+import type { OutputFormat } from "./output.ts";
 import type { ResultHandle, Row } from "./results.ts";
 
 export type DataFormat = "xlsx" | "xls" | "csv" | "tsv" | "docx";
@@ -63,7 +64,8 @@ export interface Theme {
   footer?: string;
 }
 
-export type ChartFormat = "pdf" | "png" | "svg";
+/** The formats the offline browser draws itself. Word and Excel files are written by output. */
+export type ChartFormat = Extract<OutputFormat, "pdf" | "png" | "svg">;
 
 export interface ChartRenderRequest {
   /** A Vega-Lite spec that already passed schema validation and theming. */
@@ -86,6 +88,19 @@ export interface ChartPage {
 /** Several charts in one portrait PDF, one chart per page, each with its summary under it. */
 export interface ChartPagesRequest {
   charts: ChartPage[];
+  theme: Theme;
+  outputPath: string;
+}
+
+/** A row set printed as a paginated table in a PDF (`export_table`). Cells arrive as text. */
+export interface TableRenderRequest {
+  /** Printed above the table. */
+  title?: string;
+  columns: string[];
+  /** One array per row, in column order. */
+  cells: string[][];
+  /** Whether each column, in order, holds numbers; those are right-aligned. */
+  numericColumns: boolean[];
   theme: Theme;
   outputPath: string;
 }

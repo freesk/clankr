@@ -144,7 +144,7 @@ function formatResult(result: QueryResult, storedRowLimit: number): string {
   }
   if (previewRows.length < storedRowCount) {
     lines.push(
-      `(first ${previewRows.length} of ${storedRowCount.toLocaleString("en-US")} rows; use ${handle} with read_result, run_js, or make_chart for the rest)`,
+      `(first ${previewRows.length} of ${storedRowCount.toLocaleString("en-US")} rows; use ${handle} with read_result, run_js, make_chart, or export_table for the rest)`,
     );
   }
   return lines.join("\n");

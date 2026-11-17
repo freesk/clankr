@@ -15,6 +15,7 @@ import type {
 import type { ChartRenderer } from "../engines/browser/index.ts";
 import { createStandardHelpers, runInIsolate } from "../engines/isolate/index.ts";
 import { createDelegateTool } from "../subagent/index.ts";
+import { createExportTableTool } from "../tools/data/export-table.ts";
 import { inspectDataTool } from "../tools/data/inspect/index.ts";
 import { createMakeChartTool } from "../tools/data/make-chart.ts";
 import { querySqlTool } from "../tools/data/query-sql.ts";
@@ -58,9 +59,14 @@ export function buildToolSet(options: ToolSetOptions): ToolSet {
       createStandardHelpers,
       renderChart: (request, signal) => options.renderer.renderChart(request, signal),
       renderChartPages: (request, signal) => options.renderer.renderChartPages(request, signal),
+      renderChartImage: (spec, rows, theme, signal) =>
+        options.renderer.renderChartImage(spec, rows, theme, signal),
       renderPreview: (spec, rows, theme, signal) =>
         options.renderer.renderPreview(spec, rows, theme, signal),
       selfCheck: createVisionSelfCheck(options.currentModel),
+    }),
+    createExportTableTool({
+      renderTable: (request, signal) => options.renderer.renderTable(request, signal),
     }),
   ];
   // CTX-6: `delegate` gets the finished list and keeps only its read tools for the sub-agent.

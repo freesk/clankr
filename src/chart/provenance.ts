@@ -20,13 +20,21 @@ export function handlesInCode(code: string): ResultHandle[] {
   return [...new Set([...code.matchAll(quotedHandle)].map((match) => match[1] as string))];
 }
 
-export async function traceRowSources(
+export function traceRowSources(
   code: string,
+  context: Pick<ToolContext, "results" | "dataSources">,
+): Promise<RowSources> {
+  return traceHandleSources(handlesInCode(code), context);
+}
+
+/** The same trace, starting from handles the caller already has (export_table). */
+export async function traceHandleSources(
+  handles: ResultHandle[],
   context: Pick<ToolContext, "results" | "dataSources">,
 ): Promise<RowSources> {
   const sources: RowSources = { dataFiles: [], sql: [] };
   const visited = new Set<ResultHandle>();
-  for (const handle of handlesInCode(code)) await traceHandle(handle, context, sources, visited, 0);
+  for (const handle of handles) await traceHandle(handle, context, sources, visited, 0);
   return sources;
 }
 

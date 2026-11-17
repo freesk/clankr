@@ -14,6 +14,7 @@ import {
   type Row,
   type RunInIsolate,
   type StandardHelpersFactory,
+  type TableRenderRequest,
   ToolError,
 } from "../contracts/index.ts";
 
@@ -57,15 +58,25 @@ export function fakeStandardHelpers(preloaded: Map<string, Row[]>): StandardHelp
   };
 }
 
+/** A real 1 x 1 PNG, so a document writer has an image whose header it can read. */
+export const onePixelPng = Buffer.from(
+  "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVR4nGP4DwQACfsD/fteaysAAAAASUVORK5CYII=",
+  "base64",
+);
+
 /** A renderer stand-in: records each request and writes a placeholder file. */
 export function createFakeRenderer() {
   const requests: ChartRenderRequest[] = [];
   const pageRequests: ChartPagesRequest[] = [];
+  const tableRequests: TableRenderRequest[] = [];
   const previews: Record<string, unknown>[] = [];
+  const images: Record<string, unknown>[] = [];
   return {
     requests,
     pageRequests,
+    tableRequests,
     previews,
+    images,
     async renderChart(request: ChartRenderRequest): Promise<ChartRenderResult> {
       requests.push(request);
       return writePlaceholder(request.outputPath, 1);
@@ -77,6 +88,14 @@ export function createFakeRenderer() {
     async renderPreview(spec: Record<string, unknown>): Promise<Buffer> {
       previews.push(spec);
       return Buffer.from("png");
+    },
+    async renderChartImage(spec: Record<string, unknown>) {
+      images.push(spec);
+      return { png: onePixelPng, notes: [] as string[] };
+    },
+    async renderTable(request: TableRenderRequest): Promise<ChartRenderResult> {
+      tableRequests.push(request);
+      return writePlaceholder(request.outputPath, 1);
     },
   };
 }
