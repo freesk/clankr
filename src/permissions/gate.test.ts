@@ -68,6 +68,7 @@ describe("SessionPermissionGate", () => {
       tool: writeFile,
       preview,
       reason: "ask mode confirms each change",
+      runFlag: "auto-edit",
     });
   });
 
@@ -191,6 +192,25 @@ describe("one-shot mode, with no prompter (D14)", () => {
     });
     const decision = await gate.check(querySql, {}, codePreview("/work/payroll.xlsx"));
     expect(decision).toEqual({ allowed: true, basis: "grant" });
+  });
+
+  it("tells a prompter that no run flag helps for a data file outside the allowed folders", async () => {
+    const prompter = new QueuedApprovalPrompter([{ kind: "deny" }]);
+    const gate = new SessionPermissionGate({
+      session: session("ask"),
+      paths,
+      prompter,
+      runGrants: { dataInAllowedFolders: true },
+    });
+    await gate.check(querySql, {}, codePreview("/elsewhere/payroll.xlsx"));
+    expect(prompter.requests[0]?.runFlag).toBe("none");
+  });
+
+  it("tells a prompter when --allow-data would help", async () => {
+    const prompter = new QueuedApprovalPrompter([{ kind: "deny" }]);
+    const gate = new SessionPermissionGate({ session: session("ask"), paths, prompter });
+    await gate.check(querySql, {}, codePreview("/work/payroll.xlsx"));
+    expect(prompter.requests[0]?.runFlag).toBe("allow-data");
   });
 
   it("still refuses a data file outside the allowed folders with --allow-data", async () => {

@@ -2,29 +2,41 @@
 // why and which run flag would have allowed it (D74), and the run remembers the denial so
 // it can exit with status 1.
 
-import type {
-  ApprovalAnswer,
-  ApprovalPrompter,
-  ApprovalRequest,
-  PermissionClass,
-} from "../contracts/index.ts";
+import type { ApprovalAnswer, ApprovalPrompter, ApprovalRequest } from "../contracts/index.ts";
+
+type RunFlag = NonNullable<ApprovalRequest["runFlag"]>;
 
 export interface Denial {
   tool: string;
-  permission: PermissionClass;
+  runFlag: RunFlag;
   summary: string;
   reason: string;
 }
 
-/** The run flag that covers a kind of call: SQL, scripts, and charts need `--allow-data`. */
-function flagHint(permission: PermissionClass): string {
-  return permission === "execute"
-    ? "--allow-data to allow SQL, scripts, and charts on data files inside the allowed folders"
-    : "--permission-mode auto-edit to allow file changes inside the allowed folders";
+const allowDataHint =
+  "--allow-data to allow SQL, scripts, and charts on data files inside the allowed folders";
+const autoEditHint = "--permission-mode auto-edit to allow file changes inside the allowed folders";
+const noFlagHint =
+  "no run flag allows this. Only files inside the allowed folders can be covered: " +
+  "run clankr from the folder that holds the file, or add it with `clankr config`";
+
+/** The gate says which flag would help; without that, guess from the kind of call. */
+function runFlagOf(request: ApprovalRequest): RunFlag {
+  if (request.runFlag) return request.runFlag;
+  return request.tool.permission === "execute" ? "allow-data" : "auto-edit";
 }
 
-export function oneShotDenialFeedback(permission: PermissionClass): string {
-  return `Denied: one-shot mode cannot ask for approval. The user can rerun with ${flagHint(permission)}.`;
+function flagHint(runFlag: RunFlag): string {
+  if (runFlag === "allow-data") return `pass ${allowDataHint}`;
+  if (runFlag === "auto-edit") return `pass ${autoEditHint}`;
+  return noFlagHint;
+}
+
+export function oneShotDenialFeedback(runFlag: RunFlag): string {
+  const denied = "Denied: one-shot mode cannot ask for approval.";
+  if (runFlag === "allow-data") return `${denied} The user can rerun with ${allowDataHint}.`;
+  if (runFlag === "auto-edit") return `${denied} The user can rerun with ${autoEditHint}.`;
+  return `${denied} Tell the user: ${noFlagHint}.`;
 }
 
 export class OneShotApprovalPrompter implements ApprovalPrompter {
@@ -33,11 +45,11 @@ export class OneShotApprovalPrompter implements ApprovalPrompter {
   async ask(request: ApprovalRequest): Promise<ApprovalAnswer> {
     this.denials.push({
       tool: request.tool.name,
-      permission: request.tool.permission,
+      runFlag: runFlagOf(request),
       summary: request.preview.summary,
       reason: request.reason,
     });
-    return { kind: "deny", feedback: oneShotDenialFeedback(request.tool.permission) };
+    return { kind: "deny", feedback: oneShotDenialFeedback(runFlagOf(request)) };
   }
 }
 
@@ -45,6 +57,6 @@ export class OneShotApprovalPrompter implements ApprovalPrompter {
 export function describeDenial(denial: Denial): string {
   return (
     `clankr: denied ${denial.tool} (${denial.summary}): ${denial.reason}. ` +
-    `One-shot mode cannot ask; pass ${flagHint(denial.permission)}.`
+    `One-shot mode cannot ask; ${flagHint(denial.runFlag)}.`
   );
 }

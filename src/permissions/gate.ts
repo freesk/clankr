@@ -93,6 +93,7 @@ export class SessionPermissionGate implements PermissionGate {
       tool,
       preview: preview ?? { summary: `Run ${tool.name}`, targetPaths: [] },
       reason: verdict.reasons.join("; "),
+      runFlag: this.wouldAllow(tool, change) ?? "none",
     });
     if (answer.kind === "deny") {
       return { allowed: false, feedback: userDeniedMessage(tool.name, answer.feedback) };

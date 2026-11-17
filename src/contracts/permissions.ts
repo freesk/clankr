@@ -62,6 +62,11 @@ export interface ApprovalRequest {
   preview: ChangePreview;
   /** Why the gate is asking, for example "outside the allowed folders". */
   reason: string;
+  /**
+   * The run flag that would have allowed this call without asking, or "none". For prompters
+   * that cannot ask (one-shot mode), so a refusal names a flag that would actually help.
+   */
+  runFlag?: "auto-edit" | "allow-data" | "none";
 }
 
 export type ApprovalAnswer =

@@ -178,7 +178,7 @@ describe("one-shot mode", () => {
     });
     expect(await runCli(environment)).toBe(exitCodes.failed);
     expect(environment.errors()).toContain(
-      `✗ write_file notes.md · Denied: ${oneShotDenialFeedback("write").slice(0, 20)}`,
+      `✗ write_file notes.md · Denied: ${oneShotDenialFeedback("auto-edit").slice(0, 20)}`,
     );
     expect(environment.errors()).toContain(
       "pass --permission-mode auto-edit to allow file changes",
@@ -232,7 +232,7 @@ describe("one-shot mode", () => {
         preview: { summary: "Trash a", targetPaths: ["/work/a"] },
         reason: "delete always asks",
       }),
-    ).toEqual({ kind: "deny", feedback: oneShotDenialFeedback("write") });
+    ).toEqual({ kind: "deny", feedback: oneShotDenialFeedback("auto-edit") });
     expect(composition.opened[0]?.closed).toBe(true);
   });
 });
@@ -251,5 +251,26 @@ describe("clankr wipe", () => {
     const environment = createTestEnvironment({ argv: ["wipe"], composition });
     expect(await runCli(environment)).toBe(exitCodes.usage);
     expect(composition.wipeCount).toBe(0);
+  });
+});
+
+describe("one-shot denial text", () => {
+  it("names no flag when none would help, and says why", async () => {
+    const { OneShotApprovalPrompter, describeDenial } = await import("./one-shot-prompter.ts");
+    const prompter = new OneShotApprovalPrompter();
+    const answer = await prompter.ask({
+      tool: { name: "query_sql", permission: "execute" },
+      preview: { summary: "Run SQL over payroll.xlsx", targetPaths: [] },
+      reason: "runs code on /elsewhere/payroll.xlsx",
+      runFlag: "none",
+    });
+    expect(answer).toMatchObject({ kind: "deny" });
+    if (answer.kind !== "deny") return;
+    expect(answer.feedback).toMatch(/no run flag allows this/);
+    expect(answer.feedback).not.toMatch(/--allow-data/);
+    const [denial] = prompter.denials;
+    expect(denial && describeDenial(denial)).toMatch(
+      /run clankr from the folder that holds the file/,
+    );
   });
 });
