@@ -81,6 +81,13 @@ Settled 2026-11-17. A D-number means the decision is also recorded in PRD sectio
 | Trash mechanism | The `trash` npm package (D26). |
 | Undo depth | Single level. `/undo` reverts the most recent change; a second `/undo` says there is nothing more to undo (D27). |
 | Snapshot size | Every change is snapshotted in full, with no size limit (D27). |
+| Diff library | `diff` (jsdiff) 9.0.0, pinned, loaded lazily when a preview is built. `trash` is pinned at 10.1.1. |
+| `move` and `copy` arguments | `sources` (a list, even for one) and `destination`. Several sources go into `destination` as a folder, created if missing. One source goes into `destination` when it is an existing folder, and is otherwise renamed to it. |
+| Symbolic links | `write_file`, `edit_file`, and `make_dir` act on the real path. `move`, `copy`, and `delete` act on the link itself, so trashing a link never trashes what it points to. The deny list is checked against the real path in both cases. |
+| Undoing a created file | It goes to the Trash rather than being unlinked. A created folder is removed only while it is empty. |
+| Undoing a delete | `delete` saves a full copy in the snapshot before trashing, and `/undo` restores from that copy, so undo never reaches into the Trash. |
+| Moves across volumes | Copy, then trash the original, so nothing in this part unlinks a user file. |
+| `/undo` registration | `createFileSlashCommands(vixPaths)`, because `SlashCommandContext` carries no `VixPaths`. |
 
 ## Open questions
 
