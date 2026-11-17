@@ -13,6 +13,7 @@
     "src/**/*.test-support.ts",
     "src/**/test-support.ts",
     "src/testing",
-    "src/**/testing"
+    "src/**/testing",
+    "src/**/perf"
   ]
 }

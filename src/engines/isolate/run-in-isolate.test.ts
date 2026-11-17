@@ -33,7 +33,9 @@ describe("runInIsolate results", () => {
     const result = await runInIsolate(
       'for (let i = 0; i < 20000; i++) console.log("x".repeat(50));',
       {},
-      limits,
+      // A generous timeout: this checks the output bound, and 20,000 bridge calls can
+      // take over a second on a busy machine.
+      { ...limits, timeoutMs: 10_000 },
     );
     expect(result.ok).toBe(true);
     expect(result.logs.length).toBeLessThan(20_000);

@@ -1,2 +1,2 @@
-// inspect part. See specs/inspect.md. Empty until wave 1 builds it.
-export {};
+// inspect part: the `inspect_data` tool (specs/inspect.md).
+export { inspectDataTool } from "./inspect-data.ts";

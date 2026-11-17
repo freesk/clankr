@@ -73,6 +73,28 @@ Settled 2026-11-17. A D-number means the decision is also recorded in PRD sectio
 | Where `.docx` tables go | The session's result store, as JSON Lines row sets (D17). |
 | Profile caching | A profile is reused while the file's size and modification time are unchanged, and recomputed when either differs. |
 | Legacy `.xls` | Read with SheetJS 0.20.3 and stored as a row set that DuckDB reads (D36, resolves O1). Check date columns: the spike saw local-midnight dates read back with an offset. |
+| `.xls` dates | Cells are read as raw serial numbers; a serial whose number format is a date is converted in UTC to "YYYY-MM-DD" (or "YYYY-MM-DD hh:mm:ss"), honouring the 1904 epoch. No time-zone shift. Note that SheetJS's writer also converts Dates as local time, so fixtures use local Dates. |
+| Table names | File stem, lower-cased, non-alphanumerics to `_`, at most 24 characters; plus `_<sheet or "table N">` when a file has several tables. A leading digit gets `t_`; an SQL keyword gets `_data`. A name owned by another file gets `_2`, `_3`; re-inspecting the same file reuses its names. |
+| Header detection | Among the first 30 rows, the first row at least 60% as wide as the widest that reads as labels (mostly non-numeric, no repeats). `.csv`/`.tsv` use the file's physical lines, because DuckDB's `skip` counts blank lines. The `sheet` and `headerRow` arguments override it. |
+| `.xlsx` layout | Sheet names and used ranges come from the workbook's XML (only the start of each sheet part is inflated). A sheet that records no used range (DuckDB writes none) is measured from its first rows and read until the first empty row. A range ending at row 30 makes DuckDB scan the whole sheet, so the header search uses an open range under `LIMIT`. |
+| Types and mixed columns | DuckDB's types map to number, date, boolean, text, or the SQL type. A text column whose values are partly numeric is mixed. For `.xlsx`, a strict read runs first; if a cell does not fit its column, the column is mixed and a text read counts the cells SQL sees as NULL. |
+| Distinct counts | Exact up to 100,000 rows; above that, HyperLogLog, printed with `~`. |
+| `.docx` tables | Heading levels come from `styles.xml` (style names "heading N" and "Title", or outline levels). Top-level tables only; a nested table's text joins its cell. A vertically merged cell repeats the value above; a wide cell is followed by blanks. A column whose cells all read as plain numbers ("1,200") is stored as numbers. A table with a header but no data rows is listed but not registered. |
+| What is stored | The full profile as text (its handle is `DataSource.handle`), and each `.xls` sheet and `.docx` table as a row set. Wide sheets print the first `data.profileColumnsShown` (40) columns and point to the stored profile. |
+| Caching | Per session (keyed by the registry), by real path, size, modification time, and the header arguments. A cached profile is returned without re-reading the file. |
+| Masking (DATA-5) | Config `data.sensitiveColumns`: case-insensitive column names whose samples, min, and max print as "(masked)". |
+
+## Measurements (2026-11-17, Apple M3 Pro)
+
+Opt-in: `VIX_PERF=1 npx vitest run src/tools/data/inspect/perf.test.ts --reporter=verbose`. Each profile runs in its own process.
+
+| File | Profile time | Peak RSS |
+|---|---|---|
+| CSV, 1,000,000 rows, 38 MB | 298 ms | 252 MB |
+| CSV, 2,000,000 rows, 78 MB | 359 ms | 283 MB |
+| `.xlsx` written by DuckDB, 1,000,000 rows x 9 columns, 107 MB | 7.7 s (target under 10 s) | 212 MB |
+
+A clean `.xlsx` takes one full scan (about 4 s per 76 MB); a sheet with a mixed column takes up to three.
 
 ## Open questions
 
