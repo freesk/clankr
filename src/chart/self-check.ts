@@ -19,7 +19,8 @@ export type SelfCheck = (
 
 const instruction =
   "You check charts. Answer PASS or FAIL, then one short sentence. FAIL only if the chart is empty, " +
-  "unreadable, has overlapping or cut-off labels, or does not show what its title says.";
+  "unreadable, has overlapping or cut-off labels, shows the words undefined or null, " +
+  "or does not show what its title says.";
 
 const maxVerdictCharacters = 300;
 

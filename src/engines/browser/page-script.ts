@@ -44,9 +44,48 @@ async function renderChart(spec, rows) {
   if ((compiled.data ?? []).some((dataset) => dataset.name === "table")) view.data("table", rows);
   await view.runAsync();
   await document.fonts.ready;
+  if (separateOverlappingLabels(view.scenegraph().root)) view._renderer.render(view.scenegraph().root);
   const viewId = nextViewId++;
   views.set(viewId, view);
   return { viewId, warnings };
+}
+
+// Vega-Lite has no collision avoidance for text marks, so labels for close values (end-of-line
+// labels such as 138 and 146) are drawn on top of each other. Labels in one text mark that sit
+// in the same column are pushed apart vertically until each has a line to itself.
+function separateOverlappingLabels(mark) {
+  let moved = false;
+  // Only the chart's own text marks: axis labels, titles, and legends are text marks too.
+  if (mark.marktype === "text" && mark.role === "mark") moved = spreadLabels(mark.items ?? []);
+  if (mark.marktype === "group") {
+    for (const group of mark.items ?? []) {
+      for (const child of group.items ?? []) moved = separateOverlappingLabels(child) || moved;
+    }
+  }
+  return moved;
+}
+
+function spreadLabels(items) {
+  const labels = items
+    .filter((item) => item.text != null && item.text !== "" && Number.isFinite(item.y))
+    .sort((a, b) => a.y - b.y);
+  const sameColumn = (a, b) => Math.abs((a.x ?? 0) - (b.x ?? 0)) < 40;
+  let moved = false;
+  // A few passes settle clusters of three or more labels.
+  for (let pass = 0; pass < 4; pass++) {
+    for (let index = 1; index < labels.length; index++) {
+      const above = labels[index - 1];
+      const below = labels[index];
+      if (!sameColumn(above, below)) continue;
+      const lineHeight = Math.max(above.fontSize ?? 11, below.fontSize ?? 11) + 2;
+      const overlap = lineHeight - (below.y - above.y);
+      if (overlap <= 0) continue;
+      above.y -= overlap / 2;
+      below.y += overlap / 2;
+      moved = true;
+    }
+  }
+  return moved;
 }
 
 function addText(kind, text) {
@@ -54,6 +93,24 @@ function addText(kind, text) {
   element.className = "text-block";
   element.textContent = text;
   contentArea().append(element);
+}
+
+// For PDF: scales the last drawn chart to fill the printable area, up or down, keeping its
+// proportions. The drawing is SVG, so scaling up loses no quality.
+function fitLastChart(width, height) {
+  const drawings = document.querySelectorAll(".chart svg");
+  const svg = drawings[drawings.length - 1];
+  if (!svg) return;
+  const naturalWidth = Number(svg.getAttribute("width"));
+  const naturalHeight = Number(svg.getAttribute("height"));
+  if (!(naturalWidth > 0 && naturalHeight > 0)) return;
+  if (!svg.getAttribute("viewBox")) {
+    svg.setAttribute("viewBox", "0 0 " + naturalWidth + " " + naturalHeight);
+  }
+  const scale = Math.min(width / naturalWidth, height / naturalHeight, 2);
+  svg.style.maxWidth = "none";
+  svg.style.width = Math.floor(naturalWidth * scale) + "px";
+  svg.style.height = Math.floor(naturalHeight * scale) + "px";
 }
 
 async function exportPng(viewId, scale) {
@@ -77,7 +134,7 @@ function isFontInstalled(family) {
   });
 }
 
-window.clankr = { renderChart, addText, exportPng, exportSvg, isFontInstalled };
+window.clankr = { renderChart, addText, fitLastChart, exportPng, exportSvg, isFontInstalled };
 // Requests the content security policy stops never reach the request guard, so the page
 // reports them itself through a binding the guard installs.
 document.addEventListener("securitypolicyviolation", (event) => {

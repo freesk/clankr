@@ -4,72 +4,44 @@
 export const chartReferenceText = `## make_chart reference (Vega-Lite)
 Write JavaScript that builds a Vega-Lite spec and ends with render(spec, data("rN")).
 - data("rN") returns the rows of a stored result. Use the handle from query_sql.
-- Aggregate first: query_sql with GROUP BY, then chart the small result. Large row sets are refused.
-- Do not set colours, fonts, sizes of text, background, or config. The user's theme does that.
+- Do the maths in query_sql, not JavaScript: totals (GROUP BY), shares, growth, and indexes to a base year (window functions), and new groupings (CASE WHEN). Then chart that result as it is.
+- Do not set colours, fonts, background, or config. The user's theme does that.
 - Do not put "data" or "url" in the spec. Rows are attached by render.
-- "field" must be a column name exactly as in the rows (case matters).
-- "type" is one of "quantitative" (numbers), "temporal" (dates), "nominal" (categories), "ordinal" (ordered categories).
-- Give every chart a short "title".
-- Helpers are synchronous: no await.
+- "field" must be a column of the rows, exactly (case matters).
+- "type": "quantitative" (numbers), "temporal" (dates), "nominal" (categories), "ordinal" (ordered categories).
+- Give every chart a short "title". Helpers are synchronous: no await.
 
 Bar chart:
-const spec = {
-  title: "Revenue by region",
-  mark: "bar",
-  encoding: {
-    x: { field: "region", type: "nominal", sort: "-y" },
-    y: { field: "revenue", type: "quantitative", title: "Revenue" }
-  }
-};
-render(spec, data("r4"));
+render({ title: "Revenue by region", mark: "bar", encoding: {
+  x: { field: "region", type: "nominal", sort: "-y" },
+  y: { field: "revenue", type: "quantitative", title: "Revenue" } } }, data("r4"));
+Stacked: add color: { field: "level", type: "nominal" }. Grouped: also xOffset: { field: "level", type: "nominal" }. Horizontal: swap x and y.
+Pie: mark: "arc", encoding: { theta: { field: "amount", type: "quantitative" }, color: { field: "category", type: "nominal" } }.
 
-Line chart over time:
-render({
-  title: "Monthly orders",
-  mark: { type: "line", point: true },
-  encoding: {
-    x: { field: "month", type: "temporal", timeUnit: "yearmonth" },
-    y: { field: "orders", type: "quantitative" }
-  }
-}, data("r5"));
+Lines over time: mark: { type: "line", point: true }, x: { field: "month", type: "temporal" }, several lines with color: { field: "product", type: "nominal" }.
 
-Several lines: add color: { field: "product", type: "nominal" } to the encoding.
-
-Stacked bar (one row per category and group):
-render({
-  title: "Headcount by department and level",
-  mark: "bar",
-  encoding: {
-    x: { field: "department", type: "nominal" },
-    y: { field: "headcount", type: "quantitative", stack: "zero" },
-    color: { field: "level", type: "nominal" }
-  }
-}, data("r6"));
-
-Horizontal bar: swap x and y. Grouped bars: add xOffset: { field: "level", type: "nominal" }.
-
-Pie chart:
-render({
-  title: "Share of spend",
-  mark: { type: "arc", innerRadius: 0 },
-  encoding: {
-    theta: { field: "amount", type: "quantitative" },
-    color: { field: "category", type: "nominal" }
-  }
-}, data("r7"));
-
-Reshape rows in JavaScript before render if needed:
-const rows = data("r8").map(r => ({ ...r, margin: r.profit / r.revenue }));
-render({ title: "Margin", mark: "bar", encoding: {
-  x: { field: "store", type: "nominal" },
-  y: { field: "margin", type: "quantitative", axis: { format: "%" } } } }, rows);
+Index to a base year, grouped (query_sql):
+SELECT place, year, CASE WHEN place IN ('A','B') THEN 'North' ELSE 'South' END AS area,
+  100.0 * pop / FIRST_VALUE(pop) OVER (PARTITION BY place ORDER BY year) AS indexed
+FROM (SELECT place, year, SUM(value) AS pop FROM t WHERE year BETWEEN 2001 AND 2025 GROUP BY place, year)
+Then one small panel per group, labels at the line ends instead of a legend:
+const line = { field: "place", type: "nominal", legend: null };
+render({ title: "Population, 2001 = 100",
+  facet: { column: { field: "area", type: "nominal", title: null } },
+  spec: { layer: [
+    { mark: "line", encoding: { x: { field: "year", type: "quantitative", title: null },
+        y: { field: "indexed", type: "quantitative", title: "2001 = 100" }, color: line } },
+    { transform: [{ joinaggregate: [{ op: "max", field: "year", as: "last" }], groupby: ["place"] },
+        { filter: "datum.year === datum.last" }],
+      mark: { type: "text", align: "left", dx: 4 },
+      encoding: { x: { field: "year", type: "quantitative" }, y: { field: "indexed", type: "quantitative" },
+        text: { field: "place" }, color: line } } ] } }, data("r9"));
+With facet, put the views under "spec"; mark and encoding never sit beside "facet".
 
 Common mistakes:
-- "type": "quant" or "category": use the four names above.
-- "mark": "bars" or "pie": use "bar" or "arc".
-- Putting rows in spec.data.values: pass them to render instead.
-- Calling render twice: build one spec, call render once.
-- A field that is not a column: check the column names in the query result.
+- "type": "quant" or "category": use the four names above. "mark": "bars" or "pie": use "bar" or "arc".
+- Rows in spec.data.values, or render called twice: pass rows to render, once.
+- A field that is not a column: add it in query_sql first.
 If make_chart returns an error, fix exactly what it names and call make_chart again.
 `;
 

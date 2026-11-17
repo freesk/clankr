@@ -8,7 +8,7 @@ import type { ChartRenderRequest, ChartRenderResult, Row, Theme } from "../../co
 import { BrowserSession } from "./browser-session.ts";
 import { replaceConfigFont, resolveFontFamily } from "./fonts.ts";
 import type { BlockedRequest, BlockedRequestLogger } from "./offline.ts";
-import { drawChart, exportPng, exportSvg } from "./page-calls.ts";
+import { drawChart, exportPng, exportSvg, fitLastChart } from "./page-calls.ts";
 import { type LoadedDecorations, loadDecorations } from "./page-decorations.ts";
 import { fitSpecToArea, pdfOptions, printableArea } from "./page-layout.ts";
 import { composeReport, type ReportBlock } from "./report.ts";
@@ -81,7 +81,7 @@ export function createChartRenderer(options: ChartRendererOptions): ChartRendere
         const pageTheme = await resolvePageTheme(page, theme);
         const drawn = await drawChart(
           page,
-          fitSpecToArea(pageTheme.prepare(spec), imageArea),
+          fitSpecToArea(pageTheme.prepare(spec), imageArea, rows),
           rows,
         );
         return exportPng(page, drawn.viewId, previewScale);
@@ -135,7 +135,7 @@ async function exportChart(
     request.format === "pdf" ? printableArea(request.theme.page, decorations) : imageArea;
   const drawn = await drawChart(
     page,
-    fitSpecToArea(pageTheme.prepare(request.spec), area),
+    fitSpecToArea(pageTheme.prepare(request.spec), area, request.rows),
     request.rows,
   );
   const notes = [...pageTheme.notes, ...drawn.warnings];
@@ -143,6 +143,7 @@ async function exportChart(
     return { bytes: await exportPng(page, drawn.viewId, exportScale), notes };
   }
   if (request.format === "svg") return { bytes: await exportSvg(page, drawn.viewId), notes };
+  await fitLastChart(page, area);
   return { bytes: await page.pdf(pdfOptions(pageTheme.theme, decorations)), notes };
 }
 

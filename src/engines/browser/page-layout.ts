@@ -2,7 +2,8 @@
 // header and the footer text, and sizing a chart so a single-chart PDF stays on one page.
 
 import type { Page } from "playwright-core";
-import type { Theme } from "../../contracts/index.ts";
+import type { Row, Theme } from "../../contracts/index.ts";
+import { isPlainObject } from "../../shared/index.ts";
 
 type PDFOptions = NonNullable<Parameters<Page["pdf"]>[0]>;
 
@@ -62,13 +63,16 @@ export function printableArea(
 const compositionKeys = ["hconcat", "vconcat", "concat", "facet", "repeat"];
 
 /**
- * A single view with no size of its own is fitted to the area. Composed views keep their
- * sizes; the page stylesheet scales their SVG down if it is too wide.
+ * A single view with no size of its own is fitted to the area. Facet panels with no size of
+ * their own share it (see sizeFacetPanels). Other composed views keep their sizes; for PDF the
+ * finished drawing is then scaled to the page (fitDrawingToArea).
  */
 export function fitSpecToArea(
   spec: Record<string, unknown>,
   area: { width: number; height: number },
+  rows: Row[] = [],
 ): Record<string, unknown> {
+  if (isPlainObject(spec.facet)) return sizeFacetPanels(spec, area, rows);
   const isComposed = compositionKeys.some((key) => key in spec);
   if (isComposed || "width" in spec || "height" in spec) return spec;
   return {
@@ -77,6 +81,67 @@ export function fitSpecToArea(
     height: area.height,
     autosize: { type: "fit", contains: "padding" },
   };
+}
+
+/** Room for the y axis and its title, and for the chart title and panel headers. */
+const facetAxisRoom = 80;
+const facetTitleRoom = 110;
+/** Labels drawn past a line's last point need room to the right of each panel. */
+const endLabelRoom = 120;
+const defaultFacetSpacing = 20;
+
+/**
+ * Facet panels without a size are sized so the grid fills the area: Vega-Lite would draw each
+ * panel at its default 200 x 200 px, leaving most of a page empty.
+ */
+function sizeFacetPanels(
+  spec: Record<string, unknown>,
+  area: { width: number; height: number },
+  rows: Row[],
+): Record<string, unknown> {
+  const inner = spec.spec;
+  if (!isPlainObject(inner) || "width" in inner || "height" in inner) return spec;
+  const facet = spec.facet as Record<string, unknown>;
+  const { columns, rows: panelRows } = facetGrid(facet, spec.columns, rows);
+  const hasEndLabels = hasTextLayer(inner);
+  const spacing = hasEndLabels ? endLabelRoom : defaultFacetSpacing;
+  const labelRoom = hasEndLabels ? endLabelRoom : 0;
+  const width = Math.floor(
+    (area.width - facetAxisRoom - labelRoom - spacing * (columns - 1)) / columns,
+  );
+  const height = Math.floor((area.height - facetTitleRoom - 40 * (panelRows - 1)) / panelRows);
+  return {
+    ...spec,
+    ...(hasEndLabels && spec.spacing === undefined ? { spacing } : {}),
+    spec: { ...inner, width: Math.max(width, 120), height: Math.max(height, 120) },
+  };
+}
+
+function facetGrid(
+  facet: Record<string, unknown>,
+  wrapColumns: unknown,
+  rows: Row[],
+): { columns: number; rows: number } {
+  const distinct = (definition: unknown): number => {
+    const field = isPlainObject(definition) ? definition.field : undefined;
+    if (typeof field !== "string") return 1;
+    return Math.max(1, new Set(rows.map((row) => JSON.stringify(row[field] ?? null))).size);
+  };
+  if (typeof facet.field === "string") {
+    const count = distinct(facet);
+    const columns = typeof wrapColumns === "number" ? Math.min(wrapColumns, count) : count;
+    return { columns: Math.min(columns, 4), rows: Math.ceil(count / Math.min(columns, 4)) };
+  }
+  return { columns: Math.min(distinct(facet.column), 4), rows: Math.min(distinct(facet.row), 4) };
+}
+
+function hasTextLayer(view: Record<string, unknown>): boolean {
+  if (!Array.isArray(view.layer)) return false;
+  return view.layer.some((layer) => {
+    if (!isPlainObject(layer)) return false;
+    const mark = isPlainObject(layer.mark) ? layer.mark.type : layer.mark;
+    return mark === "text";
+  });
 }
 
 export function pdfOptions(theme: Theme, decorations: PageDecorations): PDFOptions {

@@ -13,6 +13,7 @@ interface RenderPageApi {
   addText(kind: TextBlockKind, text: string): void;
   exportPng(viewId: number, scale: number): Promise<string>;
   exportSvg(viewId: number): Promise<string>;
+  fitLastChart(width: number, height: number): void;
   isFontInstalled(family: string): boolean;
 }
 
@@ -63,6 +64,17 @@ export async function exportPng(page: Page, viewId: number, scale: number): Prom
     scale,
   ] as const);
   return Buffer.from(base64, "base64");
+}
+
+/** For PDF: scales the last drawn chart to fill the printable area (see the page script). */
+export async function fitLastChart(
+  page: Page,
+  area: { width: number; height: number },
+): Promise<void> {
+  await page.evaluate(([width, height]) => clankr.fitLastChart(width, height), [
+    area.width,
+    area.height,
+  ] as const);
 }
 
 export function exportSvg(page: Page, viewId: number): Promise<string> {
