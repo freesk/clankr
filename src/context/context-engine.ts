@@ -1,9 +1,13 @@
 // The ContextEngine: budgets, capping, and the message list that is actually sent.
 //
-// The caller's history is append-only and complete; compaction never edits it. The engine keeps
-// a compacted view instead: "the first N messages of the history read as this shorter list".
-// The view changes only when a threshold is crossed, so between crossings every request starts
-// with exactly the same messages and LM Studio can reuse its prompt cache (CTX-9).
+// Write-back: `prepareMessages` returns the system prompt followed by the history to keep, and
+// the caller replaces its history with `messages.slice(1)` after every call. That keeps the
+// session from growing forever. Between threshold crossings the slice equals the input history,
+// so every request starts with exactly the same messages and LM Studio can reuse its prompt
+// cache (CTX-9).
+//
+// A caller that does not write back still works: the engine remembers a compacted view ("the
+// first N messages of the history read as this shorter list") and appends what came after.
 
 import { createHash } from "node:crypto";
 import type {
