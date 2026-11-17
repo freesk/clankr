@@ -69,7 +69,7 @@ describe.skipIf(!existsSync(ripgrepBinaryPath))("search_content", () => {
     expect(defaults).not.toContain("node_modules/pkg/index.js");
     expect(defaults).not.toContain(".git/config");
     const inside = await search({ pattern: "ship search", root: join(tree.root, ".git") });
-    expect(listedFiles(inside.text)).toEqual(["config"]);
+    expect(listedFiles(inside.text)).toEqual([".git/config"]);
   });
 
   it("applies extra excludes from the call", async () => {

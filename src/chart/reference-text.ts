@@ -17,7 +17,7 @@ Bar chart:
 render({ title: "Revenue by region", mark: "bar", encoding: {
   x: { field: "region", type: "nominal", sort: "-y" },
   y: { field: "revenue", type: "quantitative", title: "Revenue" } } }, data("r4"));
-Stacked: add color: { field: "level", type: "nominal" }. Grouped: also xOffset: { field: "level", type: "nominal" }. Horizontal: swap x and y.
+Stacked: add color: { field: "level", type: "nominal" }. Grouped: also xOffset: { field: "level", type: "nominal" }. Horizontal, largest at the top: y: { field: "region", type: "nominal", sort: "-x" } and the number on x.
 Pie: mark: "arc", encoding: { theta: { field: "amount", type: "quantitative" }, color: { field: "category", type: "nominal" } }.
 
 Lines over time: mark: { type: "line", point: true }, x: { field: "month", type: "temporal" }, several lines with color: { field: "product", type: "nominal" }.

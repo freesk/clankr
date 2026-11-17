@@ -155,7 +155,8 @@ describe("find_files backends", () => {
         paths: new FixedPathPolicy({ allowedRoots: ["/"] }),
       });
       expect(output.text).toContain("via Spotlight");
-      expect(listedPaths(output.text)).toContain("Calculator.app/");
+      // Outside the working folder, paths are listed in full so they can be passed on as-is.
+      expect(listedPaths(output.text)).toContain("/System/Applications/Calculator.app/");
     },
   );
 });
@@ -167,7 +168,7 @@ describe("find_files excludes, denied paths, ranking, and the cap", () => {
       { pattern: "index.js", root: join(tree.root, "node_modules") },
       unavailableIndex,
     );
-    expect(listedPaths(inside.text)).toEqual(["pkg/index.js"]);
+    expect(listedPaths(inside.text)).toEqual(["node_modules/pkg/index.js"]);
   });
 
   it("applies extra excludes from the call", async () => {
@@ -202,5 +203,35 @@ describe("find_files excludes, denied paths, ranking, and the cap", () => {
     expect(output.text).toContain(`result ${handle}`);
     const stored = await context.results.readText(handle, { startLine: 1, lineCount: 100 });
     expect(listedPaths(stored).length).toBeGreaterThan(2);
+  });
+});
+
+describe("find_files and the working folder", () => {
+  it("lists paths the model can pass on, and puts the working folder's matches first", async () => {
+    const { mkdtemp, writeFile: write, rm: remove } = await import("node:fs/promises");
+    const { tmpdir } = await import("node:os");
+    const elsewhere = await mkdtemp(join(tmpdir(), "clankr-elsewhere-"));
+    const working = await mkdtemp(join(tmpdir(), "clankr-working-"));
+    try {
+      await write(join(elsewhere, "report.csv"), "a\n1\n");
+      await write(join(working, "report.csv"), "a\n1\n");
+      const { context, cleanup } = await createTestToolContext({
+        workingDirectory: working,
+        paths: new FixedPathPolicy({ allowedRoots: [working, elsewhere] }),
+      });
+      try {
+        const output = await createFindFilesTool(unavailableIndex).run(
+          { pattern: "report.csv", root: elsewhere },
+          context,
+        );
+        // Outside the working folder: a full path, not one relative to the search root.
+        expect(listedPaths(output.text)).toEqual([join(elsewhere, "report.csv")]);
+      } finally {
+        await cleanup();
+      }
+    } finally {
+      await remove(elsewhere, { recursive: true, force: true });
+      await remove(working, { recursive: true, force: true });
+    }
   });
 });

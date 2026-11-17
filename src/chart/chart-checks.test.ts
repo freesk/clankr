@@ -2,8 +2,8 @@
 // layered end labels with transforms, and years on a quantitative axis.
 
 import { describe, expect, it } from "vitest";
-import { polishAxes } from "./axis-polish.ts";
 import { findMissingField } from "./field-check.ts";
+import { polishAxes, polishSpec } from "./spec-polish.ts";
 
 const rows = [
   { place: "A", area: "North", year: 2001, indexed: 100 },
@@ -87,5 +87,26 @@ describe("polishAxes", () => {
     };
     polishAxes(spec, rows);
     expect(spec.encoding.x.axis).toEqual({ format: ".0f" });
+  });
+});
+
+describe("polishSpec legends", () => {
+  it("brings back a hidden legend when nothing else labels the series", () => {
+    const spec = {
+      mark: "line",
+      encoding: {
+        x: { field: "year", type: "quantitative" },
+        color: { field: "place", type: "nominal", legend: null },
+      },
+    };
+    polishSpec(spec, rows);
+    expect(spec.encoding.color).toEqual({ field: "place", type: "nominal" });
+  });
+
+  it("keeps the legend hidden when text labels name the series", () => {
+    const color = { field: "place", type: "nominal", legend: null };
+    const spec = { layer: [{ mark: "line", encoding: { color } }, { ...endLabelLayer }] };
+    polishSpec(spec, rows);
+    expect(color.legend).toBeNull();
   });
 });

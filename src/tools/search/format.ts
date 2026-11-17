@@ -36,6 +36,16 @@ export function displayRoot(path: string): string {
   return path;
 }
 
+/**
+ * A path as the model should pass it on: relative to the working folder when inside it,
+ * otherwise in full with "~" for the home folder. Paths listed relative to some other search
+ * root were passed on as-is and then resolved against the working folder, which failed.
+ */
+export function usablePath(realPath: string, workingDirectory: string): string {
+  const relativePath = relativeDisplay(workingDirectory, realPath);
+  return relativePath.startsWith("..") ? displayRoot(realPath) : relativePath;
+}
+
 /** A path as listed under its root: relative, with "/" separators. */
 export function relativeDisplay(root: string, path: string): string {
   const inside = relative(root, path);

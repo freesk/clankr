@@ -1,13 +1,41 @@
-// Fixes the harness can make from the data alone, so the model does not have to know them,
-// applied only where the model set no format of its own:
+// Fixes the harness can make from the spec and data alone, so the model does not have to
+// know them. Axes, applied only where the model set no format of its own:
 // - Years: a field of whole numbers from 1000 to 2999 is drawn as 2000, not "2,000".
 // - Large numbers: a field reaching a million or more is drawn as 24B or 350M, not
 //   "24,000,000,000".
+// Legends: a coloured series with its legend hidden and no text labels anywhere gets its legend
+// back. A small model copies `legend: null` from the end-label example into charts that have no
+// labels, leaving lines nobody can tell apart.
 
 import type { Row } from "../contracts/index.ts";
 import { forEachView, isPlainObject, type SpecObject } from "./spec-tree.ts";
 
 const positionChannels = ["x", "y", "x2", "y2"];
+
+export function polishSpec(spec: SpecObject, rows: Row[]): void {
+  polishAxes(spec, rows);
+  restoreHiddenLegends(spec);
+}
+
+const legendChannels = ["color", "fill", "stroke", "shape", "strokeDash"];
+
+function restoreHiddenLegends(spec: SpecObject): void {
+  let hasTextMarks = false;
+  forEachView(spec, (view) => {
+    const mark = isPlainObject(view.mark) ? view.mark.type : view.mark;
+    if (mark === "text") hasTextMarks = true;
+  });
+  if (hasTextMarks) return;
+  forEachView(spec, (view) => {
+    if (!isPlainObject(view.encoding)) return;
+    for (const channel of legendChannels) {
+      const definition = view.encoding[channel];
+      if (isPlainObject(definition) && definition.legend === null && "field" in definition) {
+        delete definition.legend;
+      }
+    }
+  });
+}
 
 export function polishAxes(spec: SpecObject, rows: Row[]): void {
   forEachView(spec, (view) => {

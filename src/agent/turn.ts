@@ -65,6 +65,7 @@ async function* runRounds(
   signal: AbortSignal,
 ): AsyncGenerator<AgentEvent, TurnEndEvent> {
   const registry = new ToolRegistry(dependencies.tools);
+  const refusedCalls = new Set<string>();
   let consecutiveInvalidCalls = 0;
 
   for (let round = 1; ; round++) {
@@ -78,7 +79,12 @@ async function* runRounds(
     if (reply.cancelled) return turnEnd("cancelled");
     if (reply.toolCalls.length === 0) return turnEnd("done");
 
-    const scope: ToolCallScope = { dependencies, offered: offeredByName(plan), signal };
+    const scope: ToolCallScope = {
+      dependencies,
+      offered: offeredByName(plan),
+      signal,
+      refusedCalls,
+    };
     for (const call of reply.toolCalls) {
       const outcome = yield* executeToolCall(call, scope);
       session.messages.push(outcome.message);
@@ -86,7 +92,8 @@ async function* runRounds(
         answerOpenToolCalls(session.messages);
         return turnEnd("cancelled");
       }
-      consecutiveInvalidCalls = outcome.validity === "invalid" ? consecutiveInvalidCalls + 1 : 0;
+      const wasted = outcome.validity === "invalid" || outcome.repeatedRefusal === true;
+      consecutiveInvalidCalls = wasted ? consecutiveInvalidCalls + 1 : 0;
     }
 
     const limitHit = checkLimits(dependencies.config, round, consecutiveInvalidCalls);
@@ -133,7 +140,7 @@ function checkLimits(
   if (consecutiveInvalidCalls >= limits.maxConsecutiveInvalidCalls) {
     return turnEnd(
       "limit",
-      `Stopped after ${consecutiveInvalidCalls} invalid tool calls in a row. Try rephrasing the request.`,
+      `Stopped after ${consecutiveInvalidCalls} invalid or already-refused tool calls in a row. Try rephrasing the request.`,
     );
   }
   if (round >= limits.maxToolRoundsPerTurn) {

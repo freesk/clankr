@@ -7,7 +7,7 @@ import { z } from "zod";
 import { defaultConfig } from "../../config/index.ts";
 import type { ToolContext, ToolDefinition } from "../../contracts/index.ts";
 import { excludeParameters, excludeRulesFor } from "./excludes.ts";
-import { countLabel, displayRoot, formatDate, relativeDisplay, truncateLine } from "./format.ts";
+import { countLabel, displayRoot, formatDate, truncateLine, usablePath } from "./format.ts";
 import { buildHitList } from "./hit-list.ts";
 import { dropDeniedPaths, mapWithConcurrency, resolveExistingPath } from "./paths.ts";
 import { contentMatchQuality, rankHits } from "./ranking.ts";
@@ -85,7 +85,9 @@ async function searchContent(args: SearchContentArguments, context: ToolContext)
       header: [
         `root ${displayRoot(root)} · ${countLabel(matchCount, "matching line")} in ${countLabel(ranked.length, "file")}, best first`,
       ],
-      entries: ranked.map((file) => formatFileHit(root, file, settings.maxLineLength)),
+      entries: ranked.map((file) =>
+        formatFileHit(context.workingDirectory, file, settings.maxLineLength),
+      ),
       notes,
       cap: settings.maxHits,
       emptyMessage: "No matches.",
@@ -113,12 +115,12 @@ async function withRankInputs(root: string, files: FileMatches[]): Promise<FileH
  * notes/plan.md (3) 2025-10-01
  *   12: the matching line
  */
-function formatFileHit(root: string, file: FileHit, maxLineLength: number): string {
+function formatFileHit(workingDirectory: string, file: FileHit, maxLineLength: number): string {
   const count =
     file.lines.length >= matchesCountedPerFile
       ? `${matchesCountedPerFile}+`
       : `${file.lines.length}`;
-  const heading = `${relativeDisplay(root, file.path)} (${count}) ${formatDate(file.modifiedTimeMs)}`;
+  const heading = `${usablePath(file.path, workingDirectory)} (${count}) ${formatDate(file.modifiedTimeMs)}`;
   const lines = file.lines
     .slice(0, linesShownPerFile)
     .map((line) => `  ${line.lineNumber}: ${truncateLine(line.text.trim(), maxLineLength)}`);

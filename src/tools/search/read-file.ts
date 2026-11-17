@@ -8,7 +8,7 @@ import { z } from "zod";
 import { defaultConfig } from "../../config/index.ts";
 import { type ToolContext, type ToolDefinition, ToolError } from "../../contracts/index.ts";
 import { binaryFilePointer, looksBinary } from "./binary-content.ts";
-import { displayRoot, formatSize, relativeDisplay, truncateLine } from "./format.ts";
+import { formatSize, truncateLine, usablePath } from "./format.ts";
 import { resolveExistingPath } from "./paths.ts";
 
 /** Above this size the total line count is not worth reading the whole file for. */
@@ -42,7 +42,7 @@ interface LineRange {
 
 async function readFile(args: ReadFileArguments, context: ToolContext) {
   const { realPath, stats } = await resolveExistingPath(args.path, context);
-  const name = displayName(realPath, context.workingDirectory);
+  const name = usablePath(realPath, context.workingDirectory);
   if (stats.isDirectory()) {
     throw new ToolError(`${name} is a folder. Use list_dir to see what is in it.`);
   }
@@ -103,10 +103,4 @@ async function readLineRange(
   }
   reader.close();
   return { lines, totalLines: reachedEnd ? lineNumber : undefined };
-}
-
-/** Relative to the working folder when inside it, otherwise with "~" for the home folder. */
-function displayName(realPath: string, workingDirectory: string): string {
-  const relativePath = relativeDisplay(workingDirectory, realPath);
-  return relativePath.startsWith("..") ? displayRoot(realPath) : relativePath;
 }

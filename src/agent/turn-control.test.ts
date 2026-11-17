@@ -151,3 +151,17 @@ describe("runTurn: cancellation and reasoning", () => {
     expect(lm.requests[0]?.reasoning).toBe("on");
   });
 });
+
+describe("repeated refusals", () => {
+  it("answers a repeat of a refused call without asking again, and stops the loop", async () => {
+    const write = { path: "notes.md", text: "x" };
+    const { events, permissions } = await runOnce({
+      responses: Array.from({ length: 5 }, () => respond.toolCall("write_note", write)),
+      denied: { write_note: "Outside the allowed folders." },
+    });
+    // Asked once; the repeats were answered from memory.
+    expect(permissions.checks).toHaveLength(1);
+    expect(events.at(-1)).toMatchObject({ type: "turn-end", reason: "limit" });
+    expect(toolEnds(events).length).toBeLessThan(5);
+  });
+});

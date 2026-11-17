@@ -26,6 +26,8 @@ export interface ToolCallOutcome {
   message: Extract<ChatMessage, { role: "tool" }>;
   validity: CallValidity;
   cancelled: boolean;
+  /** The exact call was refused earlier in this turn; the turn counts these toward its limit. */
+  repeatedRefusal?: boolean;
 }
 
 export interface ToolCallScope {
@@ -33,7 +35,17 @@ export interface ToolCallScope {
   /** The tools offered this round, by name. A call to anything else is an unknown tool. */
   offered: ReadonlyMap<string, RegisteredTool>;
   signal: AbortSignal;
+  /**
+   * Calls the gate refused in this turn, as tool name plus arguments. A small model retries a
+   * refused call unchanged (six times in a row in one live run), so a repeat is answered
+   * without asking the gate again.
+   */
+  refusedCalls: Set<string>;
 }
+
+const repeatedRefusalMessage =
+  "This exact call was already refused in this turn and would be refused again. " +
+  "Do something different, or tell the user what you need and why.";
 
 /** What happened when the tool itself was asked to work. */
 type RunResult = (
@@ -71,10 +83,14 @@ export async function* executeToolCall(
   };
 
   const validity: CallValidity = !check.ok ? "invalid" : check.repaired ? "repaired" : "valid";
-  const result: RunResult =
-    tool && check.ok
+  const signature = check.ok ? callSignature(call.name, check.args) : undefined;
+  const repeatedRefusal = signature !== undefined && scope.refusedCalls.has(signature);
+  const result: RunResult = repeatedRefusal
+    ? { kind: "error", text: repeatedRefusalMessage, reason: "denied" }
+    : tool && check.ok
       ? await gateAndRun(tool.definition, check.args, scope)
       : { kind: "error", text: check.ok ? "" : check.error, reason: "invalid arguments" };
+  if (signature && result.gate?.allowed === false) scope.refusedCalls.add(signature);
 
   const auditArguments = check.ok ? check.args : check.bestEffortArgs;
   if (result.kind === "cancelled") {
@@ -92,7 +108,18 @@ export async function* executeToolCall(
   const error = result.kind === "error" ? result.reason : undefined;
   yield toolEnd(call.id, startedAt, capped.tokens, validity, error);
   await recordAudit(scope, call.name, auditArguments, result, startedAt);
-  return { message: toolMessage(call.id, capped.text), validity, cancelled: false };
+  return {
+    message: toolMessage(call.id, capped.text),
+    validity,
+    cancelled: false,
+    ...(repeatedRefusal ? { repeatedRefusal } : {}),
+  };
+}
+
+/** Tool name plus arguments with keys in a fixed order, so equal calls compare equal. */
+function callSignature(toolName: string, args: Record<string, unknown>): string {
+  const ordered = Object.fromEntries(Object.entries(args).sort(([a], [b]) => a.localeCompare(b)));
+  return `${toolName} ${JSON.stringify(ordered)}`;
 }
 
 async function gateAndRun(

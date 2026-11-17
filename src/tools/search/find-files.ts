@@ -10,7 +10,7 @@ import { excludeParameters, excludeRulesFor } from "./excludes.ts";
 import { parseCriteria } from "./file-criteria.ts";
 import { fileKinds } from "./file-kinds.ts";
 import { type FoundEntry, searchFiles } from "./file-search.ts";
-import { countLabel, displayRoot, formatDate, formatSize, relativeDisplay } from "./format.ts";
+import { countLabel, displayRoot, formatDate, formatSize, usablePath } from "./format.ts";
 import { buildHitList } from "./hit-list.ts";
 import { dropDeniedPaths, resolveFolder } from "./paths.ts";
 import { nameMatchQuality, rankHits } from "./ranking.ts";
@@ -57,23 +57,35 @@ async function findFiles(
   const root = await resolveFolder(args.root ?? homedir(), context);
   const criteria = parseCriteria(args);
   const settings = context.config.search;
-  const result = await searchFiles({
-    root,
-    criteria,
-    excludes: excludeRulesFor(root, args),
-    signal: context.signal,
-    spotlight,
-    limits: settings,
-  });
+  const search = (searchRoot: string) =>
+    searchFiles({
+      root: searchRoot,
+      criteria,
+      excludes: excludeRulesFor(searchRoot, args),
+      signal: context.signal,
+      spotlight,
+      limits: settings,
+    });
+  const result = await search(root);
+  // With no root given, the folder clankr runs in is searched too: a file the user names
+  // without a folder is usually there, and that folder may lie outside the home folder.
+  const workingFolder = context.workingDirectory;
+  if (args.root === undefined && isOutside(workingFolder, root)) {
+    const local = await search(workingFolder);
+    result.entries = [...local.entries, ...result.entries];
+  }
 
-  const allowed = await dropDeniedPaths(result.entries, context.paths);
-  const ranked = rankHits(
-    allowed.map((entry) => ({
-      ...entry,
-      matchQuality: nameMatchQuality(entry.name, criteria.pattern),
-      modifiedTimeMs: entry.stats.mtimeMs,
-      depth: relative(root, entry.path).split(sep).length - 1,
-    })),
+  const allowed = await dropDeniedPaths(uniqueByPath(result.entries), context.paths);
+  const ranked = workingFolderFirst(
+    rankHits(
+      allowed.map((entry) => ({
+        ...entry,
+        matchQuality: nameMatchQuality(entry.name, criteria.pattern),
+        modifiedTimeMs: entry.stats.mtimeMs,
+        depth: relative(root, entry.path).split(sep).length - 1,
+      })),
+    ),
+    workingFolder,
   );
 
   return buildHitList(
@@ -84,7 +96,7 @@ async function findFiles(
       header: [
         `root ${displayRoot(root)} · ${countLabel(ranked.length, "match", "matches")} via ${result.method}, best first`,
       ],
-      entries: ranked.map((entry) => formatEntry(root, entry)),
+      entries: ranked.map((entry) => formatEntry(workingFolder, entry)),
       notes: result.notes,
       cap: settings.maxHits,
       emptyMessage: "No matches.",
@@ -93,9 +105,35 @@ async function findFiles(
   );
 }
 
-/** "reports/q3.pdf  1.2 MB  2025-10-01"; folders end in "/" and show no size. */
-function formatEntry(root: string, entry: FoundEntry): string {
-  const path = relativeDisplay(root, entry.path);
+function isOutside(path: string, folder: string): boolean {
+  return relative(folder, path).startsWith("..");
+}
+
+/** The working folder can lie inside a searched root too, so a file may be found twice. */
+function uniqueByPath<Entry extends { path: string }>(entries: Entry[]): Entry[] {
+  const seen = new Set<string>();
+  const unique: Entry[] = [];
+  for (const entry of entries) {
+    if (seen.has(entry.path)) continue;
+    seen.add(entry.path);
+    unique.push(entry);
+  }
+  return unique;
+}
+
+/** Matches inside the folder clankr runs in come first; ranking order is kept otherwise. */
+function workingFolderFirst<Entry extends { path: string }>(
+  entries: Entry[],
+  workingFolder: string,
+): Entry[] {
+  const inside = entries.filter((entry) => !isOutside(entry.path, workingFolder));
+  const outside = entries.filter((entry) => isOutside(entry.path, workingFolder));
+  return [...inside, ...outside];
+}
+
+/** "reports/q3.pdf  1.2 MB  2025-10-01" — a path the model can pass on as-is (usablePath). */
+function formatEntry(workingFolder: string, entry: FoundEntry): string {
+  const path = usablePath(entry.path, workingFolder);
   const date = formatDate(entry.stats.mtimeMs);
   if (entry.stats.isDirectory()) return `${path}/  ${date}`;
   return `${path}  ${formatSize(entry.stats.size)}  ${date}`;
