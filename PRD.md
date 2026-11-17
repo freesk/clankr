@@ -471,6 +471,7 @@ Milestones give the order in which scenarios must pass. The work itself is split
 | D71 | Shared helpers | Pure helpers used by several parts live in `src/shared/` | Rule 4, no duplication |
 | D72 | zod advisory through `@lmstudio/sdk` | Kept as is: the SDK's bundled zod 3.25.76 (GHSA-mrhx-c7xc-m3w5) is accepted | User decision. The SDK only parses messages from the local LM Studio server |
 | D73 | Setting the API token | Through a guided `vix config` / `/config` flow that writes `~/.vix/config.json` at 0600; `LM_API_TOKEN` still overrides it | User decision: setup should not require editing files or the shell |
+| D74 | Data tools in one-shot mode | `vix -p … --allow-data` grants the execute-class tools (`query_sql`, `run_js`, `make_chart`) for that run only, on data files inside the allowed folders. Without it they are denied, and the denial names `--allow-data`, not `--permission-mode`. Write and delete rules are unchanged | User decision. One-shot cannot ask (D14), and PERM-5 allows an explicit session grant |
 
 Decisions internal to one part (limits, cache rules, eviction age) are recorded in that part's spec under [specs/](specs/README.md).
 
