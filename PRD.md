@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Status** | Draft v0.2 (first round of open questions resolved) |
+| **Status** | Draft v0.3 (workstream specs added; their open questions resolved) |
 | **Last updated** | 2026-11-17 |
 | **CLI name** | `vix` (after Vixen, Santa's smartest reindeer) |
 
@@ -92,7 +92,7 @@ Configuration, sessions, and the theme file live in `~/.vix/`.
 | MOD-1 | Connect to LM Studio at a configurable base URL (default `http://localhost:1234`). | P0 |
 | MOD-2 | Support LM Studio API tokens through the `LM_API_TOKEN` environment variable or config file. The token is never logged or placed in model context. | P0 |
 | MOD-3 | `/model` lists models pulled live from `GET /api/v1/models`, filtered to `type: "llm"`, showing name, parameter size, quantization, max context, loaded state, and vision / tool-use / reasoning capability. | P0 |
-| MOD-4 | Selecting a model loads it if needed, with the configured context length (default 16,384 tokens), and switches the session to it. `/model <key>` switches directly. | P0 |
+| MOD-4 | Selecting a model loads it if needed, with the configured context length (default 16,384 tokens), and switches the session to it. A model already loaded with a different context length is reloaded with the configured one. `/model <key>` switches directly. | P0 |
 | MOD-5 | The default model is `google/gemma-4-12b-qat`, overridable in config and with `--model`. | P0 |
 | MOD-6 | Capabilities gate features: models without vision do not get the image tool; models not trained for tool use produce a warning and fall back to prompt-based tool calling. | P0 |
 | MOD-7 | Context budgets are recalculated from the loaded context length whenever the model changes. On switch, the conversation is compacted if it no longer fits. | P0 |
@@ -104,14 +104,14 @@ Configuration, sessions, and the theme file live in `~/.vix/`.
 
 | ID | Requirement | Pri |
 |---|---|---|
-| SRCH-1 | `find_files`: search by name pattern (glob), type, size range, and modified/created date range, across the whole machine. | P0 |
+| SRCH-1 | `find_files`: search by name pattern (glob), type, size range, and modified/created date range, across the whole machine. With no root given it searches the home folder. | P0 |
 | SRCH-2 | Whole-disk name and metadata queries use the macOS Spotlight index (`mdfind`) so they return in well under a second. Falls back to a directory walk where the index is unavailable. | P0 |
 | SRCH-3 | `search_content`: regex or literal search inside files under a given root, backed by ripgrep. | P0 |
 | SRCH-4 | `list_dir`: list a directory with type, size, and modified time. Optional depth-limited tree. | P0 |
 | SRCH-5 | `read_file`: read a text file by line range, with line numbers. Refuses binary files with a pointer to the right tool. | P0 |
 | SRCH-6 | Results are ranked (recency, path depth, match quality), capped at a fixed count, and returned in a compact format. The full result set is stored behind a handle the model can page through. | P0 |
 | SRCH-7 | Default excludes: `node_modules`, `.git`, `Library/Caches`, system directories, and other noise. Overridable per call. | P0 |
-| SRCH-8 | Content search inside documents (PDF, `.docx`, `.xlsx`) through Spotlight's content index. | P1 |
+| SRCH-8 | Content search inside documents (PDF, `.docx`, `.xlsx`) through Spotlight's content index, falling back to local text extraction where content is not indexed. | P1 |
 | SRCH-9 | Semantic search over a user-chosen folder using a local embedding model in LM Studio. | P2 |
 
 ### 5.4 Create and edit files and folders
@@ -200,7 +200,7 @@ file ──► inspect_data ──► query_sql ──► run_js (optional) ─�
 | DATA-15 | Styling comes from `~/.vix/theme.json`: palette, fonts, page size, and an optional logo and footer. The harness applies it to every chart; the model does not set styling. A built-in default theme is used when the file is absent. | P0 |
 | DATA-16 | A short Vega-Lite reference with worked examples is added to the context only while the chart tool is in use. | P0 |
 | DATA-17 | Rows passed to a chart are capped (default 50,000). Above the cap, the tool tells the model to aggregate with `query_sql` first. | P0 |
-| DATA-18 | After rendering, the harness can show the chart image to the model to self-check, on vision-capable models. | P1 |
+| DATA-18 | After rendering, the harness can show the chart image to the model to self-check, on vision-capable models. A failed check triggers one automatic retry. | P1 |
 | DATA-19 | Multi-chart reports: several charts and text blocks composed into one PDF. | P1 |
 | DATA-20 | The SQL, chart code, and final spec are saved next to the output so a chart can be reproduced without the model. | P1 |
 
@@ -279,14 +279,17 @@ The V8 isolate was chosen over an OS-level sandbox because Apple's `sandbox-exec
 |---|---|---|
 | Runtime | Node.js 22 LTS+, TypeScript, ESM | |
 | Schema validation | zod | Also used to generate tool schemas |
+| Terminal UI | Ink | Loaded for the REPL only, to protect startup time |
+| Tests | vitest | |
 | Name / metadata search | `mdfind` (Spotlight) | Directory walk as fallback |
-| Content search | ripgrep, bundled | |
+| Content search | ripgrep, bundled | Pinned binary in `vendor/` |
+| Trash | `trash` npm package | |
 | Images | `sharp` | Resize and convert |
 | Query engine | DuckDB, embedded | Reads CSV/TSV natively; Excel reader vendored |
 | JS sandbox | `isolated-vm` | Native addon |
 | Word documents | `mammoth` or direct OOXML parsing | Tables are extracted and loaded into DuckDB |
 | Chart library | Vega-Lite, vendored | Spec validated before render |
-| Headless browser | Playwright with Chromium | Installed up front; started only for rendering |
+| Headless browser | Playwright with Chromium | Installed up front in `vendor/`; started only for rendering, closed 60 s after the last render |
 | Platform | macOS only | Spotlight and Trash are used directly |
 
 ## 7. Context strategy
@@ -371,6 +374,8 @@ A golden task suite of roughly 40 scripted tasks, covering each scenario in sect
 
 An early spike in M0 confirms that `isolated-vm` and DuckDB build and run on Node 22 on Apple silicon, since M4 depends on both.
 
+Milestones give the order in which scenarios must pass. The work itself is split into parts that can be built in parallel, each with its own spec in [specs/](specs/README.md).
+
 ## 12. Risks
 
 | Risk | Impact | Mitigation |
@@ -379,7 +384,7 @@ An early spike in M0 confirms that `isolated-vm` and DuckDB build and run on Nod
 | Model-written chart code is the only chart path, and a 12B model will often get it wrong | Chart requests fail or need several attempts | Vega-Lite spec validation with precise errors; in-context reference with examples; retry limit; vision self-check; chart success tracked as its own metric |
 | Model-written SQL reaches files or the network through DuckDB functions | Data exposure | `SELECT` only; external access restricted to inspected files; extensions locked (DATA-7); automated test |
 | `isolated-vm` is a native addon tied to specific Node and V8 versions | Install or upgrade breakage | M0 spike; pin Node and addon versions; isolate usage behind one module so it can be replaced |
-| 12B model plus Chromium on 18 GB RAM | Memory pressure, swapping | Start the browser only when rendering and close it after; 16k default context |
+| 12B model plus Chromium on 18 GB RAM | Memory pressure, swapping | Start the browser only when rendering and close it 60 s after the last render; 16k default context |
 | Compaction loses a detail the task needs | Wrong answers late in long sessions | Structured summaries; handles to stored results survive compaction |
 | Spotlight index is incomplete or disabled | Search misses files | Detect index state, fall back to a walk, tell the user |
 | Sensitive cell values are saved in transcripts | Exposure if the disk or backups are accessed | User-only permissions, `vix wipe`, `--ephemeral` (SEC-5, SEC-6) |
@@ -404,15 +409,38 @@ An early spike in M0 confirms that `isolated-vm` and DuckDB build and run on Nod
 | D11 | Sample data | Real sample values are shown to the model | Best column and chart selection; values stay local |
 | D12 | Transcripts | Saved by default, with `vix wipe` and `--ephemeral` | Resume works; the user controls retention |
 | D13 | Name | `vix` | After Vixen |
+| D14 | Approvals in one-shot mode | Anything that would prompt is denied; a `--permission-mode` flag pre-authorizes a mode for the run | There is no terminal to ask on; scripts still need a way to allow changes |
+| D15 | Activating the data tools | The harness adds the data group when a data file path appears in the prompt, an attachment, or a tool result. One prompt-cache miss per activation is accepted | `inspect_data` is itself a data tool, so the model cannot switch the group on; native tool calling is kept |
+| D16 | Stored row sets | JSON Lines | Readable by DuckDB, the isolate, and `read_result` without an engine |
+| D17 | Profiling | Tabular files through DuckDB; `.docx` through a direct OOXML parser, with its tables stored as row sets | No second reader or type inference to maintain |
+| D18 | Sub-agents | Read-only tools; 8-turn limit, configurable | No approval prompt can come from inside a sub-agent; bounds a wandering one |
+| D19 | Execute-class approvals | `query_sql` and `run_js` ask once per data file per session, and that grant covers `make_chart`. The chart's output file follows the write rules (resolves O2) | A chart task should not mean five prompts |
+| D20 | `delete` in auto-edit mode | Still asks | Keeps PERM-5 as written |
+| D21 | Terminal UI | Ink | Status line and pickers without hand-drawn terminal code |
+| D22 | Model loaded with another context length | Reload with the configured length | Predictable budgets |
+| D23 | Minimum LM Studio version | 0.4.0, warned about at startup, not enforced (resolves O4) | First version with the v1 API and tokens |
+| D24 | `find_files` default scope | The home folder; the whole machine only when asked | That is where the user's documents are |
+| D25 | Document content not indexed | Fall back to local text extraction | Search stays complete where Spotlight is not |
+| D26 | Trash | `trash` npm package | Fast, and no automation permission prompt |
+| D27 | Undo | Single level, from a full snapshot with no size limit | Matches FS-9; only the newest snapshot needs keeping |
+| D28 | Chart output location | Beside the data file, named from the chart title, never overwriting | The chart lives with its source |
+| D29 | Chart self-check | One automatic retry on a failed check | Fewer bad charts reach the user |
+| D30 | Browser lifetime | Kept for 60 s after the last render, then closed | Follow-up charts skip the cold start |
+| D31 | Vendored assets | In the project's `vendor/`: Chromium, Vega-Lite, the DuckDB Excel reader, and a pinned ripgrep. The default theme uses a macOS system font | `vix wipe` cannot touch them; nothing third-party runs at install |
+| D32 | Sessions | `/clear` starts a new session; `--resume` opens the most recent; sessions are kept until wiped; `vix wipe` confirms unless `--yes` | Extends D12 |
+| D33 | Evals | 3 runs per task, run by hand before a release; the network test uses a recording proxy and a socket monitor together | A local model cannot run in hosted CI; neither observer is complete alone |
+| D34 | Test runner | vitest | Native TypeScript and ESM |
+
+Decisions internal to one part (limits, cache rules, eviction age) are recorded in that part's spec under [specs/](specs/README.md).
 
 ### 13.2 Still open
 
 | # | Question | Leaning |
 |---|---|---|
 | O1 | Which reader handles legacy `.xls` files? DuckDB's Excel reader may cover `.xlsx` only. | Convert through a streaming reader chosen in the M0 spike |
-| O2 | In ask mode, do `query_sql` and `run_js` prompt on every call, or once per data file per session? | Once per data file |
 | O3 | Is the `vix` package name free on npm, if the tool is ever published? | Not checked; irrelevant while it is installed locally |
-| O4 | What is the minimum LM Studio version to support? | 0.4.0, the first with the v1 API and tokens |
+
+O2 and O4 were resolved by D19 and D23. Questions local to one part are listed in [specs/README.md](specs/README.md).
 
 ## Appendix A: Environment facts (2026-11-17)
 
