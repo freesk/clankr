@@ -33,7 +33,7 @@ Build `vix` as described in [PRD.md](PRD.md), part by part, following the waves 
 | 9 | image | [image.md](specs/image.md) | 1 | agent-image | done (verified) | Merged in `03bba17`: 30 image tests, full suite 50 passing, lint and build clean on main. Not verified: live LM Studio check (no `LM_API_TOKEN`), so default max edge and the image token estimate stay open |
 | 10 | inspect | [inspect.md](specs/inspect.md) | 1 | agent-data | in progress | Format detection and the `.docx` parser; tabular profiling waits for task 11's engine module |
 | 11 | sql | [sql.md](specs/sql.md) | 1 | agent-data | in progress | Vendor step for the DuckDB excel extension; locked engine module first, since inspect needs it |
-| 12 | sandbox | [sandbox.md](specs/sandbox.md) | 1 | agent-sandbox | in progress | `runInIsolate` with limits and the escape tests |
+| 12 | sandbox | [sandbox.md](specs/sandbox.md) | 1 | agent-sandbox | done (verified) | Merged in `d537642`: 55 sandbox tests incl. every escape, timeout, memory, and no-network case; full suite 105 passing, lint and build clean on main. Not verified: run through the real loop/permissions/model (wave 2) |
 | 13 | chart | [chart.md](specs/chart.md) | 1 | agent-chart-pdf | in progress | Vendor step for Vega-Lite; theme loader and spec validation |
 | 14 | pdf | [pdf.md](specs/pdf.md) | 1 | agent-chart-pdf | in progress | Vendor step for Chromium; offline `renderChart` |
 | 15 | evals | [evals.md](specs/evals.md) | 1 | agent-evals | in progress | Task format and runner, tested with `ScriptedLmClient` |
@@ -54,6 +54,11 @@ Build `vix` as described in [PRD.md](PRD.md), part by part, following the waves 
 - `ToolContext` gained optional `model` and `reasoning` (from image). agent-loop must fill both from the session; without `model`, `view_image` refuses.
 - image sends `ChatRequest.model` = `LoadedModel.instanceId`; lmstudio must accept that and map image parts to OpenAI `image_url` data URLs.
 - chart's self-check (DATA-18) can reuse `prepareImage`, `buildImageRequest`, `askAboutImage` from `src/tools/image/`.
+
+- Helpers in the isolate surface only `ToolError` messages to the model; chart's `render` must throw `ToolError` (chart agent told).
+- Row sets stored by `save` record no source handles, so a preview reading a saved handle cannot trace it to a data file. Fixing it needs an add-only contract change (lineage in `ResultProvenance`).
+- `run_js` previews omit `dataSourcePaths` when no data file is known; permissions must decide how D19 treats that (proposed: ask every time).
+- `isolateLimitsFrom(config)` lives in `src/tools/data/run-js.ts`; chart should use it after integration. The 20-row preview constant there should be shared with `query_sql`.
 
 ## Decisions made along the way
 
