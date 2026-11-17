@@ -8,7 +8,7 @@ clankr is a local AI assistant that runs entirely on your Mac. You use it throug
 - describe images and transcribe text from screenshots and scans;
 - profile spreadsheets, CSV/TSV files, and Word documents, query them with SQL, and save the results as charts or tables in the format you choose: PDF, Word, Excel, PNG, SVG, or CSV.
 
-Nothing leaves your machine. `clankr` connects only to LM Studio on `localhost`, and its tools make no network requests. Requirements and design decisions are in [PRD.md](PRD.md).
+Nothing leaves your machine. `clankr` connects only to LM Studio on `localhost`, and its tools make no network requests. Requirements and design decisions are in [PRD.md](PRD.md). How it works inside (one request step by step, the agent loop, context management, and DuckDB) is in [docs/HOW-IT-WORKS.md](docs/HOW-IT-WORKS.md).
 
 ## Requirements
 
