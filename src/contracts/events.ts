@@ -3,6 +3,12 @@
 export type TurnEndReason = "done" | "cancelled" | "error" | "limit";
 
 export type AgentEvent =
+  /**
+   * A request is about to go to the model; its first token can take many seconds. Lets the
+   * cli show "waiting for the model" and refresh the context count, which now includes the
+   * results of the round before.
+   */
+  | { type: "model-call-start" }
   | { type: "text"; delta: string }
   | { type: "reasoning"; delta: string }
   | { type: "tool-start"; callId: string; tool: string; keyArgument: string }

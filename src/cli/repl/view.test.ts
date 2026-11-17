@@ -121,7 +121,11 @@ describe("REPL view (Ink)", () => {
     const { stdin, stdout, controller } = mount(hangingTurn());
     stdin.type("go");
     stdin.type("\r");
-    await eventually(() => stdout.text.includes("Working… Ctrl+C to cancel"), "the turn to start");
+    // The live activity line replaces a bare "Working…" (it names the phase and what grows).
+    await eventually(
+      () => /writing answer · 3 words · \ds · Ctrl\+C to cancel/.test(stdout.text),
+      "the activity line",
+    );
 
     stdin.type(ctrlC);
     await eventually(() => stdout.text.includes("Cancelled."), "the cancellation");

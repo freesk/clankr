@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { defaultConfig } from "../config/index.ts";
 import { redactSecrets } from "./secrets.ts";
-import { formatStatusLine } from "./status-line.ts";
+import { formatContextUsage, formatStatusLine } from "./status-line.ts";
 import { formatToolLine, ToolLineTracker } from "./tool-lines.ts";
 
 describe("tool lines", () => {
@@ -52,7 +52,19 @@ describe("status line", () => {
       permissionMode: "ask",
       ephemeral: true,
     });
-    expect(text).toBe("google/gemma-4-12b-qat · 4.1k / 16k tokens (25%) · ask · ephemeral");
+    expect(text).toBe("google/gemma-4-12b-qat · 4,096 / 16,384 tokens (25%) · ask · ephemeral");
+  });
+
+  it("shows a change of a few dozen tokens in a large window", () => {
+    const usageOf = (usedTokens: number) => ({
+      contextLength: 32_768,
+      usedTokens,
+      byCategory: { system: 0, toolDefinitions: 0, history: 0, toolResults: 0 },
+    });
+    const before = formatContextUsage(usageOf(12_340));
+    const after = formatContextUsage(usageOf(12_390));
+    expect(before).not.toBe(after);
+    expect(after).toBe("12,390 / 32,768 tokens (38%)");
   });
 
   it("shows a placeholder before anything is measured", () => {

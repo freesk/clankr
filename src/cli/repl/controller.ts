@@ -7,13 +7,13 @@ import type {
   SlashCommand,
   SlashCommandContext,
 } from "../../contracts/index.ts";
-import { untilAborted } from "../abortable.ts";
 import { extractAttachments } from "../attachments.ts";
 import type { Harness } from "../harness.ts";
 import { errorMessage, redactSecrets } from "../secrets.ts";
 import { isSlashCommand, SlashCommandDispatcher } from "../slash-commands.ts";
-import { formatStatusLine } from "../status-line.ts";
-import { approvalKey, choiceKey, editLine, isCtrlC, questionKey } from "./key-handling.ts";
+import { statusLineFor } from "../status-line.ts";
+import { ReplDialogs } from "./dialogs.ts";
+import { approvalKey, editLine, isCtrlC } from "./key-handling.ts";
 import {
   appendEntries,
   type ChoiceOption,
@@ -21,7 +21,8 @@ import {
   type KeyPress,
   type ReplState,
 } from "./repl-state.ts";
-import { emptyLiveTurn, TurnPresenter } from "./turn-presenter.ts";
+import { emptyLiveTurn } from "./turn-presenter.ts";
+import { type ReplTurnOptions, runReplTurn } from "./turn-runner.ts";
 
 export interface ReplControllerOptions {
   harness: Harness;
@@ -44,8 +45,10 @@ export class ReplController {
   private turnAbort: AbortController | undefined;
   private exitArmed = false;
   private resolveApproval: ((answer: ApprovalAnswer) => void) | undefined;
-  /** Answers the open picker or question; undefined means it was cancelled. */
-  private resolveDialog: ((value: string | undefined) => void) | undefined;
+  private readonly dialogs = new ReplDialogs({
+    get: () => this.state,
+    update: (changes) => this.update(changes),
+  });
   private readonly exited: Promise<void>;
   private resolveExited: () => void = () => {};
 
@@ -64,6 +67,7 @@ export class ReplController {
     this.state = {
       entries: appendEntries([], { kind: "info", text: this.welcomeText() }),
       live: undefined,
+      activity: undefined,
       input: "",
       statusLine: this.statusLine(),
       notice: undefined,
@@ -96,8 +100,7 @@ export class ReplController {
       this.update({ notice: undefined });
     }
     if (this.state.approval) this.handleApprovalKey(input, key);
-    else if (this.state.choice) this.handleChoiceKey(input, key);
-    else if (this.state.question) this.handleQuestionKey(input, key);
+    else if (this.dialogs.open) this.dialogs.handleKey(input, key);
     else if (!this.state.busy) this.handleInputKey(input, key);
   }
 
@@ -108,7 +111,7 @@ export class ReplController {
       return;
     }
     this.exitArmed = true;
-    this.cancelDialog();
+    this.dialogs.cancel();
     if (this.turnAbort && !this.turnAbort.signal.aborted) {
       this.turnAbort.abort();
       this.answerApproval({ kind: "deny", feedback: "The user cancelled the turn." });
@@ -150,20 +153,12 @@ export class ReplController {
   }
 
   choose(prompt: string, options: ChoiceOption[]): Promise<string | undefined> {
-    this.cancelDialog();
-    return new Promise((resolve) => {
-      this.resolveDialog = resolve;
-      this.update({ choice: { prompt, options, filter: "", highlighted: 0 } });
-    });
+    return this.dialogs.choose(prompt, options);
   }
 
   /** A typed answer on the input line. Ctrl+C or Esc resolves to undefined. */
   ask(prompt: string, options: { secret?: boolean } = {}): Promise<string | undefined> {
-    this.cancelDialog();
-    return new Promise((resolve) => {
-      this.resolveDialog = resolve;
-      this.update({ question: { prompt, secret: options.secret === true, answer: "" } });
-    });
+    return this.dialogs.ask(prompt, options);
   }
 
   private async runTurn(line: string): Promise<void> {
@@ -175,23 +170,21 @@ export class ReplController {
     const abort = new AbortController();
     this.turnAbort = abort;
     this.update({ busy: true, live: emptyLiveTurn });
-    const presenter = new TurnPresenter(this.harness.config, this.showReasoning);
     try {
-      const events = this.harness.runTurn(input, abort.signal);
-      for await (const event of untilAborted(events, abort.signal)) {
-        this.setState(presenter.apply(this.state, event));
-      }
-      if (!presenter.finished) {
-        const reason = abort.signal.aborted ? "cancelled" : "error";
-        this.setState(presenter.endTurn(this.state, reason));
-      }
-    } catch (error) {
-      const reason = abort.signal.aborted ? "cancelled" : "error";
-      this.setState(presenter.endTurn(this.state, reason, errorMessage(error)));
+      await runReplTurn(this.turnOptions(), input, abort.signal);
     } finally {
       this.turnAbort = undefined;
-      this.update({ busy: false, live: undefined, statusLine: this.statusLine() });
+      this.update({ busy: false, live: undefined, activity: undefined });
     }
+  }
+
+  private turnOptions(): ReplTurnOptions {
+    return {
+      harness: this.harness,
+      showReasoning: this.showReasoning,
+      store: { get: this.getState, set: (next) => this.setState(next) },
+      statusLine: () => this.statusLine(),
+    };
   }
 
   private async runSlashCommand(line: string): Promise<void> {
@@ -234,24 +227,6 @@ export class ReplController {
     else if (result.kind === "update") this.update({ approval: result.approval });
   }
 
-  private handleChoiceKey(input: string, key: KeyPress): void {
-    const choice = this.state.choice;
-    if (!choice) return;
-    const result = choiceKey(choice, input, key);
-    if (result.kind === "select") this.finishDialog(result.value);
-    else if (result.kind === "cancel") this.finishDialog(undefined);
-    else if (result.kind === "update") this.update({ choice: result.choice });
-  }
-
-  private handleQuestionKey(input: string, key: KeyPress): void {
-    const question = this.state.question;
-    if (!question) return;
-    const result = questionKey(question, input, key);
-    if (result.kind === "submit") this.finishDialog(result.answer);
-    else if (result.kind === "cancel") this.finishDialog(undefined);
-    else if (result.kind === "update") this.update({ question: result.question });
-  }
-
   private answerApproval(answer: ApprovalAnswer): void {
     const resolve = this.resolveApproval;
     this.resolveApproval = undefined;
@@ -259,20 +234,9 @@ export class ReplController {
     resolve?.(answer);
   }
 
-  private cancelDialog(): void {
-    if (this.resolveDialog) this.finishDialog(undefined);
-  }
-
-  private finishDialog(value: string | undefined): void {
-    const resolve = this.resolveDialog;
-    this.resolveDialog = undefined;
-    this.update({ choice: undefined, question: undefined });
-    resolve?.(value);
-  }
-
   private exit(): void {
     this.turnAbort?.abort();
-    this.cancelDialog();
+    this.dialogs.cancel();
     this.update({ exited: true });
     this.resolveExited();
   }
@@ -283,13 +247,7 @@ export class ReplController {
   }
 
   private statusLine(): string {
-    const session = this.harness.session();
-    return formatStatusLine({
-      modelKey: session.model?.key ?? this.harness.config.model.default,
-      usage: this.harness.usage(),
-      permissionMode: session.permissionMode,
-      ephemeral: session.ephemeral,
-    });
+    return statusLineFor(this.harness);
   }
 
   private welcomeText(): string {

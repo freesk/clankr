@@ -143,7 +143,7 @@ describe("runTurn: cancellation and reasoning", () => {
         respond.reasoningThenText("SECRET-REASONING", "answer <think>INLINE-REASONING</think>ok"),
       ],
     });
-    expect(events[0]).toEqual({ type: "reasoning", delta: "SECRET-REASONING" });
+    expect(events[1]).toEqual({ type: "reasoning", delta: "SECRET-REASONING" });
     const stored = JSON.stringify(session.messages);
     expect(stored).not.toContain("SECRET-REASONING");
     expect(stored).not.toContain("INLINE-REASONING");

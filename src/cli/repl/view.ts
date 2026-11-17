@@ -38,7 +38,9 @@ function LiveView({ live }: { live: LiveTurn }): ReactElement {
 
 function InputLine({ state }: { state: ReplState }): ReactElement {
   if (state.busy) {
-    return h(Text, { dimColor: true }, "Working… Ctrl+C to cancel");
+    // A slash command has no activity line of its own.
+    const activity = state.activity ?? "Working…";
+    return h(Text, { dimColor: true }, `${activity} · Ctrl+C to cancel`);
   }
   return h(
     Text,

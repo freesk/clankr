@@ -26,6 +26,8 @@ export class TurnPresenter {
   apply(state: ReplState, event: AgentEvent): ReplState {
     const live = state.live ?? emptyLiveTurn;
     switch (event.type) {
+      case "model-call-start":
+        return state;
       case "text":
         return { ...state, live: { ...live, text: live.text + event.delta } };
       case "reasoning":

@@ -57,6 +57,8 @@ export interface PendingQuestion {
 export interface ReplState {
   entries: TranscriptEntry[];
   live: LiveTurn | undefined;
+  /** The dim line that shows a running turn is working, such as `⠙ thinking · 412 words · 18s`. */
+  activity: string | undefined;
   input: string;
   statusLine: string;
   /** A one-line hint, such as "Press Ctrl+C again to exit". */
