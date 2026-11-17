@@ -74,6 +74,22 @@ const dataSchema = z.object({
   isolateMemoryLimitMb: z.number().int().positive().default(128),
 });
 
+const searchSchema = z.object({
+  /** Hits a search tool lists before storing the rest behind a handle (SRCH-6). */
+  maxHits: z.number().int().positive().default(50),
+  /** Entries `list_dir` lists before storing the rest behind a handle. */
+  maxListEntries: z.number().int().positive().default(200),
+  /** Longer lines are cut with a marker, so one minified line cannot fill the result. */
+  maxLineLength: z.number().int().positive().default(300),
+  /** Lines `read_file` returns when the call names no line count. */
+  readFileDefaultLines: z.number().int().positive().default(200),
+  /** Most paths taken from one Spotlight query before asking the model to narrow it. */
+  spotlightMaxResults: z.number().int().positive().default(20_000),
+  /** Bounds on the directory walk that replaces Spotlight where the index is unavailable. */
+  walkTimeLimitMs: z.number().int().positive().default(10_000),
+  walkMaxEntries: z.number().int().positive().default(500_000),
+});
+
 export const configSchema = z.object({
   lmStudio: lmStudioSchema.prefault({}),
   model: modelSchema.prefault({}),
@@ -83,6 +99,7 @@ export const configSchema = z.object({
   subagents: subagentsSchema.prefault({}),
   image: imageSchema.prefault({}),
   data: dataSchema.prefault({}),
+  search: searchSchema.prefault({}),
 });
 
 export type Config = z.infer<typeof configSchema>;
