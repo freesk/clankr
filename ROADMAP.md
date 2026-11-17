@@ -49,6 +49,8 @@ Build `clankr` as described in [PRD.md](PRD.md), part by part, following the wav
 | 26 | Model load settings (D78) | [lmstudio.md](specs/lmstudio.md) | 3 | main session | done (verified) | `parallel` default 1 plus optional flash attention, KV-cache-on-GPU, batch size; reload on mismatch. Live: clankr reloaded a parallel-4 instance as parallel 1 with a notice |
 | 27 | Chart guidance: months on a bar chart | [chart.md](specs/chart.md) | 3 | unassigned | todo | Live S8: the model typed month as temporal, so bars were thin and January was labelled "2025". Add guidance or an example (ordinal month for bar charts) to the Vega-Lite reference |
 | 30 | Chart correctness on a real request | [chart.md](specs/chart.md) | 3 | unassigned | todo | Live, Gemma 12B, "population indexed to 2001=100, panels by metro, labels at line ends" on Alberta data: the pipeline now completes, but the chart is wrong. (1) The model normalised in run_js and got it wrong (Calgary 141 in 2001; true 2025 indexes: Chestermere 722, Airdrie 428, Calgary 178). Steer indexing to SQL window functions in the reference text. (2) It faceted on a field that does not exist (`Metro`), and the field check did not catch it: extend it to facet/row/column and every encoding channel. (3) Legend kept, end labels overlap, year axis shown as "2,000": add worked examples (end-of-line labels, derived grouping column in SQL, year format). (4) The vision self-check passed a chart with an "undefined" panel header |
+| 31 | REPL shows real progress; token count updates | [cli.md](specs/cli.md), [context.md](specs/context.md) | 3 | agent-progress | in progress | User: "Working..." does not show real work; the status line's token count never changes. Show live activity (phase, running tool + elapsed, streamed tokens, reasoning words) and find why usage is stale |
+| 32 | Multi-chart PDFs and chart summaries | [chart.md](specs/chart.md), [pdf.md](specs/pdf.md) | 3 | agent-reports | in progress | User: several charts go into one portrait PDF, a page each; each chart gets its own short summary (one summary when there is one chart) |
 | 18 | real eval harness and golden run | [evals.md](specs/evals.md) | 3 | unassigned | blocked | Waits for task 17; then implement `evals/runner/real-harness.ts` and run the golden suite against the model |
 
 ## How wave 1 runs
@@ -64,6 +66,10 @@ Build `clankr` as described in [PRD.md](PRD.md), part by part, following the wav
 
 - User decisions 2026-11-17: the API token is entered through a `/config` setup flow (task 20); keep zod as is (D72); Gemma 4 12B QAT is now downloaded.
 - Two agents in worktrees (tasks 20, 21). The main session does live checks (task 22) itself, so the token never goes into a file or an agent prompt.
+
+## Chart eval batches (2026-11-17, live, Gemma 12B, Alberta data in a scratch copy)
+
+- Batch 1–4 findings fixed in `dfba873`, `f074c35`, `df365e9`, `714867b`, `c8d4cbc`: population prompt correct (panels, end labels); grants sorted with 24B axis; OHS bars; water now COUNT(DISTINCT) via the profile hint (2/2 runs); FOIP correct. Open: shelter "average nightly occupancy" read per shelter row in all runs (wording ambiguity).
 
 ## Next steps (after wave 2)
 
