@@ -1,0 +1,128 @@
+[
+  {
+    "id": "s8-headcount-stacked-bar",
+    "scenario": "S8",
+    "title": "Stacked bar chart to PDF",
+    "requires": ["inspect_data", "query_sql", "make_chart"],
+    "chart": true,
+    "fixtures": [
+      {
+        "kind": "generated",
+        "generator": "xlsx",
+        "path": "headcount_2025.xlsx",
+        "options": { "dataset": "headcount" }
+      }
+    ],
+    "steps": [
+      {
+        "prompt": "Chart monthly headcount by department from headcount_2025.xlsx as a stacked bar, save as headcount.pdf."
+      }
+    ],
+    "assertions": [
+      { "kind": "pdf-created", "directory": "." },
+      {
+        "kind": "chart-spec",
+        "directory": ".",
+        "mark": "bar",
+        "fields": ["month", "department"],
+        "stacked": true
+      }
+    ]
+  },
+  {
+    "id": "s8-engineering-line",
+    "scenario": "S8",
+    "title": "Line chart of one filtered series",
+    "requires": ["inspect_data", "query_sql", "make_chart"],
+    "chart": true,
+    "fixtures": [
+      {
+        "kind": "generated",
+        "generator": "xlsx",
+        "path": "headcount_2025.xlsx",
+        "options": { "dataset": "headcount" }
+      }
+    ],
+    "steps": [
+      {
+        "prompt": "Make a line chart of Engineering headcount by month from headcount_2025.xlsx and save it as engineering.pdf."
+      }
+    ],
+    "assertions": [
+      { "kind": "pdf-created", "directory": "." },
+      { "kind": "chart-spec", "directory": ".", "mark": "line", "fields": ["month"] }
+    ]
+  },
+  {
+    "id": "s8-million-row-bar",
+    "scenario": "S8",
+    "title": "Chart an aggregate of a 1,000,000-row file (M4 exit criterion)",
+    "requires": ["inspect_data", "query_sql", "make_chart"],
+    "chart": true,
+    "fixtures": [
+      {
+        "kind": "generated",
+        "generator": "csv",
+        "path": "sales.csv",
+        "options": { "dataset": "sales", "rows": 1000000 }
+      }
+    ],
+    "steps": [
+      {
+        "prompt": "Chart total quantity by region from sales.csv as a bar chart and save it as quantity-by-region.pdf."
+      }
+    ],
+    "assertions": [
+      { "kind": "pdf-created", "directory": "." },
+      { "kind": "chart-spec", "directory": ".", "mark": "bar", "fields": ["region"] }
+    ]
+  },
+  {
+    "id": "s8-average-salary-bar",
+    "scenario": "S8",
+    "title": "Bar chart of an average per group",
+    "requires": ["inspect_data", "query_sql", "make_chart"],
+    "chart": true,
+    "fixtures": [
+      {
+        "kind": "generated",
+        "generator": "xlsx",
+        "path": "payroll_2025.xlsx",
+        "options": { "dataset": "payroll" }
+      }
+    ],
+    "steps": [
+      {
+        "prompt": "Plot the average annual salary per department in payroll_2025.xlsx as a bar chart, saved as salaries.pdf."
+      }
+    ],
+    "assertions": [
+      { "kind": "pdf-created", "directory": "." },
+      { "kind": "chart-spec", "directory": ".", "mark": "bar", "fields": ["department"] }
+    ]
+  },
+  {
+    "id": "s8-orders-by-product-pie",
+    "scenario": "S8",
+    "title": "Pie chart of counts per category",
+    "requires": ["inspect_data", "query_sql", "make_chart"],
+    "chart": true,
+    "fixtures": [
+      {
+        "kind": "generated",
+        "generator": "xlsx",
+        "path": "sales_sample.xlsx",
+        "options": { "dataset": "sales", "rows": 1000 }
+      }
+    ],
+    "steps": [
+      {
+        "prompt": "Make a pie chart of the number of orders per product in sales_sample.xlsx and save it as products.pdf."
+      }
+    ],
+    "assertions": [
+      { "kind": "pdf-created", "directory": "." },
+      { "kind": "chart-spec", "directory": ".", "mark": "arc", "fields": ["product"] }
+    ]
+  }
+]

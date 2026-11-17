@@ -1,0 +1,85 @@
+[
+  {
+    "id": "s4-config-port",
+    "scenario": "S4",
+    "title": "Change one value in a config file",
+    "requires": ["read_file", "edit_file"],
+    "fixtures": [
+      {
+        "kind": "text",
+        "path": "config.yaml",
+        "content": "server:\n  host: 127.0.0.1\n  port: 3000\nlogging:\n  level: info\n"
+      }
+    ],
+    "steps": [{ "prompt": "In config.yaml, change the port to 8080." }],
+    "assertions": [
+      { "kind": "file-contains", "path": "config.yaml", "text": "port: 8080" },
+      { "kind": "file-not-contains", "path": "config.yaml", "text": "3000" },
+      { "kind": "file-contains", "path": "config.yaml", "text": "level: info" }
+    ]
+  },
+  {
+    "id": "s4-fix-typo",
+    "scenario": "S4",
+    "title": "Fix a typo everywhere in a file",
+    "requires": ["read_file", "edit_file"],
+    "fixtures": [
+      {
+        "kind": "text",
+        "path": "README.md",
+        "content": "# Mailer\n\nYou will recieve a confirmation.\nIf you do not recieve it, check spam.\n"
+      }
+    ],
+    "steps": [{ "prompt": "Fix the spelling of 'recieve' in README.md." }],
+    "assertions": [
+      { "kind": "file-not-contains", "path": "README.md", "text": "recieve" },
+      { "kind": "file-contains", "path": "README.md", "text": "do not receive it" }
+    ]
+  },
+  {
+    "id": "s4-rename-identifier",
+    "scenario": "S4",
+    "title": "Rename an identifier in a source file",
+    "requires": ["read_file", "edit_file"],
+    "fixtures": [
+      {
+        "kind": "text",
+        "path": "src/user.js",
+        "content": "export function getUsr(id) {\n  return { id };\n}\n\nexport const admin = getUsr(1);\n"
+      }
+    ],
+    "steps": [
+      {
+        "prompt": "Rename the function getUsr to getUser in src/user.js, including where it is called."
+      }
+    ],
+    "assertions": [
+      { "kind": "file-not-contains", "path": "src/user.js", "text": "getUsr" },
+      { "kind": "file-contains", "path": "src/user.js", "text": "function getUser(id)" },
+      { "kind": "file-contains", "path": "src/user.js", "text": "getUser(1)" }
+    ]
+  },
+  {
+    "id": "s4-append-env-line",
+    "scenario": "S4",
+    "title": "Add a line and keep the rest",
+    "requires": ["read_file", "edit_file"],
+    "fixtures": [
+      {
+        "kind": "text",
+        "path": "app.env",
+        "content": "PORT=8080\nDATABASE_URL=postgres://localhost/app\n"
+      }
+    ],
+    "steps": [{ "prompt": "Add LOG_LEVEL=debug to app.env without changing the existing lines." }],
+    "assertions": [
+      { "kind": "file-contains", "path": "app.env", "text": "LOG_LEVEL=debug" },
+      { "kind": "file-contains", "path": "app.env", "text": "PORT=8080" },
+      {
+        "kind": "file-contains",
+        "path": "app.env",
+        "text": "DATABASE_URL=postgres://localhost/app"
+      }
+    ]
+  }
+]

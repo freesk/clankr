@@ -1,0 +1,67 @@
+[
+  {
+    "id": "s3-taxes-folder-checklist",
+    "scenario": "S3",
+    "title": "Create a folder with a file inside",
+    "requires": ["make_dir", "write_file"],
+    "fixtures": [],
+    "steps": [
+      {
+        "prompt": "Create a 2026-taxes folder with a checklist.md inside. The checklist should list W-2, 1099, and receipts."
+      }
+    ],
+    "assertions": [
+      { "kind": "directory-exists", "path": "2026-taxes" },
+      { "kind": "file-contains", "path": "2026-taxes/checklist.md", "text": "1099" },
+      { "kind": "file-contains", "path": "2026-taxes/checklist.md", "text": "W-2" }
+    ]
+  },
+  {
+    "id": "s3-meeting-note",
+    "scenario": "S3",
+    "title": "Create a file in an existing folder",
+    "requires": ["write_file"],
+    "fixtures": [{ "kind": "directory", "path": "notes" }],
+    "steps": [
+      {
+        "prompt": "Create notes/meeting-2026-03-01.md with a heading 'Attendees' and the names Robin and Sam."
+      }
+    ],
+    "assertions": [
+      { "kind": "file-contains", "path": "notes/meeting-2026-03-01.md", "text": "Attendees" },
+      { "kind": "file-contains", "path": "notes/meeting-2026-03-01.md", "text": "Robin" },
+      { "kind": "file-contains", "path": "notes/meeting-2026-03-01.md", "text": "Sam" }
+    ]
+  },
+  {
+    "id": "s3-nested-project-folders",
+    "scenario": "S3",
+    "title": "Create nested folders",
+    "requires": ["make_dir"],
+    "fixtures": [],
+    "steps": [
+      { "prompt": "Set up a project skeleton: projects/alpha with docs and src folders inside it." }
+    ],
+    "assertions": [
+      { "kind": "directory-exists", "path": "projects/alpha/docs" },
+      { "kind": "directory-exists", "path": "projects/alpha/src" }
+    ]
+  },
+  {
+    "id": "s3-shopping-list",
+    "scenario": "S3",
+    "title": "Write a list to a new text file",
+    "requires": ["write_file"],
+    "fixtures": [],
+    "steps": [
+      {
+        "prompt": "Write a shopping list with eggs, milk, and bread to shopping.txt, one item per line."
+      }
+    ],
+    "assertions": [
+      { "kind": "file-contains", "path": "shopping.txt", "text": "eggs" },
+      { "kind": "file-contains", "path": "shopping.txt", "text": "milk" },
+      { "kind": "file-contains", "path": "shopping.txt", "text": "bread" }
+    ]
+  }
+]

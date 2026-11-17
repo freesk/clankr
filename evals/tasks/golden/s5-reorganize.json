@@ -1,0 +1,98 @@
+[
+  {
+    "id": "s5-move-screenshots",
+    "scenario": "S5",
+    "title": "Move every file matching a pattern into another folder",
+    "requires": ["move"],
+    "fixtures": [
+      {
+        "kind": "generated",
+        "generator": "png-shape",
+        "path": "Desktop/Screenshot 2025-03-01 at 10.00.00.png",
+        "options": { "color": "red" }
+      },
+      {
+        "kind": "generated",
+        "generator": "png-shape",
+        "path": "Desktop/Screenshot 2025-03-02 at 11.30.00.png",
+        "options": { "color": "blue" }
+      },
+      {
+        "kind": "generated",
+        "generator": "png-shape",
+        "path": "Desktop/Screenshot 2025-03-05 at 09.15.00.png",
+        "options": { "color": "green" }
+      },
+      { "kind": "text", "path": "Desktop/todo.txt", "content": "stay on the desktop\n" },
+      { "kind": "directory", "path": "Pictures" }
+    ],
+    "steps": [{ "prompt": "Move every screenshot from Desktop into Pictures/Screenshots." }],
+    "assertions": [
+      { "kind": "file-count", "directory": "Pictures/Screenshots", "suffix": ".png", "count": 3 },
+      { "kind": "file-count", "directory": "Desktop", "suffix": ".png", "count": 0 },
+      { "kind": "file-unchanged", "path": "Desktop/todo.txt" }
+    ]
+  },
+  {
+    "id": "s5-rename-file",
+    "scenario": "S5",
+    "title": "Rename a file",
+    "requires": ["move"],
+    "fixtures": [
+      { "kind": "text", "path": "reports/report-final-FINAL-v2.md", "content": "# Report\n" }
+    ],
+    "steps": [{ "prompt": "Rename reports/report-final-FINAL-v2.md to reports/report.md." }],
+    "assertions": [
+      { "kind": "file-exists", "path": "reports/report.md" },
+      { "kind": "file-absent", "path": "reports/report-final-FINAL-v2.md" }
+    ]
+  },
+  {
+    "id": "s5-copy-folder",
+    "scenario": "S5",
+    "title": "Copy a folder and keep the original",
+    "requires": ["copy"],
+    "fixtures": [
+      { "kind": "text", "path": "invoices/2025-01.txt", "content": "January invoice\n" },
+      { "kind": "text", "path": "invoices/2025-02.txt", "content": "February invoice\n" }
+    ],
+    "steps": [{ "prompt": "Back up the invoices folder to backup/invoices." }],
+    "assertions": [
+      { "kind": "file-contains", "path": "backup/invoices/2025-01.txt", "text": "January" },
+      { "kind": "file-contains", "path": "backup/invoices/2025-02.txt", "text": "February" },
+      { "kind": "file-unchanged", "path": "invoices/2025-01.txt" },
+      { "kind": "file-unchanged", "path": "invoices/2025-02.txt" }
+    ]
+  },
+  {
+    "id": "s5-sort-downloads-by-type",
+    "scenario": "S5",
+    "title": "Sort files into folders by type",
+    "requires": ["move", "make_dir"],
+    "fixtures": [
+      {
+        "kind": "generated",
+        "generator": "pdf",
+        "path": "Downloads/manual.pdf",
+        "options": { "lines": ["Manual"] }
+      },
+      {
+        "kind": "generated",
+        "generator": "pdf",
+        "path": "Downloads/statement.pdf",
+        "options": { "lines": ["Statement"] }
+      },
+      { "kind": "text", "path": "Downloads/readme.txt", "content": "keep me here\n" }
+    ],
+    "steps": [
+      {
+        "prompt": "Move all PDFs in Downloads into Documents/PDFs. Leave other files where they are."
+      }
+    ],
+    "assertions": [
+      { "kind": "file-count", "directory": "Documents/PDFs", "suffix": ".pdf", "count": 2 },
+      { "kind": "file-count", "directory": "Downloads", "suffix": ".pdf", "count": 0 },
+      { "kind": "file-exists", "path": "Downloads/readme.txt" }
+    ]
+  }
+]

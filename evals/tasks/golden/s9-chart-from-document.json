@@ -1,0 +1,95 @@
+[
+  {
+    "id": "s9-second-table",
+    "scenario": "S9",
+    "title": "Plot the second table in a document",
+    "requires": ["inspect_data", "make_chart"],
+    "chart": true,
+    "fixtures": [
+      {
+        "kind": "generated",
+        "generator": "docx",
+        "path": "board-report.docx",
+        "options": { "document": "board-report" }
+      }
+    ],
+    "steps": [{ "prompt": "Plot the second table in board-report.docx and save it as a PDF." }],
+    "assertions": [
+      { "kind": "pdf-created", "directory": "." },
+      { "kind": "chart-spec", "directory": ".", "fields": ["office", "headcount"] }
+    ]
+  },
+  {
+    "id": "s9-revenue-bar",
+    "scenario": "S9",
+    "title": "Bar chart of the first table in a document",
+    "requires": ["inspect_data", "make_chart"],
+    "chart": true,
+    "fixtures": [
+      {
+        "kind": "generated",
+        "generator": "docx",
+        "path": "board-report.docx",
+        "options": { "document": "board-report" }
+      }
+    ],
+    "steps": [
+      {
+        "prompt": "Make a bar chart of revenue by quarter from the first table in board-report.docx, saved as revenue.pdf."
+      }
+    ],
+    "assertions": [
+      { "kind": "pdf-created", "directory": "." },
+      { "kind": "chart-spec", "directory": ".", "mark": "bar", "fields": ["quarter", "revenue"] }
+    ]
+  },
+  {
+    "id": "s9-revenue-line",
+    "scenario": "S9",
+    "title": "Line chart from a document table",
+    "requires": ["inspect_data", "make_chart"],
+    "chart": true,
+    "fixtures": [
+      {
+        "kind": "generated",
+        "generator": "docx",
+        "path": "reports/board-report.docx",
+        "options": { "document": "board-report" }
+      }
+    ],
+    "steps": [
+      {
+        "prompt": "Chart the quarterly revenue in reports/board-report.docx as a line chart and save it as reports/revenue-trend.pdf."
+      }
+    ],
+    "assertions": [
+      { "kind": "pdf-created", "directory": "reports" },
+      { "kind": "chart-spec", "directory": "reports", "mark": "line", "fields": ["quarter"] }
+    ]
+  },
+  {
+    "id": "s9-headcount-by-office",
+    "scenario": "S9",
+    "title": "Bar chart of a named table",
+    "requires": ["inspect_data", "make_chart"],
+    "chart": true,
+    "fixtures": [
+      {
+        "kind": "generated",
+        "generator": "docx",
+        "path": "board-report.docx",
+        "options": { "document": "board-report" }
+      }
+    ],
+    "steps": [
+      {
+        "prompt": "Chart the 'Headcount by office' table in board-report.docx as a bar chart, save as offices.pdf, and tell me the total headcount."
+      }
+    ],
+    "assertions": [
+      { "kind": "pdf-created", "directory": "." },
+      { "kind": "chart-spec", "directory": ".", "mark": "bar", "fields": ["office"] },
+      { "kind": "answer-number", "value": 154 }
+    ]
+  }
+]
