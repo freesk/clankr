@@ -4,6 +4,7 @@
 import type { Config } from "../config/schema.ts";
 import type { ChatMessage, LmClient, LoadedModel, ReasoningSetting } from "./model.ts";
 import type { PermissionMode } from "./permissions.ts";
+import type { ToolGroup } from "./tools.ts";
 
 /** Every location under `~/.vix/`. Nobody else builds a path there. */
 export interface VixPaths {
@@ -55,6 +56,11 @@ export interface SessionState {
   grants: SessionGrants;
   reasoning: ReasoningSetting;
   ephemeral: boolean;
+  /**
+   * Tool groups the agent loop switched on during the session, such as "data" once a data
+   * file path appears (D15). Kept here so the switch survives eviction, compaction, and resume.
+   */
+  activatedToolGroups?: ToolGroup[];
 }
 
 export interface SlashCommandContext {
