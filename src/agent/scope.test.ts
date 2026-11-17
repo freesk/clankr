@@ -88,7 +88,10 @@ describe("tool scoping", () => {
       runTurn(
         kit.dependencies,
         session,
-        { text: "profile this", attachmentPaths: ["/d/a.csv"] },
+        {
+          text: "profile this",
+          attachments: [{ path: "/d/a.csv", kind: "file", label: "[a.csv]" }],
+        },
         new AbortController().signal,
       ),
     );

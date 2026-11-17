@@ -96,7 +96,7 @@ describe("runTurn: basic turns", () => {
       runTurn(
         kit.dependencies,
         session,
-        { text: "look", attachmentPaths: ["/tmp/a.png"] },
+        { text: "look", attachments: [{ path: "/tmp/a.png", kind: "image", label: "[a.png]" }] },
         new AbortController().signal,
       ),
     );

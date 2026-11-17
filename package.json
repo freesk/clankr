@@ -30,7 +30,9 @@
     "@duckdb/node-api": "1.4.5-r.1",
     "@lmstudio/sdk": "2.1.0",
     "diff": "9.0.0",
+    "ink": "8.0.0",
     "isolated-vm": "6.2.0",
+    "react": "19.3.1",
     "sharp": "0.35.5",
     "trash": "10.1.1",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz",
@@ -39,6 +41,7 @@
   "devDependencies": {
     "@biomejs/biome": "^2.6.8",
     "@types/node": "^22.20.5",
+    "@types/react": "19.3.0",
     "typescript": "^7.0.2",
     "vitest": "^5.1.0"
   }

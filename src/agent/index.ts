@@ -13,7 +13,7 @@
 //   session       SessionState. `messages` is updated in place during the turn; `model`
 //                 must be set; `reasoning` is sent with each request; the loop records
 //                 switched-on tool groups in `activatedToolGroups`.
-//   input         The user's text, or { text, attachmentPaths } (CLI-10).
+//   input         The user's text, or { text, attachments } (CLI-10).
 //   signal        Aborting it cancels the model call and the running tool.
 //
 // Events: text and reasoning deltas, a tool-start / tool-end pair per call (tool-end carries

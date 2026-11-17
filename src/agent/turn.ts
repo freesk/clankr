@@ -162,9 +162,9 @@ function answerOpenToolCalls(history: ChatMessage[]): void {
 
 /** Attached paths are listed after the prose, where the data-file check also sees them. */
 function userMessage(input: TurnInput): ChatMessage {
-  const attachments = input.attachmentPaths ?? [];
+  const attachments = input.attachments ?? [];
   if (attachments.length === 0) return { role: "user", content: input.text };
-  const list = attachments.map((path) => `- ${path}`).join("\n");
+  const list = attachments.map((attachment) => `- ${attachment.path}`).join("\n");
   return { role: "user", content: `${input.text}\n\nAttached files:\n${list}` };
 }
 

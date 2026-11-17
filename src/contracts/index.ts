@@ -11,6 +11,7 @@ export type * from "./model.ts";
 export type * from "./permissions.ts";
 export type * from "./results.ts";
 export type * from "./session.ts";
+export type * from "./session-store.ts";
 export type {
   PermissionClass,
   ToolContext,
