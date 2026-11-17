@@ -34,8 +34,8 @@ Build `vix` as described in [PRD.md](PRD.md), part by part, following the waves 
 | 10 | inspect | [inspect.md](specs/inspect.md) | 1 | agent-data | in progress | Format detection and the `.docx` parser; tabular profiling waits for task 11's engine module |
 | 11 | sql | [sql.md](specs/sql.md) | 1 | agent-data | in progress | Vendor step for the DuckDB excel extension; locked engine module first, since inspect needs it |
 | 12 | sandbox | [sandbox.md](specs/sandbox.md) | 1 | agent-sandbox | done (verified) | Merged in `d537642`: 55 sandbox tests incl. every escape, timeout, memory, and no-network case; full suite 105 passing, lint and build clean on main. Not verified: run through the real loop/permissions/model (wave 2) |
-| 13 | chart | [chart.md](specs/chart.md) | 1 | agent-chart-pdf | in progress | Vendor step for Vega-Lite; theme loader and spec validation |
-| 14 | pdf | [pdf.md](specs/pdf.md) | 1 | agent-chart-pdf | in progress | Vendor step for Chromium; offline `renderChart` |
+| 13 | chart | [chart.md](specs/chart.md) | 1 | agent-chart-pdf | done (verified) | Merged in `65c20f5`: validation, theme, naming, row cap, self-check retry all tested with a fake isolate. Not verified: S8 end to end with the real isolate, reference-text budget with the real tokenizer, self-check with a real vision model |
+| 14 | pdf | [pdf.md](specs/pdf.md) | 1 | agent-chart-pdf | done (verified) | Merged in `65c20f5`; vega and Chromium vendored on main, full suite 591 passing + 5 skipped. Offline proven (blocked requests logged, 0 leak connections, no sockets via `lsof`). Chart to PDF 853 ms cold, about 100 ms warm. Flaky under load: three browser tests timed out at 5 s while the machine was busy, passed in 0.1–1 s otherwise |
 | 15 | evals | [evals.md](specs/evals.md) | 1 | agent-evals | done (verified) | Merged in `4b3d27d`: 41 golden tasks validated, runner and metrics tested with a scripted harness, network observers catch deliberate outbound traffic; full suite 409 passing + 5 skipped. Not verified: any golden run against a real model (real harness is wave 2), network test against real `vix`, PRD section 9 performance script (not built) |
 | 16 | subagents | [subagents.md](specs/subagents.md) | 2 | unassigned | blocked | Waits for a working `runTurn` (task 3) |
 | 17 | integration | [README.md](specs/README.md) | 2 | unassigned | blocked | Waits for wave 1; replace fakes one seam at a time |
@@ -88,6 +88,10 @@ Build `vix` as described in [PRD.md](PRD.md), part by part, following the waves 
 - search wiring: `searchTools` from `src/tools/search/index.ts`; needs `npm run vendor -- ripgrep` (done on this machine). Its over-cap message says "page through it with read_result" — check the wording matches context's `read_result` parameters.
 - Build excludes `src/**/testing` and `*.test-support.ts`. Search's `fixture-tree.ts` is still built; rename it to `.test-support.ts` in integration.
 
+- chart/pdf wiring: `createMakeChartTool({ runInIsolate, createStandardHelpers, renderChart, renderPreview?, selfCheck? })`; renderer from `createChartRenderer({ idleMilliseconds: config.data.browserIdleSeconds * 1000, logBlocked })` with `logBlocked` → permissions' audit log; cli calls `renderer.close()` on exit. Self-check via `createVisionSelfCheck(() => session.model)` or image's sub-call. Pass `chartToolReference` to agent-loop's `toolReferences`. Merge `chartIsolateLimits(config)` with sandbox's `isolateLimitsFrom`. Dedupe `isPlainObject` (browser/fonts.ts, chart/spec-tree.ts). `renderReport` (DATA-19) has no tool yet.
+- Fresh checkouts need `npm run vendor` (ripgrep, vega, chromium) or those tests skip themselves silently.
+- Browser tests use vitest's 5 s default timeout; under load three of them timed out. Give browser tests a longer timeout in integration.
+
 ## Decisions made along the way
 
 | Date | Decision | Reason |
@@ -107,4 +111,6 @@ Build `vix` as described in [PRD.md](PRD.md), part by part, following the waves 
 | 2026-11-17 | D52–D54 from evals | See PRD 13.1 |
 | 2026-11-17 | Unified `TurnInput` in the contracts on agent-loop's shape | Two incompatible definitions had been merged |
 | 2026-11-17 | D55–D58 from cli and search; O6 (cold vs warm content-search target) opened | See PRD 13.1 |
+| 2026-11-17 | D59–D62 from chart and pdf | See PRD 13.1 |
+| 2026-11-17 | Build also excludes `src/**/test-support.ts` | chart and browser test helpers use that exact name |
 | 2026-11-17 | Config `data.rowCap` is one number for the chart row cap and the isolate helper cap | specs/sandbox.md requires them to be defined once |

@@ -456,6 +456,10 @@ Milestones give the order in which scenarios must pass. The work itself is split
 | D56 | Approval keys | `o` once, `a` always for the session, `d` deny with feedback, Esc deny. Enter alone does nothing | A stray key must never approve a change |
 | D57 | Search tool details | ripgrep 15.2.0 pinned (extends D31). `search_content` and `list_dir` default to the working folder (D24 covers only `find_files`). ripgrep runs with `--no-ignore --hidden` plus the shared exclude list, so `.gitignore` is not honoured and all three search paths agree (SRCH-7) | One exclude policy across Spotlight, the walk, and ripgrep |
 | D58 | Tool parameter names | snake_case across every tool (`min_size`, `start_line`, …) | One convention for the model to learn |
+| D59 | Chart built from several data files | Saved in the folder of the first data file reached when tracing the code's handles in order; the saved SQL file lists every data file (extends D28) | One predictable location |
+| D60 | Self-check retry and the chart metric | The automatic retry after a failed self-check (D29) counts as an attempt toward "render within 3 attempts" (D53) | The metric measures what the user waits for |
+| D61 | Default theme font and browser isolation | Helvetica Neue (specifies D31). Each render gets a fresh browser context, not only a fresh page | No state carries between charts |
+| D62 | Vendored chart assets | Chrome headless shell 156.0.8078.4 for mac-arm64 (the build `playwright-core` 1.64.1 expects; 207 MB installed), vega 6.4.0, vega-lite 6.5.0, vega-interpreter 2.3.2. x64 is not pinned and the vendor step says so | Extends D31; Apple silicon is the reference hardware |
 
 Decisions internal to one part (limits, cache rules, eviction age) are recorded in that part's spec under [specs/](specs/README.md).
 
