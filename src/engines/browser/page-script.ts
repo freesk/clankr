@@ -22,8 +22,23 @@ function collectingLogger(messages) {
   return logger;
 }
 
+let currentPage = null;
+
+// Charts and text go into the page section started last, or straight into the content.
 function contentArea() {
-  return document.getElementById("content");
+  return currentPage ?? document.getElementById("content");
+}
+
+// A section that starts on a new printed page (see the stylesheet), for one chart and its summary.
+function startPage() {
+  currentPage = document.createElement("section");
+  currentPage.className = "chart-page";
+  document.getElementById("content").append(currentPage);
+}
+
+// Text blocks use the theme's font. The family arrives as data and is set through the CSSOM.
+function setTextFont(family) {
+  document.body.style.fontFamily = JSON.stringify(family) + ", sans-serif";
 }
 
 async function renderChart(spec, rows) {
@@ -90,7 +105,8 @@ function spreadLabels(items) {
 
 function addText(kind, text) {
   const element = document.createElement(kind === "heading" ? "h1" : "p");
-  element.className = "text-block";
+  element.className = kind === "summary" ? "text-block summary" : "text-block";
+  // textContent, never innerHTML: markup in the text is printed as characters.
   element.textContent = text;
   contentArea().append(element);
 }
@@ -134,7 +150,16 @@ function isFontInstalled(family) {
   });
 }
 
-window.clankr = { renderChart, addText, fitLastChart, exportPng, exportSvg, isFontInstalled };
+window.clankr = {
+  renderChart,
+  addText,
+  startPage,
+  setTextFont,
+  fitLastChart,
+  exportPng,
+  exportSvg,
+  isFontInstalled,
+};
 // Requests the content security policy stops never reach the request guard, so the page
 // reports them itself through a binding the guard installs.
 document.addEventListener("securitypolicyviolation", (event) => {

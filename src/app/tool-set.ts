@@ -57,6 +57,7 @@ export function buildToolSet(options: ToolSetOptions): ToolSet {
       runInIsolate,
       createStandardHelpers,
       renderChart: (request, signal) => options.renderer.renderChart(request, signal),
+      renderChartPages: (request, signal) => options.renderer.renderChartPages(request, signal),
       renderPreview: (spec, rows, theme, signal) =>
         options.renderer.renderPreview(spec, rows, theme, signal),
       selfCheck: createVisionSelfCheck(options.currentModel),

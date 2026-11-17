@@ -1,6 +1,7 @@
 // Running the model's chart code in the isolate (DATA-10, DATA-11). The isolate is injected,
-// so this part never imports sandbox's implementation. Inside the isolate, `render(spec, rows)`
-// only records its arguments; all checking and drawing happen on the host afterwards.
+// so this part never imports sandbox's implementation. Inside the isolate,
+// `render(spec, rows, summary)` only records its arguments; all checking and drawing happen on
+// the host afterwards. Each call adds one chart; several charts go into one PDF.
 
 import {
   type IsolateHelper,
@@ -12,14 +13,26 @@ import {
   type StandardHelpersFactory,
   ToolError,
 } from "../contracts/index.ts";
-import { rowCapMessage } from "./prepare-spec.ts";
+import { normaliseSummary } from "./chart-summary.ts";
+import { namingChart, rowCapMessage } from "./prepare-spec.ts";
 import { isPlainObject } from "./spec-tree.ts";
 
+/** One `render` call. */
 export interface CapturedChart {
   spec: JsonValue;
   rows: Row[];
+  summary?: string;
+}
+
+export interface CapturedCharts {
+  charts: CapturedChart[];
+  /** Short notes for the model, such as a shortened summary. */
+  notes: string[];
   logs: string[];
 }
+
+/** One PDF page per chart; more would be a report, which this tool does not write. */
+export const maxChartsPerCall = 6;
 
 export interface ChartCodeRunner {
   runInIsolate: RunInIsolate;
@@ -32,44 +45,71 @@ export async function runChartCode(
   results: ResultStore,
   limits: IsolateLimits,
   signal?: AbortSignal,
-): Promise<CapturedChart> {
+): Promise<CapturedCharts> {
   const capture = createRenderCapture(results, limits.rowCap);
   const helpers = { ...runner.createStandardHelpers(results, limits), render: capture.render };
   const outcome = await runner.runInIsolate(code, helpers, limits, signal);
   const logs = outcome.logs;
   if (!outcome.ok) throw new ToolError(withLogs(`The chart code failed: ${outcome.error}`, logs));
-  const captured = capture.captured();
-  if (!captured) {
+  const charts = capture.charts();
+  if (charts.length === 0) {
     throw new ToolError(
       withLogs(
-        'The code finished without calling render. End it with render(spec, data("rN")).',
+        'The code finished without calling render. End it with render(spec, data("rN"), summary).',
         logs,
       ),
     );
   }
-  return { ...captured, logs };
+  return { charts, notes: capture.notes(), logs };
 }
 
 /**
  * The `render` helper. Only ToolError messages reach the model from inside the isolate, so
- * every argument problem is a ToolError. Rows may be the array from data("rN") or the handle.
+ * every argument problem is a ToolError, naming the chart once there is more than one. Rows
+ * may be the array from data("rN") or the handle.
  */
 export function createRenderCapture(results: ResultStore, rowCap: number) {
-  let captured: { spec: JsonValue; rows: Row[] } | undefined;
+  const charts: CapturedChart[] = [];
+  const notes: string[] = [];
 
-  const render: IsolateHelper = async (spec, rows) => {
-    if (captured)
-      throw new ToolError("render was already called. Call it once, with the final spec.");
+  async function captureOne(
+    spec: JsonValue | undefined,
+    rows: JsonValue | undefined,
+    summary: JsonValue | undefined,
+    chartNumber: number,
+  ): Promise<CapturedChart> {
     if (!isPlainObject(spec)) {
       throw new ToolError(
-        'render(spec, rows): spec must be an object such as { mark: "bar", encoding: {...} }.',
+        'render(spec, rows, summary): spec must be an object such as { mark: "bar", encoding: {...} }.',
       );
     }
-    captured = { spec: spec as JsonValue, rows: await rowsFrom(rows, results, rowCap) };
+    const tidied = normaliseSummary(summary);
+    if (tidied.note) notes.push(`Chart ${chartNumber}: ${tidied.note}`);
+    const chart: CapturedChart = {
+      spec: spec as JsonValue,
+      rows: await rowsFrom(rows, results, rowCap),
+    };
+    if (tidied.summary) chart.summary = tidied.summary;
+    return chart;
+  }
+
+  const render: IsolateHelper = async (spec, rows, summary) => {
+    const chartNumber = charts.length + 1;
+    if (chartNumber > maxChartsPerCall) {
+      throw new ToolError(
+        `render was called more than ${maxChartsPerCall} times. One make_chart call holds at most ${maxChartsPerCall} charts; put the rest in another make_chart call.`,
+      );
+    }
+    try {
+      charts.push(await captureOne(spec, rows, summary, chartNumber));
+    } catch (error) {
+      // The first chart may be the only one, so it is named only once a second exists.
+      throw chartNumber > 1 ? namingChart(error, chartNumber) : error;
+    }
     return "ok";
   };
 
-  return { render, captured: () => captured };
+  return { render, charts: () => charts, notes: () => notes };
 }
 
 async function rowsFrom(

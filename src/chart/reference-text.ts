@@ -2,7 +2,9 @@
 // context only while make_chart is in use; agent-loop decides when, from `chartToolReference`.
 
 export const chartReferenceText = `## make_chart reference (Vega-Lite)
-Write JavaScript that builds a Vega-Lite spec and ends with render(spec, data("rN")).
+Write JavaScript that builds a Vega-Lite spec and ends with render(spec, data("rN"), summary).
+- summary: 1-3 plain sentences for the reader on the main finding, not the axes. Printed under the chart.
+- Several charts: call render once per chart (at most 6), each with its own summary. They go into one PDF, a page each.
 - data("rN") returns the rows of a stored result. Use the handle from query_sql.
 - Do the maths in query_sql, not JavaScript: totals (GROUP BY), shares, growth, and indexes to a base year (window functions), and new groupings (CASE WHEN). Then chart that result as it is.
 - Counting things (licences, people, orders): COUNT(DISTINCT id_column). A file often has several rows per thing; the inspect_data profile shows each column's distinct count.
@@ -17,7 +19,8 @@ Write JavaScript that builds a Vega-Lite spec and ends with render(spec, data("r
 Bar chart:
 render({ title: "Revenue by region", mark: "bar", encoding: {
   x: { field: "region", type: "nominal", sort: "-y" },
-  y: { field: "revenue", type: "quantitative", title: "Revenue" } } }, data("r4"));
+  y: { field: "revenue", type: "quantitative", title: "Revenue" } } }, data("r4"),
+  "North earns the most, 41% of all revenue; the west earns least.");
 Stacked: add color: { field: "level", type: "nominal" }. Grouped: also xOffset: { field: "level", type: "nominal" }. Horizontal, largest at the top: y: { field: "region", type: "nominal", sort: "-x" } and the number on x.
 Pie: mark: "arc", encoding: { theta: { field: "amount", type: "quantitative" }, color: { field: "category", type: "nominal" } }.
 
@@ -43,7 +46,7 @@ With facet, put the views under "spec"; mark and encoding never sit beside "face
 
 Common mistakes:
 - "type": "quant" or "category": use the four names above. "mark": "bars" or "pie": use "bar" or "arc".
-- Rows in spec.data.values, or render called twice: pass rows to render, once.
+- Rows in spec.data.values: pass rows to render.
 - A field that is not a column: add it in query_sql first.
 If make_chart returns an error, fix exactly what it names and call make_chart again.
 `;

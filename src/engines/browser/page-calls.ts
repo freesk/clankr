@@ -11,13 +11,16 @@ interface RenderPageApi {
     rows: Row[],
   ): Promise<{ viewId: number; warnings: string[] }>;
   addText(kind: TextBlockKind, text: string): void;
+  startPage(): void;
+  setTextFont(family: string): void;
   exportPng(viewId: number, scale: number): Promise<string>;
   exportSvg(viewId: number): Promise<string>;
   fitLastChart(width: number, height: number): void;
   isFontInstalled(family: string): boolean;
 }
 
-export type TextBlockKind = "heading" | "paragraph";
+/** "summary" is the short text printed under a chart. */
+export type TextBlockKind = "heading" | "paragraph" | "summary";
 
 export interface DrawnChart {
   viewId: number;
@@ -56,6 +59,15 @@ export async function addTextBlock(page: Page, kind: TextBlockKind, text: string
     kind,
     text,
   ] as const);
+}
+
+/** Starts a section that prints on a new page; the next chart and text go into it. */
+export async function startPrintedPage(page: Page): Promise<void> {
+  await page.evaluate(() => clankr.startPage());
+}
+
+export async function setTextFont(page: Page, family: string): Promise<void> {
+  await page.evaluate((fontFamily) => clankr.setTextFont(fontFamily), family);
 }
 
 export async function exportPng(page: Page, viewId: number, scale: number): Promise<Buffer> {

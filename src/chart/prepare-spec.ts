@@ -51,6 +51,44 @@ export async function prepareChartSpec(
   return { spec: themed, notes };
 }
 
+/** A captured chart after preparation: what the renderer and the companion files get. */
+export interface PreparedChartPage {
+  spec: SpecObject;
+  rows: Row[];
+  summary?: string;
+}
+
+/**
+ * Every chart of one call through the same pipeline. With several charts, errors and notes
+ * name the chart ("chart 2: ...") so the model knows which render call to fix.
+ */
+export async function prepareCharts(
+  charts: { spec: unknown; rows: Row[]; summary?: string }[],
+  options: { theme: Theme; rowCap: number },
+): Promise<{ charts: PreparedChartPage[]; notes: string[] }> {
+  const prepared: PreparedChartPage[] = [];
+  const notes: string[] = [];
+  const several = charts.length > 1;
+  for (const [index, chart] of charts.entries()) {
+    const result = await prepareChartSpec(chart.spec, chart.rows, options).catch(
+      (error: unknown) => {
+        throw several ? namingChart(error, index + 1) : error;
+      },
+    );
+    notes.push(...result.notes.map((note) => (several ? `chart ${index + 1}: ${note}` : note)));
+    const page: PreparedChartPage = { spec: result.spec, rows: chart.rows };
+    if (chart.summary) page.summary = chart.summary;
+    prepared.push(page);
+  }
+  return { charts: prepared, notes };
+}
+
+/** "chart 2: <message>", so the model knows which render call to fix. Other errors pass through. */
+export function namingChart(error: unknown, chartNumber: number): unknown {
+  if (!(error instanceof ToolError)) return error;
+  return new ToolError(`chart ${chartNumber}: ${error.message}`);
+}
+
 export function rowCapMessage(rowCount: number, rowCap: number): string {
   return `The chart got ${rowCount} rows; the limit is ${rowCap}. Aggregate first with query_sql (GROUP BY), then chart the smaller result.`;
 }

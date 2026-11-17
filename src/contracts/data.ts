@@ -72,11 +72,29 @@ export interface ChartRenderRequest {
   theme: Theme;
   format: ChartFormat;
   outputPath: string;
+  /** Plain text printed under the chart in a PDF: what the chart shows. Ignored for PNG and SVG. */
+  summary?: string;
+}
+
+/** One chart of a multi-chart PDF: a validated, themed spec, its rows, and its summary. */
+export interface ChartPage {
+  spec: Record<string, unknown>;
+  rows: Row[];
+  summary?: string;
+}
+
+/** Several charts in one portrait PDF, one chart per page, each with its summary under it. */
+export interface ChartPagesRequest {
+  charts: ChartPage[];
+  theme: Theme;
+  outputPath: string;
 }
 
 export interface ChartRenderResult {
   path: string;
   sizeBytes: number;
+  /** Pages in a written PDF. */
+  pageCount?: number;
   /** Things the model or user should know: a replaced font, a left-out logo, Vega warnings. */
   notes?: string[];
 }

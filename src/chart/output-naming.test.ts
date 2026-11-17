@@ -32,10 +32,18 @@ describe("chooseOutputPaths", () => {
     expect(paths).toEqual({
       chart: join(folder, "sales.pdf"),
       code: join(folder, "sales.chart.js"),
-      spec: join(folder, "sales.vl.json"),
+      specs: [join(folder, "sales.vl.json")],
       sql: join(folder, "sales.sql"),
       format: "pdf",
     });
+  });
+
+  it("numbers the spec files of several charts and checks each for a clash", async () => {
+    const paths = await chooseOutputPaths(folder, "sales", "pdf", 3);
+    expect(paths.specs).toEqual([1, 2, 3].map((n) => join(folder, `sales.${n}.vl.json`)));
+    await writeFile(join(folder, "sales.2.vl.json"), "");
+    const next = await chooseOutputPaths(folder, "sales", "pdf", 3);
+    expect(next.chart).toBe(join(folder, "sales-2.pdf"));
   });
 
   it("appends a number when the chart or any companion exists", async () => {

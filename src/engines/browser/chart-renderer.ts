@@ -1,17 +1,26 @@
 // The pdf part's public face: turn a validated Vega-Lite spec and its rows into a PDF, PNG,
-// or SVG file (DATA-13), a PNG preview for the chart self-check, or a multi-chart report.
+// or SVG file (DATA-13), several charts into one PDF with a page each, a PNG preview for the
+// chart self-check, or a multi-chart report.
 
 import { mkdir, writeFile } from "node:fs/promises";
 import { dirname } from "node:path";
 import type { Page } from "playwright-core";
-import type { ChartRenderRequest, ChartRenderResult, Row, Theme } from "../../contracts/index.ts";
+import type {
+  ChartPage,
+  ChartPagesRequest,
+  ChartRenderRequest,
+  ChartRenderResult,
+  Row,
+  Theme,
+} from "../../contracts/index.ts";
 import { BrowserSession } from "./browser-session.ts";
 import { replaceConfigFont, resolveFontFamily } from "./fonts.ts";
 import type { BlockedRequest, BlockedRequestLogger } from "./offline.ts";
-import { drawChart, exportPng, exportSvg, fitLastChart } from "./page-calls.ts";
+import { drawChart, exportPng, exportSvg, setTextFont } from "./page-calls.ts";
 import { type LoadedDecorations, loadDecorations } from "./page-decorations.ts";
 import { fitSpecToArea, pdfOptions, printableArea } from "./page-layout.ts";
-import { composeReport, type ReportBlock } from "./report.ts";
+import { pdfPageCount } from "./pdf-pages.ts";
+import { composeChartPages, composeReport, type ReportBlock } from "./report.ts";
 
 /** PNG and SVG exports use one fixed scale, so the same chart is the same file on every run. */
 export const exportScale = 2;
@@ -33,6 +42,8 @@ export interface ChartRendererOptions {
 
 export interface ChartRenderer {
   renderChart(request: ChartRenderRequest, signal?: AbortSignal): Promise<ChartRenderResult>;
+  /** Several charts in one portrait PDF, a page each, each with its summary under it. */
+  renderChartPages(request: ChartPagesRequest, signal?: AbortSignal): Promise<ChartRenderResult>;
   /** A small PNG for the chart self-check (DATA-18). Nothing is written to disk. */
   renderPreview(
     spec: Record<string, unknown>,
@@ -71,7 +82,23 @@ export function createChartRenderer(options: ChartRendererOptions): ChartRendere
       const decorations = await loadDecorations(request.theme);
       const output = await session.withRenderPage(async (page) => {
         const pageTheme = await resolvePageTheme(page, request.theme);
-        return exportChart(page, request, pageTheme, decorations);
+        if (request.format !== "pdf") return exportImage(page, request, pageTheme);
+        const chart = { spec: request.spec, rows: request.rows, summary: request.summary };
+        return printChartPages(page, [chart], pageTheme, decorations);
+      }, signal);
+      return writeOutput(request.outputPath, output.bytes, [...decorations.notes, ...output.notes]);
+    },
+
+    async renderChartPages(request, signal) {
+      // Several charts always print portrait, a page each, whatever the theme's orientation.
+      const theme: Theme = {
+        ...request.theme,
+        page: { ...request.theme.page, orientation: "portrait" },
+      };
+      const decorations = await loadDecorations(theme);
+      const output = await session.withRenderPage(async (page) => {
+        const pageTheme = await resolvePageTheme(page, theme);
+        return printChartPages(page, request.charts, pageTheme, decorations);
       }, signal);
       return writeOutput(request.outputPath, output.bytes, [...decorations.notes, ...output.notes]);
     },
@@ -125,26 +152,40 @@ export function withHarnessData(spec: Record<string, unknown>): Record<string, u
   return { ...rest, data: { name: chartDataName } };
 }
 
-async function exportChart(
+interface RenderedOutput {
+  bytes: Buffer | string;
+  notes: string[];
+}
+
+/** PDF for one chart or several: a printed page per chart, each with its summary under it. */
+async function printChartPages(
+  page: Page,
+  charts: ChartPage[],
+  pageTheme: PageTheme,
+  decorations: LoadedDecorations,
+): Promise<RenderedOutput> {
+  await setTextFont(page, pageTheme.theme.fontFamily);
+  const area = printableArea(pageTheme.theme.page, decorations);
+  const warnings = await composeChartPages(page, charts, area, pageTheme.prepare);
+  const bytes = await page.pdf(pdfOptions(pageTheme.theme, decorations));
+  return { bytes, notes: [...pageTheme.notes, ...warnings] };
+}
+
+async function exportImage(
   page: Page,
   request: ChartRenderRequest,
   pageTheme: PageTheme,
-  decorations: LoadedDecorations,
-): Promise<{ bytes: Buffer | string; notes: string[] }> {
-  const area =
-    request.format === "pdf" ? printableArea(request.theme.page, decorations) : imageArea;
+): Promise<RenderedOutput> {
   const drawn = await drawChart(
     page,
-    fitSpecToArea(pageTheme.prepare(request.spec), area, request.rows),
+    fitSpecToArea(pageTheme.prepare(request.spec), imageArea, request.rows),
     request.rows,
   );
   const notes = [...pageTheme.notes, ...drawn.warnings];
   if (request.format === "png") {
     return { bytes: await exportPng(page, drawn.viewId, exportScale), notes };
   }
-  if (request.format === "svg") return { bytes: await exportSvg(page, drawn.viewId), notes };
-  await fitLastChart(page, area);
-  return { bytes: await page.pdf(pdfOptions(pageTheme.theme, decorations)), notes };
+  return { bytes: await exportSvg(page, drawn.viewId), notes };
 }
 
 /** Never overwrites (D28): the caller picks a free name, and `wx` makes a race fail loudly. */
@@ -156,5 +197,10 @@ async function writeOutput(
   await mkdir(dirname(path), { recursive: true });
   await writeFile(path, bytes, { flag: "wx" });
   const sizeBytes = typeof bytes === "string" ? Buffer.byteLength(bytes) : bytes.length;
-  return notes.length > 0 ? { path, sizeBytes, notes } : { path, sizeBytes };
+  const result: ChartRenderResult = { path, sizeBytes };
+  if (Buffer.isBuffer(bytes) && path.toLowerCase().endsWith(".pdf")) {
+    result.pageCount = pdfPageCount(bytes);
+  }
+  if (notes.length > 0) result.notes = notes;
+  return result;
 }

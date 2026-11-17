@@ -11,7 +11,8 @@ import { isPlainObject } from "./spec-tree.ts";
 export interface ChartOutputPaths {
   chart: string;
   code: string;
-  spec: string;
+  /** One spec file per chart: `name.vl.json`, or `name.1.vl.json`, `name.2.vl.json`, ... */
+  specs: string[];
   sql: string;
   format: ChartFormat;
 }
@@ -57,11 +58,12 @@ export async function chooseOutputPaths(
   folder: string,
   baseName: string,
   format: ChartFormat,
+  chartCount = 1,
 ): Promise<ChartOutputPaths> {
   for (let number = 1; number <= maxNumberedAttempts; number++) {
     const name = number === 1 ? baseName : `${baseName}-${number}`;
-    const paths = pathsFor(folder, name, format);
-    if (!(await anyExists([paths.chart, paths.code, paths.spec, paths.sql]))) return paths;
+    const paths = pathsFor(folder, name, format, chartCount);
+    if (!(await anyExists([paths.chart, paths.code, ...paths.specs, paths.sql]))) return paths;
   }
   throw new Error(`No free file name for ${baseName} in ${folder}`);
 }
@@ -72,11 +74,22 @@ export function splitOutputPath(path: string): { folder: string; baseName: strin
   return { folder: resolve(path, ".."), baseName: basename(path, extension) };
 }
 
-function pathsFor(folder: string, name: string, format: ChartFormat): ChartOutputPaths {
+function pathsFor(
+  folder: string,
+  name: string,
+  format: ChartFormat,
+  chartCount: number,
+): ChartOutputPaths {
+  const specs =
+    chartCount === 1
+      ? [join(folder, `${name}.vl.json`)]
+      : Array.from({ length: chartCount }, (_, index) =>
+          join(folder, `${name}.${index + 1}.vl.json`),
+        );
   return {
     chart: join(folder, `${name}.${format}`),
     code: join(folder, `${name}.chart.js`),
-    spec: join(folder, `${name}.vl.json`),
+    specs,
     sql: join(folder, `${name}.sql`),
     format,
   };
