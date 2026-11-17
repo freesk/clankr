@@ -18,7 +18,8 @@ Find files anywhere on the machine and read them. This is the primary use case i
 - SRCH-5: `read_file`.
 - SRCH-6, its share: ranking, the result cap, the compact format.
 - SRCH-7: default excludes.
-- SRCH-8, SRCH-9: document content search, semantic search.
+- SRCH-8: document content search (not built yet).
+- SRCH-9, semantic search, is its own part: [semantic-search.md](semantic-search.md). It reuses this part's walk, excludes, binary check, process runner, hit list, and format helpers.
 - SEC-3, its share: ripgrep is bundled, not fetched.
 - The Spotlight risk row in PRD section 12.
 
@@ -100,7 +101,7 @@ Apple M3 Pro, macOS 26.6.2, warm runs, through the real tools (Spotlight query, 
 
 ## Open questions
 
-SRCH-8 (P1) and SRCH-9 (P2) are not built yet. Both questions below remain open.
+SRCH-8 (P1) is not built yet, and both questions below remain open for it. SRCH-9 was built in wave 4 ([semantic-search.md](semantic-search.md)).
 
-- **Which extractors?** `.docx` text can come from the parser in [inspect](inspect.md) and `.xlsx` text through DuckDB, but PDF text needs a library that is not in the PRD's technology table. It must work offline.
+- **Which extractors?** Semantic search now has offline extractors behind one interface (`src/semantic/extract/`): `textutil` for Word-like documents and `unpdf` for PDF text layers (D82). SRCH-8 can reuse them; `.xlsx` text would still come through DuckDB.
 - **What bounds the fallback?** Extracting text from every document under a large folder is slow, and the content-search target in PRD section 9 is 3 s. Proposed: a limit on files and time, with the result saying how much was covered.

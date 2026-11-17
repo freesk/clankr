@@ -74,17 +74,17 @@ Priorities: **P0** = required for v1, **P1** = should have, **P2** = later.
 |---|---|---|
 | CLI-1 | Interactive REPL started with `clankr`, with streamed model output. | P0 |
 | CLI-2 | One-shot mode: `clankr -p "prompt"` prints the result and exits with a status code. Accepts piped stdin. | P0 |
-| CLI-3 | Slash commands: `/model`, `/context`, `/compact`, `/clear`, `/think`, `/permissions`, `/config`, `/undo`, `/help`, `/exit`. | P0 |
+| CLI-3 | Slash commands: `/model`, `/context`, `/compact`, `/clear`, `/think`, `/permissions`, `/config`, `/undo`, `/help`, `/exit`. `/index` was added with SRCH-9. | P0 |
 | CLI-4 | Tool calls are shown as one compact line each (tool, key argument, result size, duration). | P0 |
 | CLI-5 | `Ctrl+C` cancels the current generation or tool run without exiting; a second press exits. | P0 |
-| CLI-6 | `clankr wipe` deletes all saved sessions, stored tool results, and logs. | P0 |
+| CLI-6 | `clankr wipe` deletes all saved sessions, stored tool results, semantic search indexes, and logs. | P0 |
 | CLI-7 | `--ephemeral` runs a session that leaves nothing on disk when it exits. | P0 |
 | CLI-8 | A status line shows the active model, context used versus available, and permission mode. | P1 |
 | CLI-9 | Sessions are saved to disk and can be resumed with `clankr --resume`. | P1 |
 | CLI-10 | Image and file paths can be attached by typing or dragging a path into the prompt. | P1 |
 | CLI-11 | `--json` output for one-shot mode, for scripting. | P2 |
 
-Configuration, sessions, and the theme file live in `~/.clankr/`.
+Configuration, sessions, semantic search indexes, and the theme file live in `~/.clankr/`.
 
 ### 5.2 Model management
 
@@ -113,7 +113,7 @@ Configuration, sessions, and the theme file live in `~/.clankr/`.
 | SRCH-6 | Results are ranked (recency, path depth, match quality), capped at a fixed count, and returned in a compact format. The full result set is stored behind a handle the model can page through. | P0 |
 | SRCH-7 | Default excludes: `node_modules`, `.git`, `Library/Caches`, system directories, and other noise. Overridable per call. | P0 |
 | SRCH-8 | Content search inside documents (PDF, `.docx`, `.xlsx`) through Spotlight's content index, falling back to local text extraction where content is not indexed. | P1 |
-| SRCH-9 | Semantic search over a user-chosen folder using a local embedding model in LM Studio. | P2 |
+| SRCH-9 | Semantic search over user-chosen folders using a local embedding model in LM Studio. The user indexes a folder with `clankr index <folder>` or `/index <folder>` (plain text, Word-like documents, and PDF text layers; incremental; cancellable); the model searches the index with the read-only `search_meaning` tool, which is offered only while an index exists. Built in wave 4 (D80 to D84, [specs/semantic-search.md](specs/semantic-search.md)). | P2 |
 
 ### 5.4 Create and edit files and folders
 
@@ -251,6 +251,7 @@ The harness owns the agent loop. Context control requires full authority over wh
 | List models and capabilities | Native `GET /api/v1/models` |
 | Load / unload with a context length | Native `POST /api/v1/models/load` and `/unload` |
 | Token counting | `@lmstudio/sdk` (`model.countTokens`, `model.applyPromptTemplate`), with `usage` from chat responses as the source of truth after each call |
+| Embeddings for semantic search (SRCH-9) | OpenAI-compatible `POST /v1/embeddings`, through the same transport as chat (D83) |
 
 Notes from the current LM Studio API:
 
@@ -291,6 +292,8 @@ The V8 isolate was chosen over an OS-level sandbox because Apple's `sandbox-exec
 | Legacy `.xls` | SheetJS 0.20.3, from the SheetJS CDN | Converted to a row set, then read by DuckDB (D36) |
 | JS sandbox | `isolated-vm` 7.0.2 | Native addon, prebuilt for Node 24; install script not run (D77) |
 | Word documents | `mammoth` or direct OOXML parsing | Tables are extracted and loaded into DuckDB |
+| Semantic index | A DuckDB file per indexed folder, brute-force cosine similarity | Separate from the `query_sql` engine; no extension (D81) |
+| Text for the semantic index | macOS `textutil` for Word-like documents; `unpdf` 2.2.1 for PDF text layers | Both offline; `unpdf` is pure JavaScript and loaded on first use (D82) |
 | Chart library | Vega-Lite, vendored | Spec validated before render |
 | Headless browser | Playwright with Chromium | Installed up front in `vendor/`; started only for rendering, closed 60 s after the last render |
 | Platform | macOS only | Spotlight and Trash are used directly |
@@ -312,7 +315,7 @@ The default loaded context for the target model is 16,384 tokens. Budgets are fr
 
 1. **Bounded tool results.** Every tool has a cap (default 800 tokens). Over-cap output goes to the result store; the model gets a preview and a handle.
 2. **Compact formats.** Paths relative to a stated root, no repeated prefixes, tables instead of JSON where it is shorter.
-3. **Scoped tools.** A small core set is always present. Data and chart tools, and the Vega-Lite reference, are added only once a data file is involved.
+3. **Scoped tools.** A small core set is always present. Data and chart tools, and the Vega-Lite reference, are added only once a data file is involved. `search_meaning` is added only while a semantic search index exists (D80).
 4. **Isolated sub-calls.** Image analysis and data profiling summaries run outside the main conversation.
 5. **Stale result eviction.** Tool results older than a few turns are replaced by a one-line stub with their handle.
 6. **Summarizing compaction.** At 70% usage, older turns are summarized into a structured note: goal, facts found, files touched, open steps.
@@ -336,6 +339,7 @@ Loading a second model for delegation is out of scope for v1: on an 18 GB machin
 | SEC-5 | Sessions are saved by default. Transcripts, the result store, and the audit log are stored under `~/.clankr/` with user-only file permissions. |
 | SEC-6 | Data profiles include real sample values, so saved transcripts can contain sensitive cell values. `clankr wipe` deletes everything; `--ephemeral` avoids saving in the first place. |
 | SEC-7 | Content read from files is treated as data. Instructions found inside files do not change permissions or bypass approval. |
+| SEC-8 | A semantic search index holds the text of the indexed documents and their vectors. It is stored under `~/.clankr/index/` with user-only permissions, is never reachable from model-written SQL, leaves out protected paths (PERM-4) when built and again when searched, and is deleted by `clankr wipe`. The text is sent only to the LM Studio host (SEC-1) to be embedded. |
 
 ## 9. Non-functional requirements
 
@@ -391,6 +395,7 @@ Milestones give the order in which scenarios must pass. The work itself is split
 | Compaction loses a detail the task needs | Wrong answers late in long sessions | Structured summaries; handles to stored results survive compaction |
 | Spotlight index is incomplete or disabled | Search misses files | Detect index state, fall back to a walk, tell the user |
 | Sensitive cell values are saved in transcripts | Exposure if the disk or backups are accessed | User-only permissions, `clankr wipe`, `--ephemeral` (SEC-5, SEC-6) |
+| A semantic index keeps a copy of document text after the document is deleted or protected | Old text surfaces in a search, or lingers on disk | Results are checked against the deny list and the disk at query time; `clankr index` drops gone files; `clankr index --remove` and `clankr wipe` delete the index (SEC-8) |
 | LM Studio API changes | Breakage | Single client module; pin and test against a minimum LM Studio version |
 
 ## 13. Decisions and open questions
@@ -478,6 +483,11 @@ Milestones give the order in which scenarios must pass. The work itself is split
 | D77 | Node version | Node 24 LTS (24.22+), pinned by `.nvmrc`, with `isolated-vm` 7.0.2 (replaces D37's 6.2.0) and `@types/node` 24. Not Node 26 yet: with `isolated-vm` 7.0.2, stream and file I/O on the host never completes while the isolate waits in a helper, so `data()` on a stored row set timed out on 40 of 40 runs (0 of 40 on Node 24). A regression test catches it. npm's install scripts for `isolated-vm` and `fsevents` are declined in `allowScripts`; prebuilt binaries are used (D31) | User asked for the latest LTS; Node 26 fails the sandbox, Node 24 is supported until April 2028. Revisit when `isolated-vm` fixes the stall |
 | D78 | Model load settings | clankr sends load settings with the context length: `parallel` (default 1), and optionally `flashAttention`, `offloadKvCacheToGpu`, `evalBatchSize`, set under `model.load` and overridable per model in a profile's `load`. A loaded instance whose reported settings differ is reloaded, with a notice (extends D22). GPU offload and KV-cache quantization are not in LM Studio's REST load API (it rejects unknown keys), so they stay LM Studio's choice | Measured on Gemma 4 12B at 16k: `parallel` 4 → 1 cut LM Studio's memory from 9,747 to 8,829 MB with identical speed (16.5 vs 16.6 tok/s); clankr sends one request at a time |
 | D79 | License and source | clankr is MIT-licensed (`LICENSE`, `package.json`), and the source is public at <https://github.com/freesk/clankr>. `"private": true` stays in `package.json`: it only blocks an accidental `npm publish`. npm dependencies and vendored assets keep their own licenses; none is committed to the repo | User decision, 2026-11-17 |
+| D80 | Semantic search: who indexes, and when the tool is offered | Indexing is a user command only (`clankr index <folder>`, `/index <folder>`, with `--status`, `--rebuild`, `--remove`); there is no indexing tool. The query tool `search_meaning` (read) is in its own `semantic` group, which the harness offers only while at least one index exists. The check is one directory listing at the start of each turn; the group follows the disk, so it is not saved with the session, and sub-agents do not get it | The model must not be able to start a mass read of a folder. The fixed overhead is already over the CTX-5 budget, and the tool costs about 100 tokens by the 4-characters-per-token estimate, so it is paid only by users who indexed something |
+| D81 | Semantic index storage | One DuckDB file per indexed folder under `~/.clankr/index/` (`ClankrPaths.indexDirectory`), user-only, holding the files (with size and modified time), the passages, and a `FLOAT[n]` vector per passage; searched by brute-force cosine similarity with no extension. It is a separate DuckDB instance from the locked `query_sql` engine. `clankr wipe` deletes it. Sessions open it read-only, so an `--ephemeral` session can search and leaves nothing behind; `/index` in an ephemeral session only lists. A folder inside or around an indexed folder is refused | DuckDB is already a dependency and extensions are locked. The index holds document text, so it follows the same rules as transcripts (SEC-8). Measured on 22,000 passages of 768 numbers: 3.4 to 4.3 s to build without the model's own time, 87 to 100 ms median per search |
+| D82 | Text extraction for the semantic index | Plain text files are whatever the `read_file` binary check accepts, up to 2 MB. `.docx`, `.doc`, `.rtf`, and `.odt` go through the macOS built-in `/usr/bin/textutil`, run with an argument list and no shell (the D39 pattern). PDFs give their text layer, page by page, through `unpdf` 2.2.1, a pure-JavaScript PDF.js build loaded on first use; scanned PDFs are skipped with a reason. Spreadsheets are not indexed | The data tools already read spreadsheets, and better. `unpdf` was chosen over `pdfjs-dist`: 3.5 MB against 37 MB, no optional native canvas package, nothing printed, and in a test it opened no socket and started no fetch. D10 and PERM-6 still hold: `textutil` is harness code on a path the indexer found |
+| D83 | Embeddings | LM Studio's OpenAI-compatible `POST /v1/embeddings`, through the existing transport, so the token and the loopback rule (SEC-1) apply; no other network call exists. `search.embeddingModel` defaults to `text-embedding-nomic-embed-text-v1.5`. The task prefixes `search_document: ` and `search_query: ` are config values. Passages are sent in batches (32). Each index records its model and vector size; when the configured model differs, `clankr index` refuses, `search_meaning` skips that folder, and both name `clankr index --rebuild`. A model that is not downloaded fails before anything is written, with its fix (MOD-8 style). Loading the model is left to LM Studio's just-in-time loading | One place opens connections. Vectors from two models cannot be compared, so a silent mismatch would return nonsense |
+| D84 | Passages and `search_meaning` results | Passages are about 1,200 characters with about 200 repeated from the one before, cut at paragraph or line breaks; each records its file, line range, and page for PDFs. A result shows 8 passages (path, line range or page, similarity, a 240-character snippet), at most 3 per file, with up to 50 behind a handle. The header states the index age; a file edited since indexing is marked `[changed]`; a file since deleted or protected is not shown. Paths are shown as `search_content` shows them (relative to the working folder when inside it) | Fits the 800-token result cap with room to spare. A path relative to another root was resolved against the working folder by the model and failed, which is why `search_content` already works this way |
 
 Decisions internal to one part (limits, cache rules, eviction age) are recorded in that part's spec under [specs/](specs/README.md).
 
@@ -514,6 +524,7 @@ O1, O2, and O4 were resolved by D36, D19, and D23. Questions local to one part a
 | core | `copy` | write | Duplicate a file or folder |
 | core | `delete` | write | Move to Trash |
 | core | `delegate` | read | Run a sub-agent |
+| semantic | `search_meaning` | read | Search indexed folders by meaning (offered only while an index exists) |
 | vision | `view_image` | read | Ask about an image |
 | data | `inspect_data` | read | Profile a spreadsheet or document |
 | data | `query_sql` | execute | Read-only SQL over a data file |

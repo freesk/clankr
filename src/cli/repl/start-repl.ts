@@ -6,6 +6,7 @@ import type { SessionCommand } from "../arguments.ts";
 import type { CliEnvironment } from "../cli-environment.ts";
 import { type ExitCode, exitCodes } from "../exit-codes.ts";
 import type { Harness } from "../harness.ts";
+import { createIndexSlashCommand } from "../index-command.ts";
 import { errorMessage, redactSecrets } from "../secrets.ts";
 import { createConfigCommand, offerSetupAfterFailedStart } from "../setup/config-command.ts";
 import { ReplController } from "./controller.ts";
@@ -49,6 +50,11 @@ export async function startRepl(request: StartReplRequest): Promise<ExitCode> {
         configFilePath: environment.composition.configFilePath(),
         environment: environment.environment,
         workingDirectory: environment.workingDirectory,
+      }),
+      createIndexSlashCommand({
+        composition: environment.composition,
+        workingDirectory: environment.workingDirectory,
+        ephemeral: command.ephemeral,
       }),
     ],
   });

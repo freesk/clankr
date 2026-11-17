@@ -1,4 +1,5 @@
-// `clankr wipe` (CLI-6): confirm unless --yes (D32), then let storage delete everything.
+// `clankr wipe` (CLI-6): confirm unless --yes (D32), then let storage delete everything,
+// the semantic search indexes included (they hold document text).
 
 import type { WipeReport } from "../contracts/index.ts";
 import type { TextSink } from "./cli-environment.ts";
@@ -16,7 +17,7 @@ export interface WipeRequest {
 }
 
 const confirmation =
-  "Delete all saved sessions, stored tool results, and logs under ~/.clankr? This cannot be undone. [y/N] ";
+  "Delete all saved sessions, stored tool results, search indexes, and logs under ~/.clankr? This cannot be undone. [y/N] ";
 
 export async function runWipe(request: WipeRequest): Promise<ExitCode> {
   if (!request.assumeYes) {

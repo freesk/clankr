@@ -33,7 +33,7 @@ Types only, no logic. The sketches below show intent; the code replaces them as 
 
 ```ts
 type PermissionClass = "read" | "write" | "execute";
-type ToolGroup = "core" | "vision" | "data";
+type ToolGroup = "core" | "vision" | "data" | "semantic";
 
 interface ToolDefinition<Arguments> {
   name: string;

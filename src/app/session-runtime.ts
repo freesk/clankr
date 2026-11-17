@@ -16,10 +16,15 @@ import type {
 } from "../contracts/index.ts";
 import { SessionDataSourceRegistry } from "../data/index.ts";
 import { closeSessionEngine } from "../engines/duckdb/index.ts";
-import { createAuditLog, RealPathPolicy, SessionPermissionGate } from "../permissions/index.ts";
+import {
+  createAuditLog,
+  type RealPathPolicy,
+  SessionPermissionGate,
+} from "../permissions/index.ts";
 import { openSession } from "../storage/index.ts";
 import { createFileSlashCommands, type FileToolDependencies } from "../tools/fs/index.ts";
 import { SessionReadTracker } from "../tools/search/index.ts";
+import { createPathPolicy } from "./path-policy.ts";
 
 export interface SessionRuntimeOptions {
   root: string;
@@ -68,9 +73,7 @@ export async function openSessionRuntime(options: SessionRuntimeOptions): Promis
     ...(options.model ? { model: options.model } : {}),
   });
   const dataSources = new SessionDataSourceRegistry();
-  const pathPolicy = new RealPathPolicy({
-    allowedRoots: options.config.permissions.allowedRoots,
-    extraDeniedPaths: options.config.permissions.extraDeniedPaths,
+  const pathPolicy = createPathPolicy(options.config, {
     clankrRoot: paths.root,
     workingDirectory: options.workingDirectory,
     ...(options.homeDirectory ? { homeDirectory: options.homeDirectory } : {}),

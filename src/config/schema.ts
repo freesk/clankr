@@ -131,6 +131,27 @@ const searchSchema = z.object({
   /** Bounds on the directory walk that replaces Spotlight where the index is unavailable. */
   walkTimeLimitMs: z.number().int().positive().default(10_000),
   walkMaxEntries: z.number().int().positive().default(500_000),
+  /** SRCH-9: the LM Studio embedding model behind `clankr index` and `search_meaning`. */
+  embeddingModel: z.string().min(1).default("text-embedding-nomic-embed-text-v1.5"),
+  /** Task prefixes the nomic models expect. Set both to "" for a model that takes none. */
+  embeddingDocumentPrefix: z.string().default("search_document: "),
+  embeddingQueryPrefix: z.string().default("search_query: "),
+  /** Passages sent to LM Studio in one embeddings request. */
+  embeddingBatchSize: z.number().int().positive().default(32),
+  /** Passage size for the index, and how much of a passage is repeated at the start of the next. */
+  indexChunkCharacters: z.number().int().min(200).default(1_200),
+  indexChunkOverlap: z.number().int().nonnegative().default(200),
+  /** Larger files are left out of the index: plain text, and documents (Word-like files, PDFs). */
+  indexMaxTextFileBytes: z.number().int().positive().default(2_000_000),
+  indexMaxDocumentBytes: z.number().int().positive().default(30_000_000),
+  /** Most files one indexed folder may hold; the rest are reported, not indexed. */
+  indexMaxFiles: z.number().int().positive().default(20_000),
+  /** How long extracting the text of one document (`textutil`, the PDF reader) may run. */
+  indexExtractTimeoutMs: z.number().int().positive().default(60_000),
+  /** Passages `search_meaning` shows; up to `maxHits` stay behind the handle. */
+  meaningMaxHits: z.number().int().positive().default(8),
+  /** Characters of each passage shown as its snippet. */
+  meaningSnippetCharacters: z.number().int().positive().default(240),
 });
 
 export const configSchema = z.object({

@@ -81,6 +81,7 @@ Settled 2026-11-17. A D-number means the decision is also recorded in PRD sectio
 | `ChatRequest.model` | The `LoadedModel.instanceId`. The client maps it back to the model key to apply the profile (MOD-9). Request sampling values win over the profile's. |
 | Missing usage in a stream | `stream_options.include_usage` is always sent. If the stream still ends without usage, the client emits a usage event before `done`: the prompt counted with the tokenizer, the completion estimated. |
 | Typed startup errors | `LmStudioError` with `kind` (`server-unreachable`, `token-missing`, `token-rejected`, `model-not-downloaded`, `model-load-failed`, plus `host-not-allowed` and `request-failed`), `message`, `fix`, and `describe()` for printing. |
+| Embeddings (SRCH-9, D83) | `LmStudioClient.embed({ model, inputs }, signal)` posts to the OpenAI-compatible `/v1/embeddings` through the same transport as every other request, so the loopback check and the token header apply. The first call for a model key lists the models once and fails with `model-not-downloaded` and its fix when no downloaded model of type `embedding` has that key. A failed request becomes `request-failed` with a fix that names just-in-time loading. Loading the embedding model is left to LM Studio. |
 | Live tests | `src/lmstudio/live.test.ts`, skipped unless `CLANKR_LIVE_LMSTUDIO=1` and `LM_API_TOKEN` are set. The load test also needs `CLANKR_LIVE_LOAD=1`; it restores the context length the model had before. |
 
 ## Open questions

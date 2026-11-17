@@ -2,7 +2,8 @@ import { mkdtemp, readdir, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { appendPrivateFile } from "./private-files.ts";
+import { buildRootPaths } from "./layout.ts";
+import { appendPrivateFile, ensurePrivateDirectory } from "./private-files.ts";
 import { openSession } from "./session.ts";
 import { type WipePlan, wipe } from "./wipe.ts";
 
@@ -25,6 +26,11 @@ async function populate(): Promise<void> {
     await writeFile(join(session.paths.session.scratch, "spill.tmp"), "spill");
     await appendPrivateFile(session.paths.auditLog, "{}\n");
   }
+  // A search index holds document text (SRCH-9), so wipe must take it too.
+  const { indexDirectory } = buildRootPaths(root);
+  await ensurePrivateDirectory(indexDirectory);
+  await writeFile(join(indexDirectory, "0123456789abcdef.duckdb"), "passages and vectors");
+  await writeFile(join(indexDirectory, "0123456789abcdef.duckdb.wal"), "write-ahead log");
   await writeFile(join(root, "config.json"), "{}");
   await writeFile(join(root, "theme.json"), "{}");
 }
@@ -36,6 +42,7 @@ describe("wipe", () => {
     expect(outcome).toBe("deleted");
     expect(plan.sessionCount).toBe(2);
     expect(plan.sizeBytes).toBeGreaterThan(0);
+    expect(plan.entries).toContain(buildRootPaths(root).indexDirectory);
     expect((await readdir(root)).sort()).toEqual(["config.json", "theme.json"]);
   });
 

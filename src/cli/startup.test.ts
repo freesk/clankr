@@ -68,9 +68,11 @@ describe("startup", () => {
     expect(existsSync(join(clankrHome, "sessions"))).toBe(false);
   });
 
-  it("wipe, --help, and --version do not load Ink or React", () => {
-    for (const argv of [["wipe", "--yes"], ["--help"], ["--version"]]) {
-      expect(run(mainPath, argv).loaded).toEqual([]);
+  it("wipe, index, --help, and --version do not load Ink or React", () => {
+    for (const argv of [["wipe", "--yes"], ["index", "--status"], ["--help"], ["--version"]]) {
+      const result = run(mainPath, argv);
+      expect(result.status).toBe(0);
+      expect(result.loaded).toEqual([]);
     }
   });
 

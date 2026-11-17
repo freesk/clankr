@@ -6,8 +6,11 @@
 //   runTurn(dependencies, session, input, signal): AsyncGenerator<AgentEvent>
 //
 //   dependencies  AgentDependencies: { lm, context, permissions, tools, createToolContext,
-//                 config, workingDirectory, toolReferences?, extraInstructions?, audit? }.
+//                 config, workingDirectory, toolReferences?, extraInstructions?, audit?,
+//                 availableToolGroups? }.
 //                 With `audit`, one AuditEntry is recorded per call after it ends (PERM-8).
+//                 `availableToolGroups` names groups usable for reasons outside the session
+//                 (`semantic` while a search index exists, D80); asked once per turn.
 //                 `tools` is every ToolDefinition the loop may offer; scoping picks the
 //                 subset per round. Sub-agents call runTurn with their own context engine,
 //                 a read-only tool list, and extraInstructions.

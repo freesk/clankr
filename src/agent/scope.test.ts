@@ -16,7 +16,7 @@ import type { AgentDependencies, ToolReference } from "./types.ts";
 
 const noParameters = z.object({});
 
-function toolInGroup(name: string, group: "vision" | "data"): ToolDefinition {
+function toolInGroup(name: string, group: "vision" | "data" | "semantic"): ToolDefinition {
   const tool: ToolDefinition<typeof noParameters> = {
     name,
     description: `Stand-in for ${name}.`,
@@ -32,7 +32,8 @@ function toolInGroup(name: string, group: "vision" | "data"): ToolDefinition {
 const viewImage = toolInGroup("view_image", "vision");
 const inspectData = toolInGroup("inspect_data", "data");
 const makeChart = toolInGroup("make_chart", "data");
-const allTools = [toyReadTool as ToolDefinition, viewImage, inspectData, makeChart];
+const searchMeaning = toolInGroup("search_meaning", "semantic");
+const allTools = [toyReadTool as ToolDefinition, viewImage, inspectData, makeChart, searchMeaning];
 
 let cleanups: (() => Promise<void>)[] = [];
 afterEach(async () => {
@@ -113,6 +114,75 @@ describe("tool scoping", () => {
     await collectEvents(runTurn(kit.dependencies, session, "hi", signal));
     await collectEvents(runTurn(kit.dependencies, session, "and?", signal));
     expect(offeredNames(kit.lm.requests[1]?.tools)).toEqual(["read_note"]);
+  });
+});
+
+describe("groups the harness makes available (D80)", () => {
+  it("offers search_meaning only while the harness reports the semantic group", async () => {
+    const kit = await startKit([respond.text("a"), respond.text("b"), respond.text("c")]);
+    let indexExists = false;
+    kit.dependencies.availableToolGroups = async () => (indexExists ? ["semantic"] : []);
+    const session = createTestSession({ vision: false });
+    const signal = new AbortController().signal;
+
+    await collectEvents(runTurn(kit.dependencies, session, "hi", signal));
+    indexExists = true;
+    await collectEvents(runTurn(kit.dependencies, session, "again", signal));
+    indexExists = false;
+    await collectEvents(runTurn(kit.dependencies, session, "once more", signal));
+
+    expect(kit.lm.requests.map((request) => offeredNames(request.tools))).toEqual([
+      ["read_note"],
+      ["read_note", "search_meaning"],
+      ["read_note"],
+    ]);
+    // It follows the disk, not the session, so nothing is remembered for a resume.
+    expect(session.activatedToolGroups).toBeUndefined();
+  });
+
+  it("asks once per turn, so the tool list cannot change between rounds", async () => {
+    const kit = await startKit([
+      respond.toolCall("read_note", { path: "a.md" }),
+      respond.toolCall("read_note", { path: "b.md" }, "call_2"),
+      respond.text("done"),
+    ]);
+    let asked = 0;
+    kit.dependencies.availableToolGroups = async () => {
+      asked += 1;
+      return asked === 1 ? ["semantic"] : [];
+    };
+    await collectEvents(
+      runTurn(
+        kit.dependencies,
+        createTestSession({ vision: false }),
+        "read both",
+        new AbortController().signal,
+      ),
+    );
+
+    expect(asked).toBe(1);
+    expect(kit.lm.requests).toHaveLength(3);
+    for (const request of kit.lm.requests) {
+      expect(offeredNames(request.tools)).toEqual(["read_note", "search_meaning"]);
+    }
+  });
+
+  it("refuses a search_meaning call while the group is not offered", async () => {
+    const kit = await startKit([
+      respond.toolCall("search_meaning", { query: "anything" }),
+      respond.text("ok"),
+    ]);
+    const events = await collectEvents(
+      runTurn(
+        kit.dependencies,
+        createTestSession({ vision: false }),
+        "hi",
+        new AbortController().signal,
+      ),
+    );
+    expect(events.find((event) => event.type === "tool-end")).toMatchObject({
+      validity: "invalid",
+    });
   });
 });
 

@@ -5,6 +5,7 @@ import { createServer, type IncomingMessage, type Server, type ServerResponse } 
 import type { AddressInfo } from "node:net";
 import { type Config, type ConfigInput, configSchema } from "../config/index.ts";
 import type { SessionState } from "../contracts/index.ts";
+import { fakeEmbedding, fakeEmbeddingDimensions } from "../testing/fake-embeddings.ts";
 
 export interface FakeModel {
   key: string;
@@ -28,6 +29,12 @@ export interface FakeServerOptions {
   holdChatOpen?: boolean;
   /** Answer 404 on the v1 API, like LM Studio before 0.4.0. */
   withoutV1Api?: boolean;
+  /** Size of the vectors `/v1/embeddings` returns. */
+  embeddingDimensions?: number;
+  /** Answer every embeddings request with a 500 carrying this message. */
+  failingEmbeddings?: string;
+  /** Wait this long before answering an embeddings request, as a busy model would. */
+  embeddingDelayMs?: number;
 }
 
 export interface RecordedRequest {
@@ -110,6 +117,7 @@ export class FakeLmStudioServer {
     if (path === "/api/v1/models/unload")
       return this.unload(body as Record<string, unknown>, response);
     if (path === "/v1/chat/completions") return this.chat(response);
+    if (path === "/v1/embeddings") return this.embed(body as Record<string, unknown>, response);
     sendJson(response, 404, { error: "Unexpected endpoint or method." });
   }
 
@@ -167,6 +175,28 @@ export class FakeLmStudioServer {
       );
     }
     sendJson(response, 200, { instance_id: body.instance_id });
+  }
+
+  /** Deterministic vectors (src/testing/fake-embeddings.ts), in the OpenAI response shape. */
+  private embed(body: Record<string, unknown>, response: ServerResponse): void {
+    if (this.options.failingEmbeddings) {
+      sendJson(response, 500, { error: { message: this.options.failingEmbeddings } });
+      return;
+    }
+    const inputs = Array.isArray(body.input) ? body.input : [body.input];
+    const dimensions = this.options.embeddingDimensions ?? fakeEmbeddingDimensions;
+    const answer = () =>
+      sendJson(response, 200, {
+        object: "list",
+        model: body.model,
+        data: inputs.map((input, index) => ({
+          object: "embedding",
+          index,
+          embedding: fakeEmbedding(String(input), dimensions),
+        })),
+      });
+    if (this.options.embeddingDelayMs) setTimeout(answer, this.options.embeddingDelayMs);
+    else answer();
   }
 
   private chat(response: ServerResponse): void {

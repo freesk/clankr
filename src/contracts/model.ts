@@ -87,6 +87,13 @@ export interface ChatRequest {
   maxTokens?: number;
 }
 
+/** Texts to turn into vectors with an embedding model (SRCH-9). */
+export interface EmbeddingRequest {
+  /** The embedding model's key, as `GET /api/v1/models` reports it. */
+  model: string;
+  inputs: string[];
+}
+
 export interface TokenUsage {
   promptTokens: number;
   completionTokens: number;
@@ -118,4 +125,6 @@ export interface LmClient {
   unloadModel(instanceId: string): Promise<void>;
   chat(request: ChatRequest, signal: AbortSignal): AsyncIterable<ChatEvent>;
   countTokens(messages: ChatMessage[]): Promise<number>;
+  /** One vector per input, in input order, all of the same length. */
+  embed(request: EmbeddingRequest, signal: AbortSignal): Promise<number[][]>;
 }

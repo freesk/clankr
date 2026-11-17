@@ -29,6 +29,7 @@ describe("buildClankrPaths", () => {
       logsDirectory: "/r/logs",
       auditLog: "/r/logs/audit.jsonl",
       sessionsDirectory: "/r/sessions",
+      indexDirectory: "/r/index",
       session: {
         id: "s1",
         directory: "/r/sessions/s1",

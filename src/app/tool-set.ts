@@ -14,6 +14,7 @@ import type {
 } from "../contracts/index.ts";
 import type { ChartRenderer } from "../engines/browser/index.ts";
 import { createStandardHelpers, runInIsolate } from "../engines/isolate/index.ts";
+import { createSearchMeaningTool } from "../semantic/index.ts";
 import { createDelegateTool } from "../subagent/index.ts";
 import { inspectDataTool } from "../tools/data/inspect/index.ts";
 import { createMakeChartTool } from "../tools/data/make-chart.ts";
@@ -47,6 +48,7 @@ export function buildToolSet(options: ToolSetOptions): ToolSet {
   const { config } = options;
   const baseTools: ToolDefinition[] = [
     ...createSearchTools(config),
+    createSearchMeaningTool(config),
     createReadResultTool(config),
     ...createFileTools(options.fileTools),
     viewImageTool,
@@ -97,5 +99,7 @@ export function inspectToolDefinitions(config: Config): ToolDefinition[] {
 export const offeredToolSets: Record<string, (groups: readonly string[]) => boolean> = {
   core: (groups) => groups.includes("core"),
   "core+vision": (groups) => groups.some((group) => group === "core" || group === "vision"),
+  // `search_meaning` joins only while a search index exists (D80).
+  "core+semantic": (groups) => groups.some((group) => group === "core" || group === "semantic"),
   all: () => true,
 };

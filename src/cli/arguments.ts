@@ -2,7 +2,8 @@
 
 import { parseArgs } from "node:util";
 import type { ConfigFlags } from "../config/index.ts";
-import type { PermissionMode } from "../contracts/index.ts";
+import type { IndexRequest, PermissionMode } from "../contracts/index.ts";
+import { indexFlagNames, indexRequestFrom } from "./index-arguments.ts";
 
 export interface SessionCommand {
   kind: "session";
@@ -21,6 +22,7 @@ export type CliCommand =
   | { kind: "version" }
   | { kind: "wipe"; assumeYes: boolean }
   | { kind: "config" }
+  | { kind: "index"; request: IndexRequest }
   | SessionCommand;
 
 export type ParseResult = { ok: true; command: CliCommand } | { ok: false; error: string };
@@ -30,8 +32,12 @@ const permissionModes: readonly PermissionMode[] = ["ask", "auto-edit", "read-on
 export const usageText = `Usage:
   clankr [options]              Start the interactive REPL
   clankr -p "prompt" [options]  Run one prompt and exit (stdin may be piped in)
-  clankr wipe [--yes]           Delete all saved sessions, stored results, and logs
+  clankr wipe [--yes]           Delete all saved sessions, stored results, search indexes, and logs
   clankr config                 Set up the LM Studio address, API token, model, and preferences
+  clankr index <folder>         Index a folder for search by meaning, or bring its index up to date
+  clankr index [--status]       List the indexed folders
+  clankr index --rebuild <folder>   Index it again from nothing (for a new embedding model)
+  clankr index --remove <folder>    Delete its index
 
 Options:
   -p, --print <prompt>       One-shot mode: print the result and exit
@@ -59,6 +65,9 @@ const optionSpecification = {
   ephemeral: { type: "boolean" },
   resume: { type: "boolean" },
   yes: { type: "boolean", short: "y" },
+  status: { type: "boolean" },
+  rebuild: { type: "boolean" },
+  remove: { type: "boolean" },
   version: { type: "boolean", short: "v" },
   help: { type: "boolean", short: "h" },
 } as const;
@@ -81,6 +90,7 @@ export function parseCliArguments(argv: string[]): ParseResult {
   if (values.version) return { ok: true, command: { kind: "version" } };
   if (positionals[0] === "wipe") return parseWipe(values, positionals);
   if (positionals[0] === "config") return parseConfig(values, positionals);
+  if (positionals[0] === "index") return parseIndex(values, positionals);
   if (positionals.length > 0) {
     return {
       ok: false,
@@ -105,8 +115,29 @@ function parseConfig(values: ParsedValues, positionals: string[]): ParseResult {
   return { ok: true, command: { kind: "config" } };
 }
 
+/** `clankr index [--status | --rebuild | --remove] [folder]` (SRCH-9). */
+function parseIndex(values: ParsedValues, positionals: string[]): ParseResult {
+  const isIndexFlag = (name: string) => (indexFlagNames as readonly string[]).includes(name);
+  if (positionals.length > 2 || !Object.keys(values).every(isIndexFlag)) {
+    return {
+      ok: false,
+      error: "index takes one folder and at most one of --status, --rebuild, --remove.",
+    };
+  }
+  const result = indexRequestFrom({
+    status: values.status === true,
+    rebuild: values.rebuild === true,
+    remove: values.remove === true,
+    folder: positionals[1],
+  });
+  if (!result.ok) return result;
+  return { ok: true, command: { kind: "index", request: result.request } };
+}
+
 function parseSession(values: ParsedValues): ParseResult {
   if (values.yes) return { ok: false, error: "--yes only applies to `clankr wipe`." };
+  const indexFlag = indexFlagNames.find((name) => values[name]);
+  if (indexFlag) return { ok: false, error: `--${indexFlag} only applies to \`clankr index\`.` };
   if (values.ephemeral && values.resume) {
     return { ok: false, error: "--ephemeral and --resume cannot be combined." };
   }

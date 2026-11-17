@@ -1,11 +1,12 @@
 // Picks what `clankr` does from its arguments. Ink is loaded only when the REPL starts
-// (CLAUDE.md rule 7), so `-p`, `wipe`, `config`, `--help`, and `--version` never pay for it.
+// (CLAUDE.md rule 7), so `-p`, `wipe`, `config`, `index`, `--help`, and `--version` never pay
+// for it.
 
 import { createInterface } from "node:readline/promises";
-import { ConfigError } from "../config/index.ts";
 import type { Config } from "../contracts/index.ts";
 import { parseCliArguments, type SessionCommand, usageText } from "./arguments.ts";
 import type { CliEnvironment } from "./cli-environment.ts";
+import { loadConfigOrReport } from "./config-loading.ts";
 import { type ExitCode, exitCodes } from "./exit-codes.ts";
 import { runOneShot } from "./one-shot.ts";
 import { OneShotApprovalPrompter } from "./one-shot-prompter.ts";
@@ -38,6 +39,11 @@ export async function runCli(environment: CliEnvironment): Promise<ExitCode> {
       const { runConfigCommand } = await import("./setup/config-command.ts");
       return runConfigCommand(environment);
     }
+    case "index": {
+      // Loaded on demand: indexing brings DuckDB and the text extractors with it.
+      const { runIndexCommand } = await import("./index-command.ts");
+      return runIndexCommand(command.request, environment);
+    }
     case "session":
       return runSession(command, environment);
   }
@@ -52,7 +58,7 @@ async function runSession(command: SessionCommand, environment: CliEnvironment):
   if (command.allowData && !oneShot) {
     return usageError(environment, "--allow-data applies to one-shot mode (-p or piped stdin).");
   }
-  const config = await loadConfigOrReport(command, environment);
+  const config = await loadConfigOrReport(command.configFlags, environment);
   if (!config) return exitCodes.usage;
   if (oneShot) return runOneShotSession(command, config, environment);
   const { startRepl } = await import("./repl/start-repl.ts");
@@ -114,23 +120,6 @@ async function runOneShotSession(
 function shouldReadStdin(command: SessionCommand, environment: CliEnvironment): boolean {
   if (environment.stdinMode === "terminal") return false;
   return command.prompt === undefined || environment.stdinMode === "piped";
-}
-
-async function loadConfigOrReport(
-  command: SessionCommand,
-  environment: CliEnvironment,
-): Promise<Config | undefined> {
-  try {
-    return await environment.composition.loadConfig({
-      flags: command.configFlags,
-      workingDirectory: environment.workingDirectory,
-      environment: environment.environment,
-    });
-  } catch (error) {
-    if (!(error instanceof ConfigError)) throw error;
-    environment.stderr.write(`clankr: ${error.message}\n`);
-    return undefined;
-  }
 }
 
 function reportFailure(environment: CliEnvironment, config: Config, error: unknown): undefined {

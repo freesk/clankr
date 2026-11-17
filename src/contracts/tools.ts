@@ -9,7 +9,7 @@ import type { ResultHandle, ResultStore } from "./results.ts";
 import type { ClankrPaths, ReadTracker } from "./session.ts";
 
 export type PermissionClass = "read" | "write" | "execute";
-export type ToolGroup = "core" | "vision" | "data";
+export type ToolGroup = "core" | "vision" | "data" | "semantic";
 
 /** What a running tool receives. */
 export interface ToolContext {

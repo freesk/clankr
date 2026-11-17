@@ -6,6 +6,9 @@ import type {
   AgentEvent,
   ApprovalPrompter,
   Config,
+  IndexOutcome,
+  IndexRequest,
+  IndexRunOptions,
   LmClient,
   ResultStore,
   SessionState,
@@ -29,6 +32,12 @@ export interface HarnessOptions {
    * reload, a resumed session's missing model, a model without native tool calling (MOD-6).
    */
   notify?(text: string): void;
+}
+
+export interface IndexCommandOptions extends IndexRunOptions {
+  config: Config;
+  /** Relative folders resolve against it. */
+  workingDirectory: string;
 }
 
 /** One running session and everything the cli calls on it. */
@@ -60,6 +69,11 @@ export interface CliComposition {
   }): Promise<Config>;
   openHarness(options: HarnessOptions): Promise<Harness>;
   wipe(): Promise<WipeReport>;
+  /**
+   * `clankr index` and `/index` (SRCH-9): lists, builds, or removes a semantic search index.
+   * Problems the user can fix are printed and reported as "failed", not thrown.
+   */
+  runIndexRequest(request: IndexRequest, options: IndexCommandOptions): Promise<IndexOutcome>;
   /** Where `clankr config` and `/config` save the settings: `config.json` under `CLANKR_HOME`. */
   configFilePath(): string;
 }

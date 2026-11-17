@@ -8,6 +8,7 @@ import type {
   PermissionGate,
   ToolContext,
   ToolDefinition,
+  ToolGroup,
   TurnInputWithAttachments,
 } from "../contracts/index.ts";
 
@@ -46,6 +47,12 @@ export interface AgentDependencies {
   extraInstructions?: string;
   /** PERM-8: one entry per tool call, written after the call ends. Optional for tests. */
   audit?: AuditLog;
+  /**
+   * Tool groups that follow something outside the session, asked once at the start of each
+   * turn: `semantic` while a search index exists (D80). Like vision, which follows the model,
+   * they are never stored on the session.
+   */
+  availableToolGroups?(): Promise<readonly ToolGroup[]>;
 }
 
 /** The object form of a turn's input. Defined once, in the contracts. */

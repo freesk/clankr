@@ -7,6 +7,7 @@ import type {
   AgentEvent,
   ApprovalPrompter,
   Config,
+  IndexRequest,
   LmClient,
   SessionState,
   SlashCommand,
@@ -134,12 +135,15 @@ export interface FakeCompositionOptions {
   harness?: (options: HarnessOptions) => FakeHarness;
   wipeReport?: WipeReport;
   configFilePath?: string;
+  /** What `clankr index` does; the default reports "done" and prints nothing. */
+  runIndexRequest?: CliComposition["runIndexRequest"];
 }
 
 export interface FakeComposition extends CliComposition {
   opened: FakeHarness[];
   openedWith: HarnessOptions[];
   wipeCount: number;
+  indexRequests: IndexRequest[];
 }
 
 export function createFakeComposition(options: FakeCompositionOptions = {}): FakeComposition {
@@ -147,6 +151,7 @@ export function createFakeComposition(options: FakeCompositionOptions = {}): Fak
     opened: [],
     openedWith: [],
     wipeCount: 0,
+    indexRequests: [],
     configFilePath: () => options.configFilePath ?? "/nonexistent/clankr/config.json",
     loadConfig: ({ flags, workingDirectory, environment }) =>
       loadConfig({
@@ -169,6 +174,10 @@ export function createFakeComposition(options: FakeCompositionOptions = {}): Fak
     async wipe() {
       composition.wipeCount += 1;
       return options.wipeReport ?? { sessionsRemoved: 3, bytesFreed: 2_500_000 };
+    },
+    async runIndexRequest(request, indexOptions) {
+      composition.indexRequests.push(request);
+      return options.runIndexRequest ? options.runIndexRequest(request, indexOptions) : "done";
     },
   };
   return composition;

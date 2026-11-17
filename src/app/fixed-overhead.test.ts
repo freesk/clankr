@@ -7,7 +7,9 @@
 // tokenizes densely. The ceilings below are the real targets divided by 1.09:
 //   core         real 1,400 (headroom under the 1,500 budget)  ->  estimate 1,285
 //   core+vision  real 1,500                                      ->  estimate 1,376
-//   all          real about 2,000 (data tools come only with a data file, D15)  ->  1,835
+//   core+semantic  real 1,500 (search_meaning comes only with a search index, D80)  ->  1,376
+//   all          real about 2,100 (data tools come only with a data file, D15)  ->  1,940
+// `search_meaning` costs about 100 estimated tokens; "all" was 1,835 before it joined.
 // If the real ratio changes, re-measure and update these numbers together.
 
 import { describe, expect, it } from "vitest";
@@ -19,7 +21,8 @@ import { inspectToolDefinitions, offeredToolSets } from "./tool-set.ts";
 const estimateCeilings: Record<string, number> = {
   core: 1_285,
   "core+vision": 1_376,
-  all: 1_835,
+  "core+semantic": 1_376,
+  all: 1_940,
 };
 
 describe("fixed overhead of the real tools (CTX-5)", () => {

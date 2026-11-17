@@ -47,8 +47,16 @@ function messageMentionsDataFile(message: ChatMessage): boolean {
   return message.content.some((part) => part.type === "text" && mentionsDataFile(part.text));
 }
 
-export function activeGroups(model: LoadedModel, session: SessionState): Set<ToolGroup> {
-  const groups = new Set<ToolGroup>(["core"]);
+/**
+ * `available` are the groups the harness found usable this turn for reasons outside the
+ * session, such as `semantic` while a search index exists (D80).
+ */
+export function activeGroups(
+  model: LoadedModel,
+  session: SessionState,
+  available: readonly ToolGroup[] = [],
+): Set<ToolGroup> {
+  const groups = new Set<ToolGroup>(["core", ...available]);
   if (model.capabilities.vision) groups.add("vision");
   for (const group of session.activatedToolGroups ?? []) {
     // Vision follows the model, never the session, so a switch to a text-only model drops it.

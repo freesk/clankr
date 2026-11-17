@@ -19,6 +19,7 @@ const logsDirectoryName = "logs";
 const auditLogName = "audit.jsonl";
 const sessionsDirectoryName = "sessions";
 const ephemeralDirectoryName = "ephemeral";
+const indexDirectoryName = "index";
 const transcriptName = "transcript.jsonl";
 
 /** Session ids appear in directory names and on the command line, so they stay this plain. */
@@ -45,6 +46,7 @@ export function buildRootPaths(root: string): RootPaths {
     logsDirectory,
     auditLog: join(logsDirectory, auditLogName),
     sessionsDirectory: join(root, sessionsDirectoryName),
+    indexDirectory: join(root, indexDirectoryName),
   };
 }
 

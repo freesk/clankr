@@ -5,6 +5,7 @@ import type {
   ChatEvent,
   ChatMessage,
   ChatRequest,
+  EmbeddingRequest,
   LmClient,
   LoadedModel,
   LoadSettings,
@@ -12,6 +13,7 @@ import type {
 } from "../contracts/index.ts";
 import { estimateTokens } from "../shared/index.ts";
 import { parseChatStream, StreamError } from "./chat-stream.ts";
+import { assertEmbeddingModelDownloaded, requestEmbeddings } from "./embeddings.ts";
 import { LmStudioError, modelNotDownloaded, requestFailed } from "./errors.ts";
 import type { HostResolver } from "./loopback.ts";
 import { fetchModels, requestLoad, requestUnload } from "./models-api.ts";
@@ -39,6 +41,8 @@ export class LmStudioClient implements LmClient {
   private readonly instanceKeys = new Map<string, string>();
   private activeInstanceId: string | undefined;
   private warnedAboutEstimates = false;
+  /** Embedding model keys already seen in LM Studio's model list. */
+  private readonly knownEmbeddingModels = new Set<string>();
 
   constructor(options: LmStudioClientOptions) {
     this.config = options.config;
@@ -127,6 +131,15 @@ export class LmStudioClient implements LmClient {
       this.warnOnceAboutEstimates(error);
       return estimateTokens(messages);
     }
+  }
+
+  /** SRCH-9. The model is checked against the downloaded ones once, so the error names the fix. */
+  async embed(request: EmbeddingRequest, signal: AbortSignal): Promise<number[][]> {
+    if (!this.knownEmbeddingModels.has(request.model)) {
+      await assertEmbeddingModelDownloaded(this.transport, request.model);
+      this.knownEmbeddingModels.add(request.model);
+    }
+    return requestEmbeddings(this.transport, request, signal);
   }
 
   /** Closes the SDK connection so the process can exit. */

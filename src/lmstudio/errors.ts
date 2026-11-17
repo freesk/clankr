@@ -66,6 +66,26 @@ export function modelNotDownloaded(key: string, available: string[]): LmStudioEr
   );
 }
 
+export function embeddingModelNotDownloaded(key: string, available: string[]): LmStudioError {
+  const choices =
+    available.length > 0 ? ` Downloaded embedding models: ${available.join(", ")}.` : "";
+  return new LmStudioError(
+    "model-not-downloaded",
+    `The embedding model "${key}" is not downloaded in LM Studio.${choices}`,
+    `Download it with \`lms get ${key}\` or in LM Studio's Discover tab, ` +
+      "or set search.embeddingModel in ~/.clankr/config.json to one that is downloaded.",
+  );
+}
+
+export function embeddingFailed(key: string, detail: string): LmStudioError {
+  return new LmStudioError(
+    "request-failed",
+    `LM Studio could not embed text with "${key}": ${detail}`,
+    "Check that the embedding model loads in LM Studio (Developer tab), and that " +
+      "just-in-time model loading is on or the model is already loaded.",
+  );
+}
+
 export function modelLoadFailed(key: string, detail: string): LmStudioError {
   return new LmStudioError(
     "model-load-failed",

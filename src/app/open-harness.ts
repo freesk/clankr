@@ -16,6 +16,7 @@ import type {
 import { createChartRenderer } from "../engines/browser/index.ts";
 import { createModelCommand, ModelSwitcher } from "../lmstudio/index.ts";
 import { permissionsCommand } from "../permissions/index.ts";
+import { searchToolGroups } from "../semantic/index.ts";
 import type { FileToolDependencies } from "../tools/fs/index.ts";
 import {
   type ActiveSession,
@@ -126,6 +127,8 @@ export async function openHarness(options: HarnessOptions, seams: HarnessSeams):
       workingDirectory: options.workingDirectory,
       toolReferences: toolSet.toolReferences,
       audit: runtime.audit,
+      // D80: `search_meaning` is offered only while a search index exists.
+      availableToolGroups: () => searchToolGroups(runtime.paths.indexDirectory),
     };
   }
 

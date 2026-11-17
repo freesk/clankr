@@ -7,6 +7,7 @@ import type {
   LoadedModel,
   SamplingParameters,
   SessionState,
+  ToolGroup,
 } from "../contracts/index.ts";
 import { toPromptStyleMessages } from "./prompt-tool-style.ts";
 import type { RegisteredTool, ToolRegistry } from "./registry.ts";
@@ -25,9 +26,10 @@ export function planRound(
   registry: ToolRegistry,
   model: LoadedModel,
   session: SessionState,
+  availableGroups: readonly ToolGroup[] = [],
 ): RoundPlan {
   const style = toolCallingStyleFor(model, dependencies.config);
-  const tools = scopedTools(registry, activeGroups(model, session));
+  const tools = scopedTools(registry, activeGroups(model, session, availableGroups));
   // The reference is dropped at the same age as stale tool results (specs/agent-loop.md).
   const references = activeReferences(
     dependencies.toolReferences ?? [],
