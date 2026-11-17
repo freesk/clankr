@@ -110,3 +110,30 @@ describe("polishSpec legends", () => {
     expect(color.legend).toBeNull();
   });
 });
+
+describe("polishSpec bars and labels", () => {
+  it("draws bars over years as categories, not hairlines on a continuous axis", () => {
+    const spec = {
+      mark: "bar",
+      encoding: {
+        x: { field: "year", type: "quantitative" },
+        y: { field: "indexed", type: "quantitative" },
+      },
+    };
+    polishSpec(spec, rows);
+    expect(spec.encoding.x.type).toBe("ordinal");
+    expect(spec.encoding.y.type).toBe("quantitative");
+  });
+
+  it("angles long category labels instead of turning them on their side", () => {
+    const spec = {
+      mark: "bar",
+      encoding: {
+        x: { field: "purpose", type: "nominal" },
+        y: { field: "n", type: "quantitative" },
+      },
+    };
+    polishSpec(spec, [{ purpose: "Other Purpose Specified by the Director", n: 644 }]);
+    expect((spec.encoding.x as { axis?: { labelAngle?: number } }).axis?.labelAngle).toBe(-35);
+  });
+});

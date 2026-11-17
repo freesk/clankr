@@ -13,8 +13,50 @@ import { forEachView, isPlainObject, type SpecObject } from "./spec-tree.ts";
 const positionChannels = ["x", "y", "x2", "y2"];
 
 export function polishSpec(spec: SpecObject, rows: Row[]): void {
+  barsOverYearsAsCategories(spec, rows);
   polishAxes(spec, rows);
+  angleLongCategoryLabels(spec, rows);
   restoreHiddenLegends(spec);
+}
+
+/**
+ * Bars on a continuous year axis are drawn as hairlines (a bar gets one pixel per year of a
+ * continuous scale). For bar marks, a year field is drawn as ordered categories instead.
+ */
+function barsOverYearsAsCategories(spec: SpecObject, rows: Row[]): void {
+  forEachView(spec, (view) => {
+    const mark = isPlainObject(view.mark) ? view.mark.type : view.mark;
+    if (mark !== "bar" || !isPlainObject(view.encoding)) return;
+    for (const channel of ["x", "y"]) {
+      const definition = view.encoding[channel];
+      if (!isPlainObject(definition) || definition.type !== "quantitative") continue;
+      if (typeof definition.field !== "string" || "aggregate" in definition) continue;
+      if (looksLikeYears(rows, definition.field)) definition.type = "ordinal";
+    }
+  });
+}
+
+/** Category labels longer than this are angled instead of being turned on their side. */
+const longLabelCharacters = 10;
+
+/**
+ * Vega-Lite turns long category labels on an x axis 90 degrees, which is hard to read.
+ * They are angled at -35 degrees instead, unless the model chose an angle.
+ */
+function angleLongCategoryLabels(spec: SpecObject, rows: Row[]): void {
+  forEachView(spec, (view) => {
+    if (!isPlainObject(view.encoding)) return;
+    const definition = view.encoding.x;
+    if (!isPlainObject(definition) || typeof definition.field !== "string") return;
+    if (definition.type !== "nominal" && definition.type !== "ordinal") return;
+    if (definition.axis === null) return;
+    const field = definition.field;
+    const longest = Math.max(0, ...rows.map((row) => String(row[field] ?? "").length));
+    if (longest <= longLabelCharacters) return;
+    const axis = isPlainObject(definition.axis) ? definition.axis : {};
+    if (axis.labelAngle !== undefined) return;
+    definition.axis = { ...axis, labelAngle: -35, labelAlign: "right" };
+  });
 }
 
 const legendChannels = ["color", "fill", "stroke", "shape", "strokeDash"];
