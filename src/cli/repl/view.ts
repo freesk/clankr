@@ -4,7 +4,7 @@
 import { Box, render, Static, Text, useInput } from "ink";
 import { createElement as h, type ReactElement, useSyncExternalStore } from "react";
 import type { ReplController } from "./controller.ts";
-import { ApprovalView, PickerView } from "./dialog-views.ts";
+import { ApprovalView, PickerView, QuestionView } from "./dialog-views.ts";
 import type { EntryKind, LiveTurn, ReplState, TranscriptEntry } from "./repl-state.ts";
 
 const entryStyles: Record<EntryKind, { color?: string; dimColor?: boolean; prefix: string }> = {
@@ -53,6 +53,7 @@ function Prompt({ state }: { state: ReplState }): ReactElement | null {
   if (state.exited) return null;
   if (state.approval) return h(ApprovalView, { approval: state.approval });
   if (state.choice) return h(PickerView, { choice: state.choice });
+  if (state.question) return h(QuestionView, { question: state.question });
   return h(InputLine, { state });
 }
 

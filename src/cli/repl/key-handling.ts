@@ -2,7 +2,13 @@
 // Each function says what a key press means; the controller applies it.
 
 import type { ApprovalAnswer } from "../../contracts/index.ts";
-import type { ChoiceOption, KeyPress, PendingApproval, PendingChoice } from "./repl-state.ts";
+import type {
+  ChoiceOption,
+  KeyPress,
+  PendingApproval,
+  PendingChoice,
+  PendingQuestion,
+} from "./repl-state.ts";
 
 export function isCtrlC(input: string, key: KeyPress): boolean {
   return key.ctrl && input === "c";
@@ -95,4 +101,22 @@ export function choiceKey(choice: PendingChoice, input: string, key: KeyPress): 
   const filter = editLine(choice.filter, input, key);
   if (filter === choice.filter) return { kind: "none" };
   return { kind: "update", choice: { ...choice, filter, highlighted: 0 } };
+}
+
+export type QuestionKeyResult =
+  | { kind: "submit"; answer: string }
+  | { kind: "cancel" }
+  | { kind: "update"; question: PendingQuestion }
+  | { kind: "none" };
+
+export function questionKey(
+  question: PendingQuestion,
+  input: string,
+  key: KeyPress,
+): QuestionKeyResult {
+  if (key.escape) return { kind: "cancel" };
+  if (key.return) return { kind: "submit", answer: question.answer };
+  const answer = editLine(question.answer, input, key);
+  if (answer === question.answer) return { kind: "none" };
+  return { kind: "update", question: { ...question, answer } };
 }

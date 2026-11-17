@@ -5,7 +5,7 @@ import { Box, Text } from "ink";
 import { createElement as h, type ReactElement } from "react";
 import type { ChangePreview } from "../../contracts/index.ts";
 import { filteredOptions } from "./key-handling.ts";
-import type { PendingApproval, PendingChoice } from "./repl-state.ts";
+import type { PendingApproval, PendingChoice, PendingQuestion } from "./repl-state.ts";
 
 const maximumPreviewLines = 40;
 const visiblePickerRows = 10;
@@ -106,5 +106,17 @@ export function PickerView({ choice }: { choice: PendingChoice }): ReactElement 
     h(Text, { dimColor: true }, `Filter: ${choice.filter}█  (↑↓ move, Enter choose, Esc cancel)`),
     ...rows,
     empty,
+  );
+}
+
+/** A setup question on the input line. A secret answer is drawn as asterisks only. */
+export function QuestionView({ question }: { question: PendingQuestion }): ReactElement {
+  const shown = question.secret ? "*".repeat(question.answer.length) : question.answer;
+  return h(
+    Text,
+    null,
+    h(Text, { color: "cyan" }, question.prompt),
+    shown,
+    h(Text, { dimColor: true }, "█"),
   );
 }

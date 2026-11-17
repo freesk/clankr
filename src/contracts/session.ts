@@ -70,6 +70,11 @@ export interface SlashCommandContext {
   print(text: string): void;
   /** Interactive pick from a list. Absent outside the REPL. */
   choose?(prompt: string, options: { label: string; value: string }[]): Promise<string | undefined>;
+  /**
+   * A typed answer on the input line; undefined when cancelled. A secret answer is masked
+   * while it is typed. Absent outside the REPL.
+   */
+  ask?(prompt: string, options?: { secret?: boolean }): Promise<string | undefined>;
 }
 
 export interface SlashCommand {

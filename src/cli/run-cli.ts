@@ -1,5 +1,5 @@
 // Picks what `vix` does from its arguments. Ink is loaded only when the REPL starts
-// (CLAUDE.md rule 7), so `-p`, `wipe`, `--help`, and `--version` never pay for it.
+// (CLAUDE.md rule 7), so `-p`, `wipe`, `config`, `--help`, and `--version` never pay for it.
 
 import { createInterface } from "node:readline/promises";
 import { ConfigError } from "../config/index.ts";
@@ -33,6 +33,11 @@ export async function runCli(environment: CliEnvironment): Promise<ExitCode> {
         stdout: environment.stdout,
         stderr: environment.stderr,
       });
+    case "config": {
+      // Loaded on demand like the REPL; it uses plain readline, never Ink.
+      const { runConfigCommand } = await import("./setup/config-command.ts");
+      return runConfigCommand(environment);
+    }
     case "session":
       return runSession(command, environment);
   }

@@ -46,6 +46,14 @@ export interface PendingChoice {
   highlighted: number;
 }
 
+/** A typed answer to a question, as the `/config` setup asks them. */
+export interface PendingQuestion {
+  prompt: string;
+  /** Drawn as asterisks, never as the typed text. */
+  secret: boolean;
+  answer: string;
+}
+
 export interface ReplState {
   entries: TranscriptEntry[];
   live: LiveTurn | undefined;
@@ -55,6 +63,7 @@ export interface ReplState {
   notice: string | undefined;
   approval: PendingApproval | undefined;
   choice: PendingChoice | undefined;
+  question: PendingQuestion | undefined;
   /** A turn or a slash command is running. */
   busy: boolean;
   exited: boolean;

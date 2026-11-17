@@ -74,6 +74,15 @@ describe("startup", () => {
     }
   });
 
+  it("vix config runs on readline without loading Ink or React", () => {
+    // Stdin is closed, so the setup ends at its first question and saves nothing.
+    const result = run(mainPath, ["config"]);
+    expect(result.stderr).not.toMatch(/Error/);
+    expect(result.status).toBe(0);
+    expect(result.loaded).toEqual([]);
+    expect(existsSync(join(vixHome, "config.json"))).toBe(false);
+  });
+
   it("the hook does see Ink when the REPL view is loaded", () => {
     expect(run(viewPath, []).loaded).toEqual(["ink", "react"]);
   });

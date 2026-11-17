@@ -7,6 +7,7 @@ import type { CliEnvironment } from "../cli-environment.ts";
 import { type ExitCode, exitCodes } from "../exit-codes.ts";
 import type { Harness } from "../harness.ts";
 import { errorMessage, redactSecrets } from "../secrets.ts";
+import { createConfigCommand, offerSetupAfterFailedStart } from "../setup/config-command.ts";
 import { ReplController } from "./controller.ts";
 import { ReplApprovalPrompter } from "./repl-approval-prompter.ts";
 
@@ -36,12 +37,20 @@ export async function startRepl(request: StartReplRequest): Promise<ExitCode> {
     });
   } catch (error) {
     environment.stderr.write(`vix: ${redactSecrets(errorMessage(error), config)}\n`);
+    await offerSetupAfterFailedStart(environment, config);
     return exitCodes.failed;
   }
 
   const controller = new ReplController({
     harness,
     workingDirectory: environment.workingDirectory,
+    cliCommands: [
+      createConfigCommand({
+        configFilePath: environment.composition.configFilePath(),
+        environment: environment.environment,
+        workingDirectory: environment.workingDirectory,
+      }),
+    ],
   });
   prompter.connect(controller);
   showNotice = (text) => controller.showNotice(text);

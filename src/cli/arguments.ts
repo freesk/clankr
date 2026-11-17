@@ -18,6 +18,7 @@ export type CliCommand =
   | { kind: "help" }
   | { kind: "version" }
   | { kind: "wipe"; assumeYes: boolean }
+  | { kind: "config" }
   | SessionCommand;
 
 export type ParseResult = { ok: true; command: CliCommand } | { ok: false; error: string };
@@ -28,6 +29,7 @@ export const usageText = `Usage:
   vix [options]              Start the interactive REPL
   vix -p "prompt" [options]  Run one prompt and exit (stdin may be piped in)
   vix wipe [--yes]           Delete all saved sessions, stored results, and logs
+  vix config                 Set up the LM Studio address, API token, model, and preferences
 
 Options:
   -p, --print <prompt>       One-shot mode: print the result and exit
@@ -73,6 +75,7 @@ export function parseCliArguments(argv: string[]): ParseResult {
   if (values.help) return { ok: true, command: { kind: "help" } };
   if (values.version) return { ok: true, command: { kind: "version" } };
   if (positionals[0] === "wipe") return parseWipe(values, positionals);
+  if (positionals[0] === "config") return parseConfig(values, positionals);
   if (positionals.length > 0) {
     return {
       ok: false,
@@ -88,6 +91,13 @@ function parseWipe(values: ParsedValues, positionals: string[]): ParseResult {
     return { ok: false, error: "wipe takes no arguments other than --yes." };
   }
   return { ok: true, command: { kind: "wipe", assumeYes: values.yes === true } };
+}
+
+function parseConfig(values: ParsedValues, positionals: string[]): ParseResult {
+  if (positionals.length > 1 || Object.keys(values).length > 0) {
+    return { ok: false, error: "config takes no arguments." };
+  }
+  return { ok: true, command: { kind: "config" } };
 }
 
 function parseSession(values: ParsedValues): ParseResult {

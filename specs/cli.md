@@ -26,14 +26,15 @@ Everything the user sees and types. The CLI starts a session, reads input, hands
 - A slash command dispatcher that accepts `SlashCommand` registrations.
 - The `ApprovalPrompter` implementation.
 - The interactive model picker used by `/model`.
+- The setup flow (D73): `vix config` and `/config`, in `src/cli/setup/`.
 
 ### Slash commands
 
-The CLI owns dispatch, `/help`, `/exit`, and `/clear`. Every other command is registered by the part that owns the feature.
+The CLI owns dispatch, `/help`, `/exit`, `/clear`, and `/config`. Every other command is registered by the part that owns the feature.
 
 | Command | Behaviour owned by |
 |---|---|
-| `/help`, `/exit`, `/clear` | cli |
+| `/help`, `/exit`, `/clear`, `/config` | cli |
 | `/model` | [lmstudio](lmstudio.md) (the picker widget is cli's) |
 | `/context`, `/compact` | [context](context.md) |
 | `/think` | [agent-loop](agent-loop.md) |
@@ -66,7 +67,7 @@ The CLI owns dispatch, `/help`, `/exit`, and `/clear`. Every other command is re
 
 - Parsing tool calls, running tools, permission decisions.
 - What each slash command does beyond dispatch.
-- Reading or writing anything under `~/.vix/` directly; that goes through storage.
+- Reading or writing anything under `~/.vix/` directly; that goes through storage. The one exception is the setup flow, which reads `config.json` with config's `readConfigFile` and writes it with storage's `writePrivateFile`.
 
 ## Done when
 
@@ -95,6 +96,10 @@ Settled 2026-11-17. A D-number means the decision is also recorded in PRD sectio
 | Approval keys | `o` once, `a` always for this session, `d` deny and type feedback, `Esc` deny without feedback. `Enter` alone does nothing, so a stray key cannot approve a change. Ctrl+C at the prompt cancels the turn. |
 | Ctrl+C | During a turn, the first press aborts it and the REPL stops waiting on the event stream at once, even if the producer is slow to notice. Any press arms exit; the next press exits unless another key came in between. |
 | Flag combinations | `--ephemeral` with `--resume`, `--json` without one-shot mode, and `--yes` outside `wipe` are usage errors. `vix wipe` without `--yes` refuses when stdin is not a terminal. |
+| Setup flow (D73) | `vix config` and `/config` run one flow: base URL (non-loopback warns, SEC-1 override explained but not offered), API token (hidden; tested at once with `GET /api/v1/models`; rejected means retry or skip, and skip leaves the saved token as it was), default model (numbered MOD-3 list when LM Studio answers, else a typed key), context length (capped at the model's maximum, D47), permission mode, allowed folders (saved as absolute paths; `-` means the start folder). Enter keeps each current value. A summary shows the token as `sk-…last4` at most; nothing is written until the user confirms. The file is merged with every key the flow does not own, validated with `configSchema`, and written at 0600 in a 0700 folder under `VIX_HOME`. A file that is not valid JSON or not a valid config is never overwritten. |
+| `vix config` input | Plain readline, never Ink. Echo is off during the token question and between questions, so typed-ahead or pasted text cannot show the token. Ctrl+C or the end of input cancels and writes nothing (exit 0). |
+| `/config` in the REPL | Questions use the REPL's input line (`SlashCommandContext.ask`); a secret answer is drawn as asterisks and kept in scrollback as `(hidden)`. After saving, the permission mode applies to the running session at once. Base URL, token, model, context length, and allowed folders apply on the next start, and the REPL says so (`/model` switches models now). |
+| First run | When the REPL fails to start and stdin and stdout are both terminals, the cli asks LM Studio once more; if the cause is a missing or rejected token it offers the setup (y/N). After saving it asks the user to start vix again. One-shot and non-terminal runs only print the error, whose fix names `vix config`. |
 
 ## Startup measurement (2026-11-17)
 

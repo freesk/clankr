@@ -58,4 +58,6 @@ export interface CliComposition {
   }): Promise<Config>;
   openHarness(options: HarnessOptions): Promise<Harness>;
   wipe(): Promise<WipeReport>;
+  /** Where `vix config` and `/config` save the settings: `config.json` under `VIX_HOME`. */
+  configFilePath(): string;
 }

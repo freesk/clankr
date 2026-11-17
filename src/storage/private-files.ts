@@ -2,7 +2,7 @@
 // Modes are set with chmod after creation, because the mode passed to mkdir and open
 // is filtered through the umask and an existing directory keeps whatever it had.
 
-import { chmod, mkdir, open } from "node:fs/promises";
+import { chmod, mkdir, open, rename } from "node:fs/promises";
 
 export const privateDirectoryMode = 0o700;
 export const privateFileMode = 0o600;
@@ -27,6 +27,22 @@ export async function appendPrivateFile(path: string, text: string): Promise<voi
   } finally {
     await handle.close();
   }
+}
+
+/**
+ * Replaces a file with text, at 0600. The text goes to a temporary file next to it first,
+ * so a crash mid-write never leaves a half-written file. The directory must already exist.
+ */
+export async function writePrivateFile(path: string, text: string): Promise<void> {
+  const temporaryPath = `${path}.${process.pid}.tmp`;
+  const handle = await open(temporaryPath, "w", privateFileMode);
+  try {
+    await handle.chmod(privateFileMode);
+    await handle.writeFile(text, "utf8");
+  } finally {
+    await handle.close();
+  }
+  await rename(temporaryPath, path);
 }
 
 export function isMissingFileError(error: unknown): boolean {

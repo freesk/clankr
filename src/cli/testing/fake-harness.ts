@@ -146,9 +146,10 @@ export function createFakeComposition(options: FakeCompositionOptions = {}): Fak
     opened: [],
     openedWith: [],
     wipeCount: 0,
+    configFilePath: () => options.configFilePath ?? "/nonexistent/vix/config.json",
     loadConfig: ({ flags, workingDirectory, environment }) =>
       loadConfig({
-        configFilePath: options.configFilePath ?? "/nonexistent/vix/config.json",
+        configFilePath: composition.configFilePath(),
         workingDirectory,
         environment,
         flags,
