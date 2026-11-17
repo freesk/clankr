@@ -469,6 +469,8 @@ Milestones give the order in which scenarios must pass. The work itself is split
 | D69 | Audit coverage | Calls the gate never saw (invalid arguments, unknown tool, cancelled before the decision) are logged as `denied` / `not-run` with the error; blocked browser requests are logged as tool `browser`, `denied` | PERM-8 covers every call |
 | D70 | Compaction in the transcript | A `history` record replaces earlier messages on resume; older lines stay on disk until wiped | Append-only file, correct resume |
 | D71 | Shared helpers | Pure helpers used by several parts live in `src/shared/` | Rule 4, no duplication |
+| D72 | zod advisory through `@lmstudio/sdk` | Kept as is: the SDK's bundled zod 3.25.76 (GHSA-mrhx-c7xc-m3w5) is accepted | User decision. The SDK only parses messages from the local LM Studio server |
+| D73 | Setting the API token | Through a guided `vix config` / `/config` flow that writes `~/.vix/config.json` at 0600; `LM_API_TOKEN` still overrides it | User decision: setup should not require editing files or the shell |
 
 Decisions internal to one part (limits, cache rules, eviction age) are recorded in that part's spec under [specs/](specs/README.md).
 
