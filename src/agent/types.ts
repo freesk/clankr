@@ -7,6 +7,7 @@ import type {
   PermissionGate,
   ToolContext,
   ToolDefinition,
+  TurnInputWithAttachments,
 } from "../contracts/index.ts";
 
 /** Native tool calls through the API's tools field, or a text format parsed from the reply (MOD-6). */
@@ -44,8 +45,5 @@ export interface AgentDependencies {
   extraInstructions?: string;
 }
 
-/** What the user sent: prose, plus any file paths attached by typing or dragging (CLI-10). */
-export interface TurnInput {
-  text: string;
-  attachmentPaths?: string[];
-}
+/** The object form of a turn's input. Defined once, in the contracts. */
+export type TurnInput = TurnInputWithAttachments;

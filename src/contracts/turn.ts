@@ -1,11 +1,16 @@
 // Running one turn (seam: agent-loop → cli, evals, subagents).
 
 import type { AgentEvent } from "./events.ts";
-import type { UserContentPart } from "./model.ts";
 import type { SessionState } from "./session.ts";
 
-/** What the user sent: plain text, or text with attached images. */
-export type TurnInput = string | UserContentPart[];
+/** Prose plus file paths attached by typing or dragging (CLI-10). Images are read by tools, not inlined. */
+export interface TurnInputWithAttachments {
+  text: string;
+  attachmentPaths?: string[];
+}
+
+/** What the user sent. Matches agent-loop's `runTurn`. */
+export type TurnInput = string | TurnInputWithAttachments;
 
 /**
  * The shape of agent-loop's `runTurn(session, input, signal)`. The stream ends

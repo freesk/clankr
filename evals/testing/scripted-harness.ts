@@ -74,7 +74,8 @@ class ScriptedHarness implements EvalHarness {
   async close(): Promise<void> {}
 
   async *runTurn(input: TurnInput, signal: AbortSignal): AsyncIterable<AgentEvent> {
-    const messages: ChatMessage[] = [{ role: "user", content: input }];
+    const text = typeof input === "string" ? input : input.text;
+    const messages: ChatMessage[] = [{ role: "user", content: text }];
     for (let round = 0; round < maximumRounds; round++) {
       const calls = new Map<number, { id: string; name: string; argumentsJson: string }>();
       for await (const event of this.lm.chat({ model: "test", messages }, signal)) {

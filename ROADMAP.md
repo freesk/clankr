@@ -36,7 +36,7 @@ Build `vix` as described in [PRD.md](PRD.md), part by part, following the waves 
 | 12 | sandbox | [sandbox.md](specs/sandbox.md) | 1 | agent-sandbox | done (verified) | Merged in `d537642`: 55 sandbox tests incl. every escape, timeout, memory, and no-network case; full suite 105 passing, lint and build clean on main. Not verified: run through the real loop/permissions/model (wave 2) |
 | 13 | chart | [chart.md](specs/chart.md) | 1 | agent-chart-pdf | in progress | Vendor step for Vega-Lite; theme loader and spec validation |
 | 14 | pdf | [pdf.md](specs/pdf.md) | 1 | agent-chart-pdf | in progress | Vendor step for Chromium; offline `renderChart` |
-| 15 | evals | [evals.md](specs/evals.md) | 1 | agent-evals | in progress | Task format and runner, tested with `ScriptedLmClient` |
+| 15 | evals | [evals.md](specs/evals.md) | 1 | agent-evals | done (verified) | Merged in `4b3d27d`: 41 golden tasks validated, runner and metrics tested with a scripted harness, network observers catch deliberate outbound traffic; full suite 409 passing + 5 skipped. Not verified: any golden run against a real model (real harness is wave 2), network test against real `vix`, PRD section 9 performance script (not built) |
 | 16 | subagents | [subagents.md](specs/subagents.md) | 2 | unassigned | blocked | Waits for a working `runTurn` (task 3) |
 | 17 | integration | [README.md](specs/README.md) | 2 | unassigned | blocked | Waits for wave 1; replace fakes one seam at a time |
 
@@ -78,6 +78,9 @@ Build `vix` as described in [PRD.md](PRD.md), part by part, following the waves 
 
 - context wiring: `VixContextEngine({ lm, results, config, model? })`, `DiskResultStore(vixPaths.session.results)`, `createReadResultTool(config)`, `createContextCommands(engine)`. agent-loop must call `prepareMessages` before every model call (each tool round), send `maxTokens = engine.budgets().response`, and call `recordUsage` after each chat. lmstudio's switcher must call `engine.onModelChanged(model)`. agent-loop and cli must surface the error when system prompt plus tools exceed the window.
 
+- evals wiring (wave 2): implement `evals/runner/real-harness.ts`: wrap the real client in `UsageRecordingLmClient`, allowed roots = task folder, auto-answer approvals, report registry tool names and slash commands, adapt `runTurn` with `bindRunTurn`, file tools with a private Trash (D54). Switch the runner from `createTemporaryVixPaths` to storage's layout if needed (the fake already uses it). Add `delete` golden tasks. Point `runUnderObservation` at real `vix`. Build the section 9 performance script.
+- `TurnInput`/`RunTurn` now live in `src/contracts/turn.ts` with agent-loop's shape (`string | { text, attachmentPaths? }`); evals had defined a different one.
+
 ## Decisions made along the way
 
 | Date | Decision | Reason |
@@ -94,4 +97,6 @@ Build `vix` as described in [PRD.md](PRD.md), part by part, following the waves 
 | 2026-11-17 | D48–D50 from agent-loop | See PRD 13.1 |
 | 2026-11-17 | Lint broke on main at `144a275` (long import after a rename), fixed in `ee2d841`; merge checks now use exit codes, not output tails | Rule 2: evidence must be the actual exit status |
 | 2026-11-17 | D51 from context | See PRD 13.1 |
+| 2026-11-17 | D52–D54 from evals | See PRD 13.1 |
+| 2026-11-17 | Unified `TurnInput` in the contracts on agent-loop's shape | Two incompatible definitions had been merged |
 | 2026-11-17 | Config `data.rowCap` is one number for the chart row cap and the isolate helper cap | specs/sandbox.md requires them to be defined once |
