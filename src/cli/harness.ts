@@ -22,6 +22,11 @@ export interface HarnessOptions {
   ephemeral: boolean;
   resume: boolean;
   workingDirectory: string;
+  /**
+   * Things the user should know that are not part of a turn: LM Studio warnings, a model
+   * reload, a resumed session's missing model, a model without native tool calling (MOD-6).
+   */
+  notify?(text: string): void;
 }
 
 /** One running session and everything the cli calls on it. */

@@ -50,7 +50,7 @@ describe("runSubAgent: a normal delegation", () => {
   it("uses the session's loaded model", async () => {
     const kit = await createSubAgentKit({ responses: [respond.text("done")] });
     await runSubAgent(brief, [toyReadTool], limits, kit.environment);
-    expect(kit.lm.requests[0]?.model).toBe(kit.environment.model.key);
+    expect(kit.lm.requests[0]?.model).toBe(kit.environment.model.instanceId);
     expect(kit.lm.loads).toEqual([]);
   });
 });

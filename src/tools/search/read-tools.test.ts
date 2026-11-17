@@ -5,7 +5,7 @@ import { join } from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import type { ToolContext } from "../../contracts/index.ts";
 import { createTestToolContext, FixedPathPolicy } from "../../testing/index.ts";
-import { type FixtureTree, writeFixtureTree } from "./fixture-tree.ts";
+import { type FixtureTree, writeFixtureTree } from "./fixture-tree.test-support.ts";
 import { listDirTool } from "./list-dir.ts";
 import { readFileTool } from "./read-file.ts";
 

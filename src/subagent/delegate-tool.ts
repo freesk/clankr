@@ -6,6 +6,7 @@ import { z } from "zod";
 import { VixContextEngine } from "../context/index.ts";
 import {
   type AgentEvent,
+  type AuditLog,
   type Config,
   type ContextEngine,
   type PermissionGate,
@@ -47,6 +48,8 @@ export interface DelegateToolDependencies {
   onEvent?(event: AgentEvent): void;
   /** Each finished delegation, for evals (tokens, tool-call validity). */
   onResult?(result: SubAgentResult): void;
+  /** The session's audit log (PERM-8). Read when each delegation starts, so it can follow `/clear`. */
+  audit?(): AuditLog;
 }
 
 export function createDelegateTool(
@@ -101,6 +104,7 @@ async function delegate(
       workingDirectory: context.workingDirectory,
       signal: context.signal,
       ...(dependencies.onEvent ? { onEvent: dependencies.onEvent } : {}),
+      ...(dependencies.audit ? { audit: dependencies.audit() } : {}),
     });
   } catch (error) {
     // The loop's failure text is already short and safe; anything else stays generic.

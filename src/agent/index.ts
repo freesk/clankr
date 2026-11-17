@@ -6,11 +6,13 @@
 //   runTurn(dependencies, session, input, signal): AsyncGenerator<AgentEvent>
 //
 //   dependencies  AgentDependencies: { lm, context, permissions, tools, createToolContext,
-//                 config, workingDirectory, toolReferences?, extraInstructions? }.
+//                 config, workingDirectory, toolReferences?, extraInstructions?, audit? }.
+//                 With `audit`, one AuditEntry is recorded per call after it ends (PERM-8).
 //                 `tools` is every ToolDefinition the loop may offer; scoping picks the
 //                 subset per round. Sub-agents call runTurn with their own context engine,
 //                 a read-only tool list, and extraInstructions.
-//   session       SessionState. `messages` is updated in place during the turn; `model`
+//   session       SessionState. `messages` is updated during the turn, and replaced by the
+//                 context engine's compacted history after each prepareMessages (D51); `model`
 //                 must be set; `reasoning` is sent with each request; the loop records
 //                 switched-on tool groups in `activatedToolGroups`.
 //   input         The user's text, or { text, attachments } (CLI-10).

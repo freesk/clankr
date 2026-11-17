@@ -1,0 +1,74 @@
+// Every tool the agent loop may offer, built from the loaded config (PRD Appendix B).
+// Scoping (CTX-8) picks the subset sent each round; this list is the whole inventory.
+
+import type { ToolReference } from "../agent/index.ts";
+import { chartToolReference, createVisionSelfCheck } from "../chart/index.ts";
+import { createReadResultTool } from "../context/index.ts";
+import type {
+  AgentEvent,
+  AuditLog,
+  Config,
+  LoadedModel,
+  PermissionGate,
+  ToolDefinition,
+} from "../contracts/index.ts";
+import type { ChartRenderer } from "../engines/browser/index.ts";
+import { createStandardHelpers, runInIsolate } from "../engines/isolate/index.ts";
+import { createDelegateTool } from "../subagent/index.ts";
+import { inspectDataTool } from "../tools/data/inspect/index.ts";
+import { createMakeChartTool } from "../tools/data/make-chart.ts";
+import { querySqlTool } from "../tools/data/query-sql.ts";
+import { createRunJsTool } from "../tools/data/run-js.ts";
+import { createFileTools, type FileToolDependencies } from "../tools/fs/index.ts";
+import { viewImageTool } from "../tools/image/index.ts";
+import { createSearchTools } from "../tools/search/index.ts";
+
+export interface ToolSetOptions {
+  config: Config;
+  renderer: ChartRenderer;
+  fileTools: FileToolDependencies;
+  /** The session's current model, for the chart self-check (DATA-18). */
+  currentModel(): LoadedModel | undefined;
+  /** The current session's gate; `delegate` sends its sub-agent's calls through it. */
+  permissions: PermissionGate;
+  /** Sub-agent events, drawn as nested tool lines. */
+  onSubAgentEvent(event: AgentEvent): void;
+  /** The current session's audit log, for the sub-agent's calls. */
+  currentAudit(): AuditLog;
+}
+
+export interface ToolSet {
+  tools: ToolDefinition[];
+  /** Reference text loaded only while its tool is in use (DATA-16). */
+  toolReferences: ToolReference[];
+}
+
+export function buildToolSet(options: ToolSetOptions): ToolSet {
+  const { config } = options;
+  const baseTools: ToolDefinition[] = [
+    ...createSearchTools(config),
+    createReadResultTool(config),
+    ...createFileTools(options.fileTools),
+    viewImageTool,
+    inspectDataTool,
+    querySqlTool,
+    createRunJsTool(config),
+    createMakeChartTool({
+      runInIsolate,
+      createStandardHelpers,
+      renderChart: (request, signal) => options.renderer.renderChart(request, signal),
+      renderPreview: (spec, rows, theme, signal) =>
+        options.renderer.renderPreview(spec, rows, theme, signal),
+      selfCheck: createVisionSelfCheck(options.currentModel),
+    }),
+  ];
+  // CTX-6: `delegate` gets the finished list and keeps only its read tools for the sub-agent.
+  const delegate = createDelegateTool({
+    config,
+    tools: baseTools,
+    permissions: options.permissions,
+    onEvent: options.onSubAgentEvent,
+    audit: options.currentAudit,
+  });
+  return { tools: [...baseTools, delegate], toolReferences: [chartToolReference] };
+}

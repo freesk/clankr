@@ -4,7 +4,7 @@
 
 import { dirname } from "node:path";
 import { z } from "zod";
-import { type ChartCodeRunner, chartIsolateLimits, runChartCode } from "../../chart/chart-code.ts";
+import { type ChartCodeRunner, runChartCode } from "../../chart/chart-code.ts";
 import { writeCompanionFiles } from "../../chart/companion-files.ts";
 import {
   baseNameFromTitle,
@@ -28,6 +28,7 @@ import type {
   ToolContext,
   ToolDefinition,
 } from "../../contracts/index.ts";
+import { isolateLimitsFrom } from "../../engines/isolate/limits.ts";
 
 const parameters = z.object({
   code: z
@@ -85,7 +86,7 @@ export function createMakeChartTool(
 
     async run(args, context) {
       const { theme, problem: themeProblem } = await loadTheme(context.vixPaths.themeFile);
-      const limits = chartIsolateLimits(context.config);
+      const limits = isolateLimitsFrom(context.config);
       const captured = await runChartCode(
         args.code,
         dependencies,

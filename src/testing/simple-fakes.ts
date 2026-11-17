@@ -5,10 +5,8 @@ import { isAbsolute, resolve, sep } from "node:path";
 import type {
   DataSource,
   DataSourceRegistry,
-  FileReadState,
   PathClassification,
   PathPolicy,
-  ReadTracker,
 } from "../contracts/index.ts";
 
 /**
@@ -48,17 +46,8 @@ function isInside(path: string, folder: string): boolean {
   return candidate === parent || candidate.startsWith(parent.endsWith(sep) ? parent : parent + sep);
 }
 
-export class InMemoryReadTracker implements ReadTracker {
-  private readonly states = new Map<string, FileReadState>();
-
-  markRead(realPath: string, state: FileReadState): void {
-    this.states.set(realPath, state);
-  }
-
-  readState(realPath: string): FileReadState | undefined {
-    return this.states.get(realPath);
-  }
-}
+/** The real per-session tracker is small and has no side effects, so tests use it directly. */
+export { SessionReadTracker as InMemoryReadTracker } from "../tools/search/read-tracker.ts";
 
 export class InMemoryDataSourceRegistry implements DataSourceRegistry {
   private readonly sources: DataSource[] = [];

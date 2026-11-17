@@ -103,7 +103,13 @@ Apple M3 Pro, 18 GB, Node 22.22.2, built `bin/vix.js` with the placeholder compo
 - REPL, spawn until the input prompt and status line are drawn: median 249 ms (246 to 280 ms). Ink and React are included.
 - `vix -p "hi"`, spawn to exit: median 81 ms (77 to 139 ms). Ink is not loaded (`src/cli/startup.test.ts`).
 
-Re-measure after integration: opening the real harness (LM Studio model check, session store) happens before the first frame.
+Re-measured 2026-11-17 after integration (real harness wired; built `bin/vix.js`; 10 runs after one warm-up). No LM Studio token was available, so the binary ran against the fake LM Studio HTTP server (`src/lmstudio/fake-lm-studio-server.test-support.ts`) with the model already loaded; the server check, model check, storage, and context engine are all real:
+
+- REPL, spawn until the status line is drawn in a pseudo-terminal: median 278 ms (275 to 304 ms).
+- `vix -p "hi" --ephemeral`, spawn to exit, one full chat turn included: median 199 ms (196 to 222 ms).
+- `vix --version`: median 74 ms.
+
+Not measured: the same against real LM Studio, where the model check and any reload add their own time.
 
 ## Open questions
 

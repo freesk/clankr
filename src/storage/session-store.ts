@@ -6,6 +6,7 @@ import type {
   SavedSession,
   SessionStore,
   SessionSummary,
+  ToolGroup,
 } from "../contracts/index.ts";
 import { buildRootPaths, buildVixPaths, isValidSessionId } from "./layout.ts";
 import { isMissingFileError } from "./private-files.ts";
@@ -94,12 +95,17 @@ function sessionFromTranscript(sessionId: string, text: string): SavedSession {
   const messages: ChatMessage[] = [];
   let createdAt: string | undefined;
   let modelKey: string | undefined;
+  let activatedToolGroups: ToolGroup[] | undefined;
   for (const record of parseTranscript(text)) {
     if (record.type === "session") createdAt ??= record.createdAt;
     else if (record.type === "message") messages.push(record.message);
     else if (record.type === "model") modelKey = record.modelKey;
+    else if (record.type === "history") messages.splice(0, messages.length, ...record.messages);
+    else if (record.type === "tool-groups") activatedToolGroups = record.groups;
   }
-  return { id: sessionId, createdAt, messages, modelKey };
+  const session: SavedSession = { id: sessionId, createdAt, messages, modelKey };
+  if (activatedToolGroups) session.activatedToolGroups = activatedToolGroups;
+  return session;
 }
 
 async function modifiedTime(path: string): Promise<Date | undefined> {

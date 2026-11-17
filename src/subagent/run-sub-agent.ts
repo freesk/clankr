@@ -4,6 +4,7 @@
 import { type AgentDependencies, runTurn } from "../agent/index.ts";
 import type {
   AgentEvent,
+  AuditLog,
   ChatMessage,
   Config,
   ContextEngine,
@@ -55,6 +56,8 @@ export interface SubAgentEnvironment {
   signal: AbortSignal;
   /** Every event of the sub-agent's loop, for nested tool lines and eval metrics. */
   onEvent?(event: AgentEvent): void;
+  /** PERM-8: the session's audit log, so the sub-agent's calls are logged like any other. */
+  audit?: AuditLog;
 }
 
 export interface ToolCallCounts {
@@ -192,6 +195,7 @@ function subAgentDependencies(
     config: withRoundLimit(environment.config, limits.turnLimit),
     workingDirectory: environment.workingDirectory,
     extraInstructions: subAgentInstructions(limits.summaryTokenCap),
+    ...(environment.audit ? { audit: environment.audit } : {}),
   };
 }
 
