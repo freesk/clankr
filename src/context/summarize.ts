@@ -32,7 +32,8 @@ const goalFallbackCharacters = 300;
 
 export interface SummarizeOptions {
   lm: LmClient;
-  modelKey: string;
+  /** `ChatRequest.model`: the loaded model's instance id. */
+  modelId: string;
   ledger: TokenLedger;
   results: ResultStore;
   contextLength: number;
@@ -66,7 +67,7 @@ async function requestSummary(
     const chat = options.lm.chat(
       // Reasoning is off: it would spend the window on text that is thrown away.
       {
-        model: options.modelKey,
+        model: options.modelId,
         messages: request,
         reasoning: "off",
         maxTokens: options.summaryTokens,

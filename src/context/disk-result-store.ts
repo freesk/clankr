@@ -28,8 +28,11 @@ import {
 /** Thrown for a handle that is malformed or names no stored result. */
 export class UnknownResultError extends Error {
   override readonly name = "UnknownResultError";
-  constructor(readonly handle: string) {
+  readonly handle: string;
+
+  constructor(handle: string) {
     super(`No stored result ${handle}`);
+    this.handle = handle;
   }
 }
 

@@ -1,6 +1,7 @@
 // The agent loop's own types: what a caller hands `runTurn`, and what a turn takes as input.
 
 import type {
+  AuditLog,
   Config,
   ContextEngine,
   LmClient,
@@ -43,6 +44,8 @@ export interface AgentDependencies {
   toolReferences?: readonly ToolReference[];
   /** Extra instructions appended to the system prompt, for example a sub-agent's brief rules. */
   extraInstructions?: string;
+  /** PERM-8: one entry per tool call, written after the call ends. Optional for tests. */
+  audit?: AuditLog;
 }
 
 /** The object form of a turn's input. Defined once, in the contracts. */

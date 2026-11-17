@@ -60,7 +60,8 @@ export function buildChatRequest(
   prepared: ChatMessage[],
 ): ChatRequest {
   const request: ChatRequest = {
-    model: model.key,
+    // The instance id, so LM Studio answers with the instance loaded at the configured length.
+    model: model.instanceId,
     messages: plan.style === "prompt" ? toPromptStyleMessages(prepared) : prepared,
     reasoning: session.reasoning,
     maxTokens: dependencies.context.budgets().response,

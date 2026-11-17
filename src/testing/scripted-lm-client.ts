@@ -8,6 +8,7 @@ import type {
   LoadedModel,
   ModelInfo,
 } from "../contracts/index.ts";
+import { estimateTokens } from "../shared/index.ts";
 
 /** A fixed list of events, or a function that builds them from the request it answers. */
 export type ScriptedResponse = ChatEvent[] | ((request: ChatRequest) => ChatEvent[]);
@@ -22,8 +23,6 @@ export const testModel: ModelInfo = {
   capabilities: { vision: true, trainedForToolUse: true, reasoning: true },
   loadedInstances: [],
 };
-
-const charactersPerToken = 4;
 
 export class ScriptedLmClient implements LmClient {
   readonly requests: ChatRequest[] = [];
@@ -79,24 +78,8 @@ export class ScriptedLmClient implements LmClient {
 
   /** A character-based estimate, deterministic so tests can assert exact numbers. */
   async countTokens(messages: ChatMessage[]): Promise<number> {
-    return Math.ceil(messageCharacters(messages) / charactersPerToken);
+    return estimateTokens(messages);
   }
-}
-
-function messageCharacters(messages: ChatMessage[]): number {
-  let total = 0;
-  for (const message of messages) {
-    if (typeof message.content === "string") {
-      total += message.content.length;
-    } else {
-      for (const part of message.content) total += part.type === "text" ? part.text.length : 0;
-    }
-    if (message.role === "assistant") {
-      for (const call of message.toolCalls ?? [])
-        total += call.name.length + call.argumentsJson.length;
-    }
-  }
-  return total;
 }
 
 const usageEvent: ChatEvent = { type: "usage", usage: { promptTokens: 0, completionTokens: 0 } };

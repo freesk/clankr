@@ -1,11 +1,11 @@
 // Walking a Vega-Lite spec: a view can hold child views under a few keys, and the cleanup
 // steps (styling, external references, field checks) all need to visit every view.
 
-export type SpecObject = Record<string, unknown>;
+import { isPlainObject } from "../shared/index.ts";
 
-export function isPlainObject(value: unknown): value is SpecObject {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
+export { isPlainObject };
+
+export type SpecObject = Record<string, unknown>;
 
 const childViewArrayKeys = ["layer", "hconcat", "vconcat", "concat"];
 

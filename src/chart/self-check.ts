@@ -29,7 +29,7 @@ export function createVisionSelfCheck(currentModel: () => LoadedModel | undefine
     const model = currentModel();
     if (!model?.capabilities.vision) return undefined;
     const request: ChatRequest = {
-      model: model.key,
+      model: model.instanceId,
       reasoning: "off",
       maxTokens: 80,
       messages: [

@@ -2,6 +2,7 @@
 // font, and a theme font that is not installed falls back to it with a note in the result.
 
 import type { Page } from "playwright-core";
+import { isPlainObject } from "../../shared/index.ts";
 import { isFontInstalled } from "./page-calls.ts";
 
 /** Ships with every macOS release vix supports, and embeds cleanly in a PDF. */
@@ -40,8 +41,4 @@ function replaceStringDeep(value: unknown, from: string, to: string): unknown {
   return Object.fromEntries(
     Object.entries(value).map(([key, item]) => [key, replaceStringDeep(item, from, to)]),
   );
-}
-
-function isPlainObject(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
 }

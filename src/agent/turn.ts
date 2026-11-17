@@ -100,6 +100,9 @@ async function* askModel(
     tools: toolSchemasToSend(plan),
     history: session.messages,
   });
+  // D51: the engine returns the history to keep (compacted when a threshold was crossed),
+  // so the session never grows past the window.
+  session.messages = prepared.slice(1);
   return yield* streamModelReply({
     lm: dependencies.lm,
     context: dependencies.context,

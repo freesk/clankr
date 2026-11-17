@@ -9,12 +9,13 @@ import type {
   LoadedModel,
   ModelInfo,
 } from "../contracts/index.ts";
+import { estimateTokens } from "../shared/index.ts";
 import { parseChatStream, StreamError } from "./chat-stream.ts";
 import { LmStudioError, modelNotDownloaded, requestFailed } from "./errors.ts";
 import type { HostResolver } from "./loopback.ts";
 import { fetchModels, requestLoad, requestUnload } from "./models-api.ts";
 import { planLoad, profileFor } from "./profiles.ts";
-import { estimateTokens, SdkTokenCounter, type TokenCounter } from "./token-counter.ts";
+import { SdkTokenCounter, type TokenCounter } from "./token-counter.ts";
 import { LmStudioTransport } from "./transport.ts";
 import { buildChatBody } from "./wire-format.ts";
 

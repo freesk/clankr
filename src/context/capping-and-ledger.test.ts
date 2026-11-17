@@ -159,6 +159,6 @@ describe("summary request", () => {
       { role: "user", content: "second" },
     ]);
     expect(lm.requests[0]?.reasoning).toBe("off");
-    expect(lm.requests[0]?.model).toBe(testModel.key);
+    expect(lm.requests[0]?.model).toBe(loadedModel(16_384).instanceId);
   });
 });
