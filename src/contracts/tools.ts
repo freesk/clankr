@@ -3,7 +3,7 @@
 import type { z } from "zod";
 import type { Config } from "../config/schema.ts";
 import type { DataSourceRegistry } from "./data.ts";
-import type { LmClient } from "./model.ts";
+import type { LmClient, LoadedModel, ReasoningSetting } from "./model.ts";
 import type { ChangePreview, PathPolicy } from "./permissions.ts";
 import type { ResultHandle, ResultStore } from "./results.ts";
 import type { ReadTracker, VixPaths } from "./session.ts";
@@ -23,6 +23,13 @@ export interface ToolContext {
   config: Config;
   /** Folder that relative paths resolve against: where `vix` was started. */
   workingDirectory: string;
+  /**
+   * The model the session is talking to, for tools that make their own model
+   * call (`view_image`). Absent when no model is loaded.
+   */
+  model?: LoadedModel;
+  /** The session's `/think` setting, for tools that make their own model call. */
+  reasoning?: ReasoningSetting;
 }
 
 /** Tools return full output. The agent loop caps it, so no tool truncates on its own. */
