@@ -64,6 +64,12 @@ const subagentsSchema = z.object({
 const imageSchema = z.object({
   /** Provisional until the M3 measurement settles it (specs/image.md). */
   maxEdgePixels: z.number().int().positive().default(1024),
+  /** Answer allowance for a question about an image (IMG-1). */
+  answerTokens: z.number().int().positive().default(1024),
+  /** Answer allowance in transcribe mode, which returns more text (IMG-5). */
+  transcribeAnswerTokens: z.number().int().positive().default(4096),
+  /** How long the macOS `sips` conversion (IMG-4) may run. */
+  conversionTimeoutMs: z.number().int().positive().default(30_000),
 });
 
 const dataSchema = z.object({

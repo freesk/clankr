@@ -68,6 +68,18 @@ Settled 2026-11-17.
 | Formats `sharp` cannot decode (IMG-4) | `sharp` is tried first. Anything it cannot read, HEIC in particular, is converted with the built-in macOS `sips` command. |
 | Reasoning in the sub-call | Off for transcribe mode. Questions follow the session's `/think` setting. |
 
+Settled while building, 2026-11-17. Internal to this part unless marked.
+
+| Topic | Decision |
+|---|---|
+| Which formats skip `sharp` | The bundled libvips in `sharp` 0.35.5 reads HEIC headers but has no HEVC decoder, and does not read BMP at all (checked on the reference machine). Both go straight to `sips`, so libvips does not print decoder warnings to the terminal. Every other format tries `sharp` first and falls back to `sips` if it fails. AVIF decodes in `sharp` and is accepted. |
+| How the tool finds the model and `/think` setting | Two optional fields on `ToolContext`, `model` and `reasoning` (add-only contract change). The agent loop fills them from `SessionState`. Without a vision model the tool refuses. |
+| `model` in the sub-call request | The loaded instance id, because the budget was computed for that instance's context length. |
+| Budget estimate | Until the measurement below, an image is assumed to cost one token per 28 x 28 pixels, which errs high. The edge is the configured maximum, or smaller when instruction, question, answer allowance, and a 128-token template margin leave less room. |
+| Output encoding | JPEG, PNG, and WebP keep their format; everything else is sent as PNG. The orientation tag is applied, then all metadata is dropped. Only the first frame of a GIF or first page of a TIFF is sent. |
+| Answer allowances | `image.answerTokens` (1024) and `image.transcribeAnswerTokens` (4096) in the config. An answer cut off at the allowance is returned with a note saying so. |
+| Exports for chart's self-check | `prepareImage`, `buildImageRequest`, and `askAboutImage` are exported so DATA-18 can reuse the sub-call on a rendered PNG. |
+
 ## Open questions
 
-- What should the default maximum edge be? This is a measurement, not a choice: pick it from the target model's image token cost, measured in M3.
+- What should the default maximum edge be? This is a measurement, not a choice: pick it from the target model's image token cost, measured in M3. Not measured in wave 1: no LM Studio API token was available to the build session. The same measurement should replace the provisional per-pixel token estimate in `src/tools/image/budget.ts`.
