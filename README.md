@@ -33,10 +33,12 @@ nvm use           # Node 24, from .nvmrc
 npm ci            # dependencies
 npm run vendor    # pinned ripgrep, DuckDB Excel reader, Vega-Lite, and Chromium (about 210 MB)
 npm run build     # compiles to dist/
-npm link          # optional: puts `clankr` on your PATH
+npm run install:global   # puts `clankr` on your PATH
 ```
 
-`npm ci` runs no package install scripts: native modules ship prebuilt binaries, and `package.json` lists the scripts it declines (`allowScripts`). `npm run vendor` is the only step that downloads anything. Every file is pinned to a version and checked against a SHA-256 checksum, and nothing is fetched while `clankr` runs. Without `npm link`, run `./bin/clankr.js` instead of `clankr`.
+`npm ci` runs no package install scripts: native modules ship prebuilt binaries, and `package.json` lists the scripts it declines (`allowScripts`). `npm run vendor` is the only step that downloads anything. Every file is pinned to a version and checked against a SHA-256 checksum, and nothing is fetched while `clankr` runs.
+
+`npm run install:global` writes a small launcher to `~/.local/bin/clankr` (add that folder to your `PATH` if it is not there). The launcher always runs clankr with Node 24 from nvm, even in a terminal that uses another Node version, and it runs this checkout's `dist/`, so `npm run build` after pulling changes is all an update needs. To uninstall, delete `~/.local/bin/clankr`. Without it, run `./bin/clankr.js` with Node 24 active.
 
 ### 3. Configure
 
@@ -217,13 +219,14 @@ export CLANKR_HOME=~/.clankr-dev
 npm run dev -- config
 ```
 
-`./bin/clankr.js` (and `clankr` after `npm link`) runs the built copy in `dist/`, so run `npm run build` first when you want to try that.
+`./bin/clankr.js` and the global `clankr` launcher run the built copy in `dist/`, so run `npm run build` to try a change there.
 
 ### Commands
 
 | Command | What it does |
 |---|---|
 | `npm run dev [-- <args>]` | Run clankr from `src/` |
+| `npm run install:global` | Install the `clankr` launcher in `~/.local/bin` |
 | `npm run lint` | Biome, then a TypeScript type check |
 | `npm test` | vitest |
 | `npm run build` | Compile to `dist/` |

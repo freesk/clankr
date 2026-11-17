@@ -17,6 +17,7 @@
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "dev": "node --no-node-snapshot src/cli/main.ts",
+    "install:global": "node scripts/install-global.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "lint": "biome check . && tsc -p tsconfig.json --noEmit",
     "format": "biome format --write .",
