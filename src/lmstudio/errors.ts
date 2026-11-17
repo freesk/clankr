@@ -81,8 +81,24 @@ export function embeddingFailed(key: string, detail: string): LmStudioError {
   return new LmStudioError(
     "request-failed",
     `LM Studio could not embed text with "${key}": ${detail}`,
+    embeddingFailureFix(detail),
+  );
+}
+
+/**
+ * LM Studio's loading guardrails refuse the embedding model when a chat model already fills
+ * the memory (seen live with a 12B model on 18 GB), and the general advice does not help then.
+ */
+function embeddingFailureFix(detail: string): string {
+  if (/insufficient system resources/i.test(detail)) {
+    return (
+      "LM Studio has no memory left for the embedding model next to the models it has loaded. " +
+      "Unload a model in LM Studio, or relax its model loading guardrails in Settings, then try again."
+    );
+  }
+  return (
     "Check that the embedding model loads in LM Studio (Developer tab), and that " +
-      "just-in-time model loading is on or the model is already loaded.",
+    "just-in-time model loading is on or the model is already loaded."
   );
 }
 

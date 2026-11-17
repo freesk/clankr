@@ -99,6 +99,22 @@ describe("embed", () => {
     expect(failure.describe()).not.toContain(secretToken);
   });
 
+  it("names memory as the fix when LM Studio refuses to load the embedding model", async () => {
+    const refusal =
+      'Failed to load model "test/embed". Error: Model loading was stopped due to insufficient system resources.';
+    const { client } = await startClient(
+      { requiredToken: secretToken, failingEmbeddings: refusal },
+      secretToken,
+    );
+
+    const failure = await client
+      .embed({ model: embeddingModel, inputs: ["a"] }, neverAborted())
+      .catch((error) => error);
+
+    expect(failure).toBeInstanceOf(LmStudioError);
+    expect(failure.fix).toMatch(/no memory left for the embedding model.*Unload a model/);
+  });
+
   it("rejects an answer with a missing vector", async () => {
     const { client } = await startClient({ embeddingDimensions: 0 });
     await expect(
