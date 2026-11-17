@@ -33,7 +33,7 @@ export function requireUnchangedSinceRead(
 }
 
 /**
- * After vix itself changes a file the model had read, the model still knows its contents,
+ * After clankr itself changes a file the model had read, the model still knows its contents,
  * so the recorded state moves forward. A file that was stale before stays stale.
  */
 export function carryReadStateForward(

@@ -33,7 +33,7 @@ Keep a small model inside its window. This part counts tokens, caps tool results
 | `LmClient.countTokens`, usage records | lmstudio | Scripted `LmClient` with a character-based counter |
 | `LmClient.chat`, for the summary call | lmstudio | Scripted `LmClient` |
 | Model-changed notification | lmstudio | Call the handler directly in tests |
-| `VixPaths` (session result directory) | storage | Temporary `VixPaths` |
+| `ClankrPaths` (session result directory) | storage | Temporary `ClankrPaths` |
 
 ## Design notes
 
@@ -78,7 +78,7 @@ Settled while building (2026-11-17), internal to this part:
 
 | Topic | Decision |
 |---|---|
-| Entry points | `VixContextEngine` (implements `ContextEngine`), `DiskResultStore` (implements `ResultStore`), `createReadResultTool(config)`, `createContextCommands(engine)`. The tool and commands are factories: the tool's cap comes from config, and a slash command's context does not carry the engine. |
+| Entry points | `ClankrContextEngine` (implements `ContextEngine`), `DiskResultStore` (implements `ResultStore`), `createReadResultTool(config)`, `createContextCommands(engine)`. The tool and commands are factories: the tool's cap comes from config, and a slash command's context does not carry the engine. |
 | On-disk layout | `results/r12.txt` (text) or `results/r12.jsonl` (row set), plus `results/r12.meta.json` written last. A result without its metadata file was interrupted and is never served. Files 0600, directory 0700. |
 | Handle numbering | The next number is one past the highest already in the results directory, so handles survive resume. A handle must match `r<number>`; anything else is rejected before a path is built. |
 | Compaction write-back | `prepareMessages` returns the system prompt followed by the history to keep. The agent loop replaces `session.messages` with `messages.slice(1)` after every call, so compaction reaches the session and history does not grow without bound. Between threshold crossings the slice equals the input, so the write-back changes nothing. Documented on the contract (`src/contracts/context.ts`), no type change. |

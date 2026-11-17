@@ -242,7 +242,7 @@ describe("ReplController", () => {
   });
 
   it("passes dragged paths as attachments", async () => {
-    const directory = await mkdtemp(join(tmpdir(), "vix-cli-"));
+    const directory = await mkdtemp(join(tmpdir(), "clankr-cli-"));
     try {
       const imagePath = join(directory, "Screen Shot.png");
       await writeFile(imagePath, "png");

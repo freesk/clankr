@@ -33,7 +33,7 @@ export async function createSqlTestContext(
 ): Promise<SqlTestContext> {
   const registry = overrides.dataSources ?? new InMemoryDataSourceRegistry();
   const base = await createTestToolContext({ dataSources: registry, ...overrides });
-  const results = new OnDiskResultStore(base.context.vixPaths.session.results);
+  const results = new OnDiskResultStore(base.context.clankrPaths.session.results);
   const context: ToolContext = { ...base.context, results };
   const dataDirectory = join(context.workingDirectory, "data");
   await mkdir(dataDirectory, { recursive: true });

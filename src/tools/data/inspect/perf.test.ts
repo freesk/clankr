@@ -1,4 +1,4 @@
-// Opt-in measurements for PRD section 9 and DATA-4: `VIX_PERF=1 npx vitest run perf`.
+// Opt-in measurements for PRD section 9 and DATA-4: `CLANKR_PERF=1 npx vitest run perf`.
 // Fixtures are generated here, never committed. Each profile runs in a child process
 // so its peak memory (RSS, DuckDB included) is measured on its own.
 
@@ -38,9 +38,9 @@ async function writeCsv(path: string, rowCount: number): Promise<void> {
   await new Promise<void>((resolve) => stream.end(() => resolve()));
 }
 
-describe.runIf(process.env.VIX_PERF === "1")("inspect_data performance", () => {
+describe.runIf(process.env.CLANKR_PERF === "1")("inspect_data performance", () => {
   beforeAll(async () => {
-    directory = await mkdtemp(join(tmpdir(), "vix-perf-"));
+    directory = await mkdtemp(join(tmpdir(), "clankr-perf-"));
   });
   afterAll(async () => {
     await rm(directory, { recursive: true, force: true });

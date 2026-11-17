@@ -31,7 +31,7 @@ import { reasoningFor, toolCallingWarning } from "./session-state.ts";
 import { buildToolSet } from "./tool-set.ts";
 
 export interface HarnessSeams {
-  /** From storage's `resolveVixRoot`. */
+  /** From storage's `resolveClankrRoot`. */
   root: string;
   connection: LmConnection;
   fileTools: FileToolDependencies;
@@ -105,7 +105,7 @@ export async function openHarness(options: HarnessOptions, seams: HarnessSeams):
       dataSources: runtime.dataSources,
       readTracker: runtime.readTracker,
       lm,
-      vixPaths: runtime.paths,
+      clankrPaths: runtime.paths,
       config,
       workingDirectory: options.workingDirectory,
       reasoning: state.reasoning,

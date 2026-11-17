@@ -1,4 +1,4 @@
-// The guided setup behind `vix config` and `/config` (D73): six questions, a summary, a
+// The guided setup behind `clankr config` and `/config` (D73): six questions, a summary, a
 // confirmation, then `config.json` is written at 0600. Cancelling at any point writes nothing.
 
 import { homedir } from "node:os";
@@ -22,7 +22,7 @@ import type { SetupContext } from "./setup-context.ts";
 
 export interface SetupFlowOptions {
   prompter: SetupPrompter;
-  /** From storage's layout, so `VIX_HOME` is respected. */
+  /** From storage's layout, so `CLANKR_HOME` is respected. */
   configFilePath: string;
   environment: Record<string, string | undefined>;
   workingDirectory: string;
@@ -37,7 +37,7 @@ export type SetupOutcome =
   | { kind: "cancelled" };
 
 const introduction =
-  "vix setup. Press Enter to keep the value in brackets, Ctrl+C to cancel. Nothing is saved until you confirm.";
+  "clankr setup. Press Enter to keep the value in brackets, Ctrl+C to cancel. Nothing is saved until you confirm.";
 
 /** Throws ConfigError when the existing file cannot be read as a config. */
 export async function runSetupFlow(options: SetupFlowOptions): Promise<SetupOutcome> {

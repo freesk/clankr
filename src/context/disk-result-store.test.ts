@@ -2,16 +2,16 @@ import { readFile, stat, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import type { Row } from "../contracts/index.ts";
-import { createTemporaryVixPaths, type TemporaryVixPaths } from "../testing/index.ts";
+import { createTemporaryClankrPaths, type TemporaryClankrPaths } from "../testing/index.ts";
 import { DiskResultStore, UnknownResultError } from "./disk-result-store.ts";
 
 const provenance = { tool: "find_files", arguments: { pattern: "*.pdf" }, label: "pdfs" };
 
-let temporary: TemporaryVixPaths;
+let temporary: TemporaryClankrPaths;
 let directory: string;
 
 beforeEach(async () => {
-  temporary = await createTemporaryVixPaths();
+  temporary = await createTemporaryClankrPaths();
   directory = temporary.paths.session.results;
 });
 

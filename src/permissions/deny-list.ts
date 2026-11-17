@@ -66,7 +66,7 @@ export const deniedFileNames: readonly string[] = [
 ];
 
 /**
- * The default deny list, unresolved: `~` is still a prefix. The vix root is added
+ * The default deny list, unresolved: `~` is still a prefix. The clankr root is added
  * by the path policy, because transcripts and the config must not be readable or
  * writable by the model (a model that could write config.json could change its mode).
  */

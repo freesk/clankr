@@ -10,7 +10,7 @@
 import type { BrowserContext, Route } from "playwright-core";
 
 /** The made-up origin the render page is served from. It never resolves (see the launch flags). */
-export const renderOrigin = "http://vix-render.invalid";
+export const renderOrigin = "http://clankr-render.invalid";
 
 export const offlineLaunchArguments = [
   // Every host name resolves to nothing, so no connection can even be attempted by name.
@@ -54,14 +54,17 @@ export async function guardContextRequests(
   lookup: ServedFileLookup,
   logBlocked: BlockedRequestLogger,
 ): Promise<void> {
-  await context.exposeBinding("vixReportBlocked", (_source, url: unknown, directive: unknown) => {
-    logBlocked({
-      url: String(url),
-      method: "GET",
-      resourceType: `content security policy (${String(directive)})`,
-      blockedAt: new Date().toISOString(),
-    });
-  });
+  await context.exposeBinding(
+    "clankrReportBlocked",
+    (_source, url: unknown, directive: unknown) => {
+      logBlocked({
+        url: String(url),
+        method: "GET",
+        resourceType: `content security policy (${String(directive)})`,
+        blockedAt: new Date().toISOString(),
+      });
+    },
+  );
   await context.route("**/*", async (route) => {
     const served = await findServedFile(route, lookup);
     if (served) {

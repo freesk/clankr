@@ -1,5 +1,5 @@
-// `vix config` through runCli, and the first-run offer after a REPL start fails on the token.
-// Every run uses a temporary VIX_HOME and a fake LM Studio; the real ~/.vix is never touched.
+// `clankr config` through runCli, and the first-run offer after a REPL start fails on the token.
+// Every run uses a temporary CLANKR_HOME and a fake LM Studio; the real ~/.clankr is never touched.
 
 import { mkdir, mkdtemp, readFile, rm, stat, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
@@ -14,13 +14,13 @@ import { createFakeComposition, createTestEnvironment } from "../testing/fake-ha
 const token = "sk-lm-first-run-secret-4321";
 
 let scratch: string;
-let vixHome: string;
+let clankrHome: string;
 let server: FakeLmStudioServer;
 let baseUrl: string;
 
 beforeEach(async () => {
-  scratch = await mkdtemp(join(tmpdir(), "vix-config-command-"));
-  vixHome = join(scratch, "home");
+  scratch = await mkdtemp(join(tmpdir(), "clankr-config-command-"));
+  clankrHome = join(scratch, "home");
   server = new FakeLmStudioServer({ requiredToken: token, models: [{ key: "qwen/qwen3-4b" }] });
   baseUrl = await server.start();
 });
@@ -39,7 +39,7 @@ async function writeConfig(path: string, value: unknown): Promise<void> {
 
 /** A REPL start whose harness fails, as a missing token makes the real one fail. */
 function failingStart(options: { stdinText: string; stdoutIsTerminal: boolean }) {
-  const configFilePath = join(vixHome, "config.json");
+  const configFilePath = join(clankrHome, "config.json");
   const composition = createFakeComposition({
     configFilePath,
     harness: () => {
@@ -56,26 +56,26 @@ function failingStart(options: { stdinText: string; stdoutIsTerminal: boolean })
   return { environment, configFilePath };
 }
 
-describe("vix config", () => {
-  it("saves under VIX_HOME and never prints the token", async () => {
+describe("clankr config", () => {
+  it("saves under CLANKR_HOME and never prints the token", async () => {
     const environment = createTestEnvironment({
       argv: ["config"],
-      composition: createComposition({ environment: { VIX_HOME: vixHome } }),
+      composition: createComposition({ environment: { CLANKR_HOME: clankrHome } }),
       stdinText: answers(baseUrl, token, "1", "", "", "", "y"),
     });
     expect(await runCli(environment)).toBe(exitCodes.done);
-    expect(environment.output()).toContain(`Saved ${join(vixHome, "config.json")}.`);
+    expect(environment.output()).toContain(`Saved ${join(clankrHome, "config.json")}.`);
     expect(environment.output() + environment.errors()).not.toContain(token);
-    const saved = JSON.parse(await readFile(join(vixHome, "config.json"), "utf8"));
+    const saved = JSON.parse(await readFile(join(clankrHome, "config.json"), "utf8"));
     expect(saved.lmStudio).toEqual({ baseUrl, apiToken: token });
-    expect((await stat(join(vixHome, "config.json"))).mode & 0o777).toBe(0o600);
+    expect((await stat(join(clankrHome, "config.json"))).mode & 0o777).toBe(0o600);
   });
 
   it("exits 2 when the existing config is invalid", async () => {
-    await writeConfig(join(vixHome, "config.json"), { permissions: { mode: "sometimes" } });
+    await writeConfig(join(clankrHome, "config.json"), { permissions: { mode: "sometimes" } });
     const environment = createTestEnvironment({
       argv: ["config"],
-      composition: createComposition({ environment: { VIX_HOME: vixHome } }),
+      composition: createComposition({ environment: { CLANKR_HOME: clankrHome } }),
       stdinText: "",
     });
     expect(await runCli(environment)).toBe(exitCodes.usage);
@@ -92,8 +92,8 @@ describe("first-run offer", () => {
     await writeConfig(configFilePath, { lmStudio: { baseUrl } });
     expect(await runCli(environment)).toBe(exitCodes.failed);
     expect(environment.errors()).toContain("requires an API token");
-    expect(environment.output()).toContain("Run the setup (vix config) now? [y/N]");
-    expect(environment.output()).toContain("Start vix again to use the new settings.");
+    expect(environment.output()).toContain("Run the setup (clankr config) now? [y/N]");
+    expect(environment.output()).toContain("Start clankr again to use the new settings.");
     expect(environment.output()).not.toContain(token);
     const saved = JSON.parse(await readFile(configFilePath, "utf8"));
     expect(saved.lmStudio).toEqual({ baseUrl, apiToken: token });
@@ -106,7 +106,7 @@ describe("first-run offer", () => {
     });
     await writeConfig(configFilePath, { lmStudio: { baseUrl } });
     expect(await runCli(environment)).toBe(exitCodes.failed);
-    expect(environment.output()).toContain("Run the setup (vix config) now?");
+    expect(environment.output()).toContain("Run the setup (clankr config) now?");
     expect(JSON.parse(await readFile(configFilePath, "utf8"))).toEqual({ lmStudio: { baseUrl } });
   });
 
@@ -132,17 +132,17 @@ describe("first-run offer", () => {
     expect(environment.output()).not.toContain("Run the setup");
   });
 
-  it("one-shot mode prints the error and a fix naming vix config, with no offer", async () => {
-    await writeConfig(join(vixHome, "config.json"), { lmStudio: { baseUrl } });
+  it("one-shot mode prints the error and a fix naming clankr config, with no offer", async () => {
+    await writeConfig(join(clankrHome, "config.json"), { lmStudio: { baseUrl } });
     const environment = createTestEnvironment({
       argv: ["-p", "hello", "--ephemeral"],
-      composition: createComposition({ environment: { VIX_HOME: vixHome } }),
+      composition: createComposition({ environment: { CLANKR_HOME: clankrHome } }),
     });
     Object.assign(environment.stdout, { isTTY: true });
     expect(await runCli(environment)).toBe(exitCodes.failed);
     expect(environment.errors()).toContain("requires an API token");
     expect(environment.errors()).toContain("Fix: Create a token in LM Studio");
-    expect(environment.errors()).toContain("`vix config`");
+    expect(environment.errors()).toContain("`clankr config`");
     expect(environment.output()).not.toContain("Run the setup");
   });
 });

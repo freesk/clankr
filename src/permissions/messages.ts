@@ -3,7 +3,7 @@
 
 export function deniedPathMessage(realPath: string): string {
   return (
-    `Refused: ${realPath} is a protected location that vix never reads or writes. ` +
+    `Refused: ${realPath} is a protected location that clankr never reads or writes. ` +
     "Do not look for another way to reach it; tell the user if the task needs it."
   );
 }
@@ -33,7 +33,7 @@ export function cannotAskMessage(
   }
   return (
     `${why} No run flag covers this kind of call; ` +
-    "the user must run vix interactively to approve it. Tell the user what you would do."
+    "the user must run clankr interactively to approve it. Tell the user what you would do."
   );
 }
 

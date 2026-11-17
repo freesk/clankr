@@ -23,7 +23,7 @@ export type FixtureSnapshot = Map<string, string>;
 /** CSV files at or above this size are generated once into the cache and copied. */
 const cachedCsvRowThreshold = 100_000;
 
-export const defaultFixtureCacheDirectory = join(tmpdir(), "vix-evals-fixtures");
+export const defaultFixtureCacheDirectory = join(tmpdir(), "clankr-evals-fixtures");
 
 export interface MaterializeOptions {
   cacheDirectory?: string;

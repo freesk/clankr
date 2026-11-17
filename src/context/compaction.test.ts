@@ -3,7 +3,7 @@ import { defaultConfig } from "../config/index.ts";
 import type { ChatMessage, LoadedModel, ToolSchema } from "../contracts/index.ts";
 import { InMemoryResultStore, respond, ScriptedLmClient, testModel } from "../testing/index.ts";
 import { parseSummary, summaryMarker } from "./compaction-note.ts";
-import { VixContextEngine } from "./context-engine.ts";
+import { ClankrContextEngine } from "./context-engine.ts";
 
 const summaryReply = [
   "**Goal:** Find the 2025 invoices",
@@ -15,7 +15,7 @@ const summaryReply = [
   "- Total the amounts",
 ].join("\n");
 
-const systemPrompt = "You are vix, a local assistant.";
+const systemPrompt = "You are clankr, a local assistant.";
 const tools: ToolSchema[] = [
   { name: "find_files", description: "Find files by name.", parameters: { type: "object" } },
 ];
@@ -34,7 +34,7 @@ function createEngine(contextLength: number, summaries = 20) {
     Array.from({ length: summaries }, () => respond.text(summaryReply)),
   );
   const results = new InMemoryResultStore();
-  const engine = new VixContextEngine({
+  const engine = new ClankrContextEngine({
     lm,
     results,
     config: defaultConfig(),

@@ -1,6 +1,6 @@
 // files part (specs/files.md): the six file tools and `/undo`.
 
-import type { SlashCommand, ToolDefinition, VixPaths } from "../../contracts/index.ts";
+import type { ClankrPaths, SlashCommand, ToolDefinition } from "../../contracts/index.ts";
 import { copyTool } from "./copy.ts";
 import { createDeleteTool } from "./delete.ts";
 import { editFileTool } from "./edit-file.ts";
@@ -28,10 +28,12 @@ export function createFileTools(
   ];
 }
 
-/** `/undo` for the session whose snapshots live under `vixPaths.session.snapshots`. */
+/** `/undo` for the session whose snapshots live under `clankrPaths.session.snapshots`. */
 export function createFileSlashCommands(
-  vixPaths: VixPaths,
+  clankrPaths: ClankrPaths,
   dependencies: FileToolDependencies = defaultFileToolDependencies,
 ): SlashCommand[] {
-  return [createUndoCommand({ ...dependencies, snapshotsDirectory: vixPaths.session.snapshots })];
+  return [
+    createUndoCommand({ ...dependencies, snapshotsDirectory: clankrPaths.session.snapshots }),
+  ];
 }

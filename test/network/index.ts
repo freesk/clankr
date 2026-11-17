@@ -1,5 +1,5 @@
 // The whole-process network test harness (SEC-4, D33). See specs/evals.md.
-// Wave 2 runs the real `vix` through runUnderObservation.
+// Wave 2 runs the real `clankr` through runUnderObservation.
 
 export {
   type Destination,

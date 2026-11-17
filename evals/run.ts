@@ -46,7 +46,7 @@ function selectTasks(tasks: GoldenTask[]): GoldenTask[] {
 /** Builds every task's fixtures once, so a broken generator or task shows up without a model. */
 async function dryRun(tasks: GoldenTask[]): Promise<void> {
   for (const task of tasks) {
-    const directory = await mkdtemp(join(tmpdir(), "vix-eval-dry-"));
+    const directory = await mkdtemp(join(tmpdir(), "clankr-eval-dry-"));
     try {
       const snapshot = await materializeFixtures(directory, task.fixtures);
       console.log(

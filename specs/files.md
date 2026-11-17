@@ -33,7 +33,7 @@ Create, edit, move, copy, and remove files and folders, safely. Covers scenarios
 |---|---|---|
 | `PathPolicy` | permissions | Fake with a fixed deny list |
 | `ReadTracker` | filled by `read_file` in search | In-memory set, filled by the test |
-| `VixPaths` (snapshot directory) | storage | Temporary `VixPaths` |
+| `ClankrPaths` (snapshot directory) | storage | Temporary `ClankrPaths` |
 
 The permission gate is called by the agent loop, not by these tools. A tool can assume that when `run` is called, the change was approved.
 
@@ -57,7 +57,7 @@ The permission gate is called by the agent loop, not by these tools. A tool can 
 - The approval decision and the allowed-root rules (permissions).
 - Reading files (search).
 - Bulk rename by pattern and zip or unzip, which are PRD non-goals.
-- `vix wipe`, which deletes permanently and belongs to storage.
+- `clankr wipe`, which deletes permanently and belongs to storage.
 
 ## Done when
 
@@ -87,7 +87,7 @@ Settled 2026-11-17. A D-number means the decision is also recorded in PRD sectio
 | Undoing a created file | It goes to the Trash rather than being unlinked. A created folder is removed only while it is empty. |
 | Undoing a delete | `delete` saves a full copy in the snapshot before trashing, and `/undo` restores from that copy, so undo never reaches into the Trash. |
 | Moves across volumes | Copy, then trash the original, so nothing in this part unlinks a user file. |
-| `/undo` registration | `createFileSlashCommands(vixPaths)`, because `SlashCommandContext` carries no `VixPaths`. |
+| `/undo` registration | `createFileSlashCommands(clankrPaths)`, because `SlashCommandContext` carries no `ClankrPaths`. |
 
 ## Open questions
 

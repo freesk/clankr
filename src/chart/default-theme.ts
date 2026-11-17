@@ -1,4 +1,4 @@
-// The built-in theme, used when ~/.vix/theme.json is absent or broken (DATA-15).
+// The built-in theme, used when ~/.clankr/theme.json is absent or broken (DATA-15).
 
 import type { Theme } from "../contracts/index.ts";
 import { systemFontFamily } from "../engines/browser/index.ts";

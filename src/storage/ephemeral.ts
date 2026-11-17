@@ -4,9 +4,9 @@
 import { existsSync, rmdirSync, rmSync } from "node:fs";
 import { readdir, rm, rmdir } from "node:fs/promises";
 import { join } from "node:path";
-import type { VixPaths } from "../contracts/index.ts";
+import type { ClankrPaths } from "../contracts/index.ts";
 import {
-  buildEphemeralVixPaths,
+  buildEphemeralClankrPaths,
   ephemeralDirectory,
   newSessionId,
   sessionDirectories,
@@ -17,13 +17,13 @@ import { ensurePrivateDirectories, isMissingFileError } from "./private-files.ts
 const handledSignals: NodeJS.Signals[] = ["SIGINT", "SIGTERM", "SIGHUP"];
 
 export interface EphemeralSession {
-  paths: VixPaths;
+  paths: ClankrPaths;
   /** Removes the directory now and stops listening for exit. Safe to call twice. */
   dispose(): void;
 }
 
 export async function createEphemeralSession(root: string): Promise<EphemeralSession> {
-  const paths = buildEphemeralVixPaths(root, newSessionId(), process.pid);
+  const paths = buildEphemeralClankrPaths(root, newSessionId(), process.pid);
   // Parents that did not exist before are removed again on exit, so the tree under
   // the root ends up exactly as it was.
   const createdParents = [root, ephemeralDirectory(root)].filter((path) => !existsSync(path));
@@ -49,7 +49,7 @@ export async function createEphemeralSession(root: string): Promise<EphemeralSes
 
 /**
  * Removes ephemeral directories whose process is gone. Run at every startup.
- * A directory belonging to a running `vix` is left alone. Returns what was removed.
+ * A directory belonging to a running `clankr` is left alone. Returns what was removed.
  */
 export async function sweepEphemeralLeftovers(root: string): Promise<string[]> {
   const parent = ephemeralDirectory(root);

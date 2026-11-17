@@ -45,7 +45,7 @@ export function binaryFilePointer(displayName: string): string {
     return `${displayName} is a spreadsheet or document. Use inspect_data to read it.`;
   }
   if (extension === "pdf") {
-    return `${displayName} is a PDF; read_file reads text files only, and vix has no PDF reader yet.`;
+    return `${displayName} is a PDF; read_file reads text files only, and clankr has no PDF reader yet.`;
   }
   return `${displayName} is a binary file; read_file reads text only.`;
 }

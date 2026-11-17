@@ -1,4 +1,4 @@
-// The setup prompter for `vix config` and the first-run offer: plain Node readline, so the
+// The setup prompter for `clankr config` and the first-run offer: plain Node readline, so the
 // setup never loads Ink (CLAUDE.md rule 7).
 
 import { createInterface, type Interface } from "node:readline";

@@ -63,7 +63,7 @@ function handlePlainRequest(
   const isAllowed = isAllowedDestination(destination, allowed);
   records.push({ ...destination, method: "http", allowed: isAllowed });
   if (!isAllowed) {
-    clientResponse.writeHead(403).end("blocked by the vix network test");
+    clientResponse.writeHead(403).end("blocked by the clankr network test");
     return;
   }
   const upstream = request(target, {

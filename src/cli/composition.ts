@@ -5,13 +5,13 @@
 import type { LmConnection } from "../app/lm-connection.ts";
 import { loadConfig } from "../config/index.ts";
 import type { Config, WipeReport } from "../contracts/index.ts";
-import { buildRootPaths, resolveVixRoot, wipe } from "../storage/index.ts";
+import { buildRootPaths, resolveClankrRoot, wipe } from "../storage/index.ts";
 import type { FileToolDependencies } from "../tools/fs/index.ts";
 import type { CliComposition, Harness, HarnessOptions } from "./harness.ts";
 
 /** What tests replace. Every field defaults to the real thing. */
 export interface CompositionOverrides {
-  /** Read for `VIX_HOME`; defaults to the process environment. */
+  /** Read for `CLANKR_HOME`; defaults to the process environment. */
   environment?: Record<string, string | undefined>;
   /** The home folder for `~` and the deny list. */
   homeDirectory?: string;
@@ -22,7 +22,8 @@ export interface CompositionOverrides {
 }
 
 export function createComposition(overrides: CompositionOverrides = {}): CliComposition {
-  const root = () => resolveVixRoot(overrides.environment ?? process.env, overrides.homeDirectory);
+  const root = () =>
+    resolveClankrRoot(overrides.environment ?? process.env, overrides.homeDirectory);
   const configFilePath = () => buildRootPaths(root()).configFile;
   return {
     configFilePath,

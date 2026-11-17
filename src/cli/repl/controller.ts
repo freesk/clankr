@@ -294,7 +294,7 @@ export class ReplController {
 
   private welcomeText(): string {
     const resumed = this.harness.resumed ? " Resumed the most recent session." : "";
-    return `vix: type a prompt, /help for commands, Ctrl+C twice to exit.${resumed}`;
+    return `clankr: type a prompt, /help for commands, Ctrl+C twice to exit.${resumed}`;
   }
 
   private update(changes: Partial<ReplState>): void {

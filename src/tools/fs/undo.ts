@@ -16,7 +16,7 @@ import { writeFileAtomically } from "./text-file.ts";
 import type { FileToolDependencies } from "./trash.ts";
 
 export interface UndoDependencies extends FileToolDependencies {
-  /** The session's snapshot folder, `VixPaths.session.snapshots`. */
+  /** The session's snapshot folder, `ClankrPaths.session.snapshots`. */
   snapshotsDirectory: string;
 }
 
@@ -57,7 +57,7 @@ export async function undoLastChange(dependencies: UndoDependencies): Promise<st
   return [`Undid "${description}".`, ...notes].join(" ");
 }
 
-/** Why a step cannot be reversed safely: something changed it outside vix since. */
+/** Why a step cannot be reversed safely: something changed it outside clankr since. */
 async function findConflict(step: UndoStep): Promise<string | undefined> {
   switch (step.kind) {
     case "restore-content":
@@ -102,7 +102,7 @@ async function reverseStep(
       return undefined;
     }
     case "remove-created":
-      // A file vix created goes to the Trash rather than being unlinked, in case it matters.
+      // A file clankr created goes to the Trash rather than being unlinked, in case it matters.
       await dependencies.trash([step.path]);
       return undefined;
     case "remove-created-directory":

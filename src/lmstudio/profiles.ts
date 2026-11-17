@@ -38,7 +38,7 @@ export function planLoad(model: ModelInfo, contextLength: number): LoadPlan {
 export function reloadNotice(key: string, from: number, to: number): string {
   return (
     `Reloading ${key}: it is loaded with a ${from.toLocaleString("en-US")}-token context ` +
-    `and vix is configured for ${to.toLocaleString("en-US")}. ` +
+    `and clankr is configured for ${to.toLocaleString("en-US")}. ` +
     "Anything else using this loaded model is interrupted while it reloads."
   );
 }

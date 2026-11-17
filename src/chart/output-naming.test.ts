@@ -20,7 +20,7 @@ describe("chooseOutputPaths", () => {
   let folder: string;
 
   beforeEach(async () => {
-    folder = await mkdtemp(join(tmpdir(), "vix-naming-"));
+    folder = await mkdtemp(join(tmpdir(), "clankr-naming-"));
   });
 
   afterEach(async () => {

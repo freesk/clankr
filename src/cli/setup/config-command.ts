@@ -1,4 +1,4 @@
-// The three ways into the setup flow: `vix config`, `/config` inside the REPL, and the
+// The three ways into the setup flow: `clankr config`, `/config` inside the REPL, and the
 // offer after a REPL start failed for want of a working token.
 
 import { ConfigError } from "../../config/index.ts";
@@ -33,7 +33,7 @@ function runFlow(environment: CliEnvironment, prompter: SetupPrompter): Promise<
   });
 }
 
-/** `vix config`. Exit 2 when the existing config file cannot be read. */
+/** `clankr config`. Exit 2 when the existing config file cannot be read. */
 export async function runConfigCommand(environment: CliEnvironment): Promise<ExitCode> {
   const prompter = terminalPrompter(environment);
   try {
@@ -41,7 +41,7 @@ export async function runConfigCommand(environment: CliEnvironment): Promise<Exi
     return exitCodes.done;
   } catch (error) {
     if (!(error instanceof ConfigError)) throw error;
-    environment.stderr.write(`vix: ${error.message}\n`);
+    environment.stderr.write(`clankr: ${error.message}\n`);
     return exitCodes.usage;
   } finally {
     prompter.close();
@@ -73,12 +73,12 @@ export async function offerSetupAfterFailedStart(
   if (!(await isTokenProblem(config))) return;
   const prompter = terminalPrompter(environment);
   try {
-    if (!(await askYesNo(prompter, "Run the setup (vix config) now?", false))) return;
+    if (!(await askYesNo(prompter, "Run the setup (clankr config) now?", false))) return;
     const outcome = await runFlow(environment, prompter);
-    if (outcome.kind === "saved") prompter.print("Start vix again to use the new settings.");
+    if (outcome.kind === "saved") prompter.print("Start clankr again to use the new settings.");
   } catch (error) {
     if (!(error instanceof ConfigError)) throw error;
-    environment.stderr.write(`vix: ${error.message}\n`);
+    environment.stderr.write(`clankr: ${error.message}\n`);
   } finally {
     prompter.close();
   }
@@ -98,7 +98,7 @@ export function createConfigCommand(options: ConfigCommandOptions): SlashCommand
     async run(_argumentText, context) {
       const ask = context.ask;
       if (!ask) {
-        context.print("Run `vix config` in a terminal to change the settings.");
+        context.print("Run `clankr config` in a terminal to change the settings.");
         return;
       }
       const outcome = await runSetupFlow({
@@ -123,7 +123,7 @@ function echoingAsk(ask: Ask, context: SlashCommandContext): Ask {
   };
 }
 
-/** The permission mode applies now; the rest is read when vix starts. */
+/** The permission mode applies now; the rest is read when clankr starts. */
 function applyToSession(
   before: SetupAnswers,
   after: SetupAnswers,
@@ -142,5 +142,5 @@ function applyToSession(
   ].filter((name): name is string => typeof name === "string");
   if (needRestart.length === 0) return;
   const modelHint = before.model !== after.model ? " Use /model to switch models now." : "";
-  context.print(`Restart vix to use the new ${needRestart.join(", ")}.${modelHint}`);
+  context.print(`Restart clankr to use the new ${needRestart.join(", ")}.${modelHint}`);
 }

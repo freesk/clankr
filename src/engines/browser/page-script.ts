@@ -77,14 +77,14 @@ function isFontInstalled(family) {
   });
 }
 
-window.vix = { renderChart, addText, exportPng, exportSvg, isFontInstalled };
+window.clankr = { renderChart, addText, exportPng, exportSvg, isFontInstalled };
 // Requests the content security policy stops never reach the request guard, so the page
 // reports them itself through a binding the guard installs.
 document.addEventListener("securitypolicyviolation", (event) => {
-  window.vixReportBlocked?.(event.blockedURI || "(inline)", event.effectiveDirective);
+  window.clankrReportBlocked?.(event.blockedURI || "(inline)", event.effectiveDirective);
 });
 
-window.vixReady = true;
+window.clankrReady = true;
 `;
 
 /** The Vega expression interpreter imports three helpers from vega-util; the full Vega build has them. */

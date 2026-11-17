@@ -52,7 +52,7 @@ describe.skipIf(!isBrowserVendored())("chart renderer (needs `npm run vendor`)",
 
   beforeAll(async () => {
     renderer = createChartRenderer({ idleMilliseconds: 60_000 });
-    folder = await mkdtemp(join(tmpdir(), "vix-render-"));
+    folder = await mkdtemp(join(tmpdir(), "clankr-render-"));
   });
 
   afterAll(async () => {

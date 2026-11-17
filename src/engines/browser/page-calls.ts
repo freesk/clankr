@@ -1,4 +1,4 @@
-// Node-side wrappers for the functions the render page exposes as `window.vix`. The spec,
+// Node-side wrappers for the functions the render page exposes as `window.clankr`. The spec,
 // rows, and text cross into the page only as evaluate arguments, which Playwright serialises
 // as data; nothing is ever concatenated into script (DATA-12).
 
@@ -30,7 +30,7 @@ export class ChartDrawError extends Error {
 }
 
 // The page's global. The callbacks below are serialised and run in the page, where it exists.
-declare const vix: RenderPageApi;
+declare const clankr: RenderPageApi;
 
 export async function drawChart(
   page: Page,
@@ -42,7 +42,7 @@ export async function drawChart(
   try {
     return await page.evaluate(
       ([pageSpec, pageRows]) =>
-        vix.renderChart(pageSpec as Record<string, unknown>, pageRows as Row[]),
+        clankr.renderChart(pageSpec as Record<string, unknown>, pageRows as Row[]),
       data,
     );
   } catch (error) {
@@ -51,14 +51,14 @@ export async function drawChart(
 }
 
 export async function addTextBlock(page: Page, kind: TextBlockKind, text: string): Promise<void> {
-  await page.evaluate(([blockKind, blockText]) => vix.addText(blockKind, blockText), [
+  await page.evaluate(([blockKind, blockText]) => clankr.addText(blockKind, blockText), [
     kind,
     text,
   ] as const);
 }
 
 export async function exportPng(page: Page, viewId: number, scale: number): Promise<Buffer> {
-  const base64 = await page.evaluate(([id, pngScale]) => vix.exportPng(id, pngScale), [
+  const base64 = await page.evaluate(([id, pngScale]) => clankr.exportPng(id, pngScale), [
     viewId,
     scale,
   ] as const);
@@ -66,11 +66,11 @@ export async function exportPng(page: Page, viewId: number, scale: number): Prom
 }
 
 export function exportSvg(page: Page, viewId: number): Promise<string> {
-  return page.evaluate((id) => vix.exportSvg(id), viewId);
+  return page.evaluate((id) => clankr.exportSvg(id), viewId);
 }
 
 export function isFontInstalled(page: Page, family: string): Promise<boolean> {
-  return page.evaluate((fontFamily) => vix.isFontInstalled(fontFamily), family);
+  return page.evaluate((fontFamily) => clankr.isFontInstalled(fontFamily), family);
 }
 
 /** Playwright wraps page errors as "page.evaluate: Error: <message>\n    at ...". Keep the message. */

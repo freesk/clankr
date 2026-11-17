@@ -44,7 +44,7 @@ export class OneShotApprovalPrompter implements ApprovalPrompter {
 /** What the user sees on stderr for each denial. */
 export function describeDenial(denial: Denial): string {
   return (
-    `vix: denied ${denial.tool} (${denial.summary}): ${denial.reason}. ` +
+    `clankr: denied ${denial.tool} (${denial.summary}): ${denial.reason}. ` +
     `One-shot mode cannot ask; pass ${flagHint(denial.permission)}.`
   );
 }

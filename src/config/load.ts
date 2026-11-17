@@ -14,7 +14,7 @@ export interface ConfigFlags {
 }
 
 export interface LoadConfigOptions {
-  /** From `VixPaths.configFile`. A missing file means all defaults. */
+  /** From `ClankrPaths.configFile`. A missing file means all defaults. */
   configFilePath: string;
   workingDirectory: string;
   environment?: Record<string, string | undefined>;

@@ -41,7 +41,7 @@ const pinnedPackages: PinnedPackage[] = [
 ];
 
 async function installPackage(pinned: PinnedPackage, targetDirectory: string): Promise<void> {
-  const workDirectory = await mkdtemp(join(tmpdir(), `vix-vendor-${pinned.name}-`));
+  const workDirectory = await mkdtemp(join(tmpdir(), `clankr-vendor-${pinned.name}-`));
   try {
     const tarballPath = join(workDirectory, `${pinned.name}.tgz`);
     const url = `https://registry.npmjs.org/${pinned.name}/-/${pinned.name}-${pinned.version}.tgz`;

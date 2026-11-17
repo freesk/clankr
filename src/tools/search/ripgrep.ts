@@ -116,7 +116,7 @@ async function ensureRipgrepInstalled(): Promise<void> {
     await access(ripgrepBinaryPath, constants.X_OK);
   } catch {
     throw new ToolError(
-      "Content search is unavailable because ripgrep is not installed. Tell the user to run `npm run vendor` in the vix folder.",
+      "Content search is unavailable because ripgrep is not installed. Tell the user to run `npm run vendor` in the clankr folder.",
     );
   }
 }

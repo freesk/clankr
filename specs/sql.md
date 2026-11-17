@@ -33,7 +33,7 @@ DuckDB runs in the harness process, not in a sandbox, so the lockdown in this pa
 |---|---|---|
 | `DataSourceRegistry` | inspect | Hand-filled registry pointing at fixture files |
 | `ResultStore.putRows` | context | In-memory fake |
-| `VixPaths` (scratch directory) | storage | Temporary `VixPaths` |
+| `ClankrPaths` (scratch directory) | storage | Temporary `ClankrPaths` |
 
 ## Design notes
 
@@ -54,7 +54,7 @@ Each layer was verified against DuckDB 1.4.5 in the foundation spike; the result
 - **The engine has two callers.** `query_sql` runs the model's SQL through it, and [inspect](inspect.md) runs its own fixed profiling queries through it. Only the model's SQL goes through the statement check.
 - **The model uses table names, not paths.** The names come from the profile printed by [inspect](inspect.md).
 - **Limits.** A query has a timeout that actually interrupts it, a memory limit, and a row limit on what is stored.
-- **Scratch files.** When DuckDB spills to disk, it spills into the session's scratch directory, so `vix wipe` and `--ephemeral` cover it.
+- **Scratch files.** When DuckDB spills to disk, it spills into the session's scratch directory, so `clankr wipe` and `--ephemeral` cover it.
 - **The result is a row set** stored with its SQL as provenance. The model sees the column names, the row count, the first rows, and the handle.
 - **Errors are short and fixable.** For an unknown column, list the columns that exist. For an unknown table, list the tables. Strip internal detail and file paths.
 - **The engine is loaded lazily**, on first use.

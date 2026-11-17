@@ -43,7 +43,7 @@ This part can start early. The runner and the fixtures need only the contracts, 
 
 - **A task is data.** A prompt, a fixture to set up, and assertions. Adding a task should not need new code.
 - **Assert on outcomes, not wording.** Check the state of the file system, the files produced, and facts in the answer. Never match the model's phrasing.
-- **Each task runs in a clean temporary directory** with its own temporary `~/.vix/`, so tasks cannot affect each other or the user's real data.
+- **Each task runs in a clean temporary directory** with its own temporary `~/.clankr/`, so tasks cannot affect each other or the user's real data.
 - **Drive the loop directly** through `runTurn`, not by scraping terminal output. The event stream already carries what the metrics need.
 - **The model is not deterministic.** Run each task 3 times. A task passes when at least 2 runs succeed, and the report also gives the pass rate over all runs.
 - **Chart tasks check the artefact.** The output file exists, is a valid PDF, and the saved spec has the expected chart type and fields.
@@ -66,7 +66,7 @@ The six in PRD section 10. Each is computed from the event stream and the ledger
 - Run a session that exercises every engine (a query, an isolate run, a chart render) and observe connection attempts from the harness and from every process it starts.
 - The only allowed destination is the configured LM Studio address.
 - Observing in-page request blocking is not enough; the test must see actual connection attempts, including from Chromium's own background services.
-- Two observers run together. A recording loopback proxy catches anything that honours proxy settings. A system-level monitor samples the open sockets of `vix` and every child process, and catches what bypasses the proxy. Short-lived connections can fall between samples, which is why the proxy is there too.
+- Two observers run together. A recording loopback proxy catches anything that honours proxy settings. A system-level monitor samples the open sockets of `clankr` and every child process, and catches what bypasses the proxy. Short-lived connections can fall between samples, which is why the proxy is there too.
 
 ### Performance
 
@@ -104,7 +104,7 @@ Settled 2026-11-17 while building wave 1. Internal to this part unless marked.
 | First-attempt validity | The headline rate counts only `validity: "valid"`. Calls the loop repaired are reported separately as "valid or repaired". Calls without a validity are left out of both and counted. Needs a PRD row (section 10 does not say whether a repaired call counts). |
 | Chart attempts | A chart run succeeds when one of its first three `make_chart` calls ends without an error. A run with no `make_chart` call counts as a failure. |
 | Saved chart spec | Any `.json` file under the asserted folder that reads as a Vega-Lite spec counts, so the chart part keeps its own file naming. |
-| Large fixtures | CSVs of 100,000 rows or more are generated once into `$TMPDIR/vix-evals-fixtures/` and copied into each run with an APFS clone. `npm run evals:fixtures` builds the 1,000,000-row file ahead of time. Unit tests never build it. |
+| Large fixtures | CSVs of 100,000 rows or more are generated once into `$TMPDIR/clankr-evals-fixtures/` and copied into each run with an APFS clone. `npm run evals:fixtures` builds the 1,000,000-row file ahead of time. Unit tests never build it. |
 | Deleting in tasks | No golden task calls `delete`, because it moves files to the real Trash. S5 covers move, rename, and copy instead. |
 | Shell-tool check (PERM-6) | By tool name: names are split into words, and a word such as `shell`, `bash`, `exec`, `terminal`, or `spawn` fails the check. The runner checks every harness's registry and stops the suite on a match. |
 | Committed samples (ROADMAP task 21) | `samples/` holds six small fictional files (CSV, TSV with a title block, multi-sheet `.xlsx`, legacy `.xls`, `.docx` with four tables, an `.xlsx` named `.csv`) for people to try and for tests. Their seeded data lives in `evals/fixtures/samples/`, rendered through the same generators as the eval fixtures (extended with multi-sheet workbooks, delimited text, and `.docx` headings). `npm run samples` writes them byte for byte the same (SheetJS and the ZIP writer embed no timestamps); `test/samples/` checks the bytes, the profiles, and one aggregate per file against the generator's data. Excel dates use the built-in short-date format, because DuckDB's Excel reader reads a custom `yyyy-mm-dd` date as a number. |

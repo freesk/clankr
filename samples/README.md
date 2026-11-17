@@ -1,10 +1,10 @@
 # Sample data
 
-Small, entirely fictional files to try `vix`'s data tools on (`inspect_data`, `query_sql`, `run_js`, `make_chart`). "Bramblewood Outfitters" and every name, figure, and date in them are made up.
+Small, entirely fictional files to try `clankr`'s data tools on (`inspect_data`, `query_sql`, `run_js`, `make_chart`). "Bramblewood Outfitters" and every name, figure, and date in them are made up.
 
 Do not edit these files by hand. They are generated from seeded data in `evals/fixtures/samples/` by `npm run samples`, which writes the same bytes on every run, and `test/samples/` fails if the committed files drift from the generator.
 
-| File | What's in it | Try asking vix |
+| File | What's in it | Try asking clankr |
 |---|---|---|
 | `sales_2025.csv` | 2,000 orders for 2025: order id, date, region, product, units, unit price, discount, customer segment. A few segments are blank, and `discount_pct` mixes numbers with `n/a` (a mixed column). | "What was total revenue by region in samples/sales_2025.csv?" · "Chart monthly revenue by product from samples/sales_2025.csv as a line chart." |
 | `inventory.tsv` | Tab-separated stock for 24 products in 3 warehouses, with a two-line report title above the header (header on line 3). | "Which products in samples/inventory.tsv are below their reorder point?" · "Total stock value per warehouse in samples/inventory.tsv." |

@@ -1,5 +1,5 @@
 // Runs the real parts together, in process, against a scripted model. Everything on disk
-// lives in a fresh temporary folder: a private VIX_HOME, a fake home folder, and a working
+// lives in a fresh temporary folder: a private CLANKR_HOME, a fake home folder, and a working
 // folder. `delete` and `/undo` use a private Trash (D54), so nothing reaches the real one.
 
 import { mkdir, mkdtemp, readdir, rm, writeFile } from "node:fs/promises";
@@ -17,14 +17,14 @@ import { ScriptedLmClient, type ScriptedResponse, testModel } from "../../src/te
 export interface IntegrationKit {
   lm: ScriptedLmClient;
   composition: CliComposition;
-  vixHome: string;
+  clankrHome: string;
   workingDirectory: string;
   /** Paths the private Trash received. */
   trashed: string[];
-  /** Runs `vix <argv>` in the working folder and returns what it printed. */
+  /** Runs `clankr <argv>` in the working folder and returns what it printed. */
   run(argv: string[]): Promise<{ exitCode: number; stdout: string; stderr: string }>;
-  /** Every file under VIX_HOME, relative to it. */
-  filesUnderVixHome(): Promise<string[]>;
+  /** Every file under CLANKR_HOME, relative to it. */
+  filesUnderClankrHome(): Promise<string[]>;
   cleanup(): Promise<void>;
 }
 
@@ -37,21 +37,21 @@ export interface IntegrationKitOptions {
 export async function createIntegrationKit(
   options: IntegrationKitOptions = {},
 ): Promise<IntegrationKit> {
-  const scratch = await mkdtemp(join(tmpdir(), "vix-integration-"));
-  const vixHome = join(scratch, "vix-home");
+  const scratch = await mkdtemp(join(tmpdir(), "clankr-integration-"));
+  const clankrHome = join(scratch, "clankr-home");
   const homeDirectory = join(scratch, "home");
   const workingDirectory = join(scratch, "work");
   await mkdir(homeDirectory, { recursive: true });
   await mkdir(workingDirectory, { recursive: true });
   const models = options.models ?? [testModel];
   const config: ConfigInput = { model: { default: models[0]?.key }, ...options.config };
-  await mkdir(vixHome, { recursive: true });
-  await writeFile(join(vixHome, "config.json"), JSON.stringify(config));
+  await mkdir(clankrHome, { recursive: true });
+  await writeFile(join(clankrHome, "config.json"), JSON.stringify(config));
 
   const lm = new ScriptedLmClient(options.responses ?? [], models);
   const trashed: string[] = [];
   const composition = createComposition({
-    environment: { VIX_HOME: vixHome },
+    environment: { CLANKR_HOME: clankrHome },
     homeDirectory,
     createLmConnection: async () => plainLmConnection(lm),
     fileTools: {
@@ -65,7 +65,7 @@ export async function createIntegrationKit(
   return {
     lm,
     composition,
-    vixHome,
+    clankrHome,
     workingDirectory,
     trashed,
     async run(argv) {
@@ -74,7 +74,7 @@ export async function createIntegrationKit(
       const exitCode = await runCli(environment);
       return { exitCode, stdout: environment.output(), stderr: environment.errors() };
     },
-    filesUnderVixHome: () => listFiles(vixHome, ""),
+    filesUnderClankrHome: () => listFiles(clankrHome, ""),
     cleanup: () => rm(scratch, { recursive: true, force: true }),
   };
 }

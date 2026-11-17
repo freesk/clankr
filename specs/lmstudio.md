@@ -70,7 +70,7 @@ Settled 2026-11-17. A D-number means the decision is also recorded in PRD sectio
 | Topic | Decision |
 |---|---|
 | Model loaded with a different context length | Reload it with the configured length (D22). |
-| Minimum LM Studio version | 0.4.0. Older versions get a warning at startup and `vix` continues (D23, resolves O4). |
+| Minimum LM Studio version | 0.4.0. Older versions get a warning at startup and `clankr` continues (D23, resolves O4). |
 | New model fails to load | The session stays on the previous model and the error is shown with its fix. If the previous model was unloaded to make room, it is loaded again. |
 | Token counting library | `@lmstudio/sdk` 2.1.0, pinned exactly and imported lazily at the first count (about 50 ms to import; 8.4 MB installed, including its own zod 3). Counts are `applyPromptTemplate` then `countTokens` on the loaded instance, found with `llm.listLoaded()`. `llm.model(key)` is never called, because it loads a model as a side effect. Image parts are not counted; usage after the call corrects that. If the SDK cannot answer, the count falls back to four characters per token and warns once. |
 | How the version is checked | LM Studio's HTTP API reports no version. The v1 API arrived in 0.4.0, so a 404 on `GET /api/v1/models` is read as "older than 0.4.0": warn and continue (D23). The reference machine runs LM Studio 0.4.20. |
@@ -81,7 +81,7 @@ Settled 2026-11-17. A D-number means the decision is also recorded in PRD sectio
 | `ChatRequest.model` | The `LoadedModel.instanceId`. The client maps it back to the model key to apply the profile (MOD-9). Request sampling values win over the profile's. |
 | Missing usage in a stream | `stream_options.include_usage` is always sent. If the stream still ends without usage, the client emits a usage event before `done`: the prompt counted with the tokenizer, the completion estimated. |
 | Typed startup errors | `LmStudioError` with `kind` (`server-unreachable`, `token-missing`, `token-rejected`, `model-not-downloaded`, `model-load-failed`, plus `host-not-allowed` and `request-failed`), `message`, `fix`, and `describe()` for printing. |
-| Live tests | `src/lmstudio/live.test.ts`, skipped unless `VIX_LIVE_LMSTUDIO=1` and `LM_API_TOKEN` are set. The load test also needs `VIX_LIVE_LOAD=1`; it restores the context length the model had before. |
+| Live tests | `src/lmstudio/live.test.ts`, skipped unless `CLANKR_LIVE_LMSTUDIO=1` and `LM_API_TOKEN` are set. The load test also needs `CLANKR_LIVE_LOAD=1`; it restores the context length the model had before. |
 
 ## Open questions
 

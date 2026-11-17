@@ -1,4 +1,4 @@
-// The `vix` entry point (specs/cli.md).
+// The `clankr` entry point (specs/cli.md).
 //
 // Startup rule (PRD section 9, 500 ms): nothing heavy is imported at the top level
 // of any module reachable from here. DuckDB, isolated-vm, sharp, Playwright, and Ink

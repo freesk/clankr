@@ -10,7 +10,7 @@ describe("loadConfig", () => {
   let configFilePath: string;
 
   beforeEach(async () => {
-    directory = await mkdtemp(join(tmpdir(), "vix-config-"));
+    directory = await mkdtemp(join(tmpdir(), "clankr-config-"));
     configFilePath = join(directory, "config.json");
   });
 

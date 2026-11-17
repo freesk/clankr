@@ -11,7 +11,7 @@ import { ensureCachedCsv, materializeFixtures } from "./materialize.ts";
 let directory: string;
 
 beforeEach(async () => {
-  directory = await mkdtemp(join(tmpdir(), "vix-evals-fixtures-test-"));
+  directory = await mkdtemp(join(tmpdir(), "clankr-evals-fixtures-test-"));
 });
 
 afterEach(async () => {

@@ -13,8 +13,8 @@ export interface PathPolicyOptions {
   allowedRoots: string[];
   /** `permissions.extraDeniedPaths` from config. */
   extraDeniedPaths?: string[];
-  /** `VixPaths.root`. The harness's own files are denied to the model. */
-  vixRoot: string;
+  /** `ClankrPaths.root`. The harness's own files are denied to the model. */
+  clankrRoot: string;
   workingDirectory: string;
   homeDirectory?: string;
 }
@@ -61,7 +61,7 @@ export class RealPathPolicy implements PathPolicy {
     const denied = [
       ...defaultDeniedPaths(),
       ...(this.options.extraDeniedPaths ?? []),
-      this.options.vixRoot,
+      this.options.clankrRoot,
     ].map((path) => this.absolute(path));
     const allowed = this.options.allowedRoots.map((path) => this.absolute(path));
     return {

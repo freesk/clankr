@@ -27,5 +27,5 @@ export {
   InMemoryDataSourceRegistry,
   InMemoryReadTracker,
 } from "./simple-fakes.ts";
-export { createTemporaryVixPaths, type TemporaryVixPaths } from "./temporary-vix-paths.ts";
+export { createTemporaryClankrPaths, type TemporaryClankrPaths } from "./temporary-clankr-paths.ts";
 export { createTestToolContext, type TestToolContext } from "./test-tool-context.ts";

@@ -7,7 +7,7 @@ export const minimumLmStudioVersion = "0.4.0";
 
 export const oldServerWarning =
   `This LM Studio does not offer the v1 API, so it is older than ${minimumLmStudioVersion}, ` +
-  "the minimum vix supports. Update LM Studio; vix continues, but model features may fail.";
+  "the minimum clankr supports. Update LM Studio; clankr continues, but model features may fail.";
 
 /**
  * Returns warnings to show. Throws the MOD-8 error for an unreachable server or a missing

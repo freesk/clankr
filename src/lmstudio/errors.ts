@@ -34,7 +34,7 @@ export function serverUnreachable(baseUrl: string): LmStudioError {
     "server-unreachable",
     `LM Studio is not reachable at ${baseUrl}.`,
     "Open LM Studio and start the local server (Developer tab, or `lms server start`), " +
-      "or set lmStudio.baseUrl in ~/.vix/config.json to where it runs.",
+      "or set lmStudio.baseUrl in ~/.clankr/config.json to where it runs.",
   );
 }
 
@@ -42,7 +42,7 @@ export function tokenMissing(): LmStudioError {
   return new LmStudioError(
     "token-missing",
     "LM Studio requires an API token and none is configured.",
-    "Create a token in LM Studio (Developer > Server Settings) and save it with `vix config`, " +
+    "Create a token in LM Studio (Developer > Server Settings) and save it with `clankr config`, " +
       "or set the LM_API_TOKEN environment variable.",
   );
 }
@@ -51,7 +51,7 @@ export function tokenRejected(): LmStudioError {
   return new LmStudioError(
     "token-rejected",
     "LM Studio rejected the configured API token.",
-    "Run `vix config` to save a current token from LM Studio's Developer > Server Settings. " +
+    "Run `clankr config` to save a current token from LM Studio's Developer > Server Settings. " +
       "When LM_API_TOKEN is set, it overrides the saved token, so check it too.",
   );
 }
@@ -71,7 +71,7 @@ export function modelLoadFailed(key: string, detail: string): LmStudioError {
     "model-load-failed",
     `LM Studio could not load "${key}": ${detail}`,
     "Free memory by unloading other models, or lower model.contextLength " +
-      "(or the model's profile contextLength) in ~/.vix/config.json.",
+      "(or the model's profile contextLength) in ~/.clankr/config.json.",
   );
 }
 
@@ -80,7 +80,7 @@ export function hostNotAllowed(host: string): LmStudioError {
     "host-not-allowed",
     `Refusing to connect to ${host}: it is not a loopback address.`,
     "Point lmStudio.baseUrl at localhost, or set lmStudio.allowNonLoopbackHost to true " +
-      "in ~/.vix/config.json if you really mean to use a remote server.",
+      "in ~/.clankr/config.json if you really mean to use a remote server.",
   );
 }
 

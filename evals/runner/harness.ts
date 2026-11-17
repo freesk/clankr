@@ -5,17 +5,17 @@
 
 import type {
   AgentEvent,
+  ClankrPaths,
   RunTurn,
   SessionState,
   TurnInput,
-  VixPaths,
 } from "../../src/contracts/index.ts";
 
 export interface HarnessSetup {
-  /** A fresh temporary folder holding the task's fixtures: where `vix` "was started". */
+  /** A fresh temporary folder holding the task's fixtures: where `clankr` "was started". */
   workingDirectory: string;
-  /** A fresh temporary `~/.vix/`, so runs cannot touch each other or the user's data. */
-  vixPaths: VixPaths;
+  /** A fresh temporary `~/.clankr/`, so runs cannot touch each other or the user's data. */
+  clankrPaths: ClankrPaths;
 }
 
 /** Counted by UsageRecordingLmClient, so no product code needs an evals hook. */

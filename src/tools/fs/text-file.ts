@@ -71,7 +71,7 @@ export async function writeFileAtomically(
 ): Promise<void> {
   const temporaryPath = join(
     dirname(path),
-    `.${basename(path)}.vix-${randomBytes(4).toString("hex")}.tmp`,
+    `.${basename(path)}.clankr-${randomBytes(4).toString("hex")}.tmp`,
   );
   try {
     await writeFile(temporaryPath, content, { flag: "wx" });

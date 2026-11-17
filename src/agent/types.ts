@@ -38,7 +38,7 @@ export interface AgentDependencies {
   /** Builds the context a tool runs with. The signal is the turn's, so tools can be cancelled. */
   createToolContext(signal: AbortSignal): ToolContext;
   config: Config;
-  /** Where `vix` was started; stated in the system prompt so relative paths make sense. */
+  /** Where `clankr` was started; stated in the system prompt so relative paths make sense. */
   workingDirectory: string;
   /** Tool references such as the Vega-Lite guide. Optional. */
   toolReferences?: readonly ToolReference[];

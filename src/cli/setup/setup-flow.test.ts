@@ -1,5 +1,5 @@
 // The setup flow end to end: scripted answers through the readline prompter, a fake LM
-// Studio over HTTP, and a temporary VIX_HOME. The real ~/.vix is never touched.
+// Studio over HTTP, and a temporary CLANKR_HOME. The real ~/.clankr is never touched.
 
 import { mkdir, mkdtemp, readFile, rm, stat, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
@@ -24,8 +24,8 @@ let server: FakeLmStudioServer;
 let baseUrl: string;
 
 beforeEach(async () => {
-  scratch = await mkdtemp(join(tmpdir(), "vix-setup-"));
-  configFilePath = join(scratch, "vix-home", "config.json");
+  scratch = await mkdtemp(join(tmpdir(), "clankr-setup-"));
+  configFilePath = join(scratch, "clankr-home", "config.json");
   server = new FakeLmStudioServer({ requiredToken: goodToken, models });
   baseUrl = await server.start();
 });
@@ -112,7 +112,7 @@ describe("setup flow", () => {
       },
     });
     expect((await stat(configFilePath)).mode & 0o777).toBe(0o600);
-    expect((await stat(join(scratch, "vix-home"))).mode & 0o777).toBe(0o700);
+    expect((await stat(join(scratch, "clankr-home"))).mode & 0o777).toBe(0o700);
     // The token was tested against the models endpoint with the typed token.
     expect(server.requests.at(-1)).toMatchObject({
       path: "/api/v1/models",
@@ -131,7 +131,7 @@ describe("setup flow", () => {
       permissions: { mode: "read-only", allowedRoots: ["/data"], extraDeniedPaths: ["/secret"] },
       data: { rowCap: 1234 },
     };
-    await mkdir(join(scratch, "vix-home"), { recursive: true });
+    await mkdir(join(scratch, "clankr-home"), { recursive: true });
     await writeFile(configFilePath, JSON.stringify(existing));
     const run = await runWithAnswers(["", "", "", "", "", "", ""]);
     expect(run.outcome?.kind).toBe("saved");
@@ -194,7 +194,7 @@ describe("setup flow", () => {
     expect(run.output).toContain("LM_API_TOKEN is set in your environment");
     expect(run.output).toContain("LM_API_TOKEN is set, and it still overrides");
     expectNoSecrets(run);
-    // The environment token is what vix will use, so it is the one tested; it is not saved.
+    // The environment token is what clankr will use, so it is the one tested; it is not saved.
     expect(run.output).toContain("LM Studio answered.");
     expect(await readSaved()).toMatchObject({ lmStudio: { baseUrl } });
     expect((await readSaved()).lmStudio).not.toHaveProperty("apiToken");
@@ -240,7 +240,7 @@ describe("setup flow", () => {
   });
 
   it("refuses to overwrite a config file that is not valid JSON", async () => {
-    await mkdir(join(scratch, "vix-home"), { recursive: true });
+    await mkdir(join(scratch, "clankr-home"), { recursive: true });
     await writeFile(configFilePath, "{ broken");
     const run = await runWithAnswers([]);
     expect(String(run.error)).toContain("is not valid JSON");

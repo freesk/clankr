@@ -148,7 +148,7 @@ export function sessionEngineFor(context: ToolContext): SessionEngine {
     engine = new SessionEngine({
       registry: context.dataSources,
       results: context.results,
-      scratchDirectory: context.vixPaths.session.scratch,
+      scratchDirectory: context.clankrPaths.session.scratch,
       memoryLimitMb: context.config.data.sqlMemoryLimitMb,
     });
     enginesByRegistry.set(context.dataSources, engine);

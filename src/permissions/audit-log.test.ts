@@ -1,13 +1,13 @@
 import { readdir, readFile, stat } from "node:fs/promises";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import type { AuditEntry } from "../contracts/index.ts";
-import { createTemporaryVixPaths, type TemporaryVixPaths } from "../testing/index.ts";
+import { createTemporaryClankrPaths, type TemporaryClankrPaths } from "../testing/index.ts";
 import { createAuditLog, maxLoggedStringLength } from "./audit-log.ts";
 
-let temporary: TemporaryVixPaths;
+let temporary: TemporaryClankrPaths;
 
 beforeEach(async () => {
-  temporary = await createTemporaryVixPaths();
+  temporary = await createTemporaryClankrPaths();
 });
 
 afterEach(async () => {
@@ -46,7 +46,7 @@ async function readLines(): Promise<Record<string, unknown>[]> {
 
 describe("audit log", () => {
   it("writes one line per call with time, tool, arguments, decision, and outcome", async () => {
-    const log = createAuditLog({ vixPaths: temporary.paths, ephemeral: false, secrets: [] });
+    const log = createAuditLog({ clankrPaths: temporary.paths, ephemeral: false, secrets: [] });
     for (const entry of scriptedCalls.slice(0, 2)) await log.record(entry);
     const lines = await readLines();
     expect(lines).toHaveLength(2);
@@ -62,7 +62,7 @@ describe("audit log", () => {
 
   it("never writes the API token, even JSON-escaped", async () => {
     const log = createAuditLog({
-      vixPaths: temporary.paths,
+      clankrPaths: temporary.paths,
       ephemeral: false,
       secrets: [token, undefined],
     });
@@ -74,7 +74,7 @@ describe("audit log", () => {
   });
 
   it("shortens very long arguments", async () => {
-    const log = createAuditLog({ vixPaths: temporary.paths, ephemeral: false, secrets: [] });
+    const log = createAuditLog({ clankrPaths: temporary.paths, ephemeral: false, secrets: [] });
     const content = "x".repeat(maxLoggedStringLength + 500);
     await log.record({
       tool: "write_file",
@@ -89,7 +89,7 @@ describe("audit log", () => {
   });
 
   it("keeps lines in call order without awaiting each", async () => {
-    const log = createAuditLog({ vixPaths: temporary.paths, ephemeral: false, secrets: [] });
+    const log = createAuditLog({ clankrPaths: temporary.paths, ephemeral: false, secrets: [] });
     await Promise.all(scriptedCalls.map((entry) => log.record(entry)));
     expect((await readLines()).map((line) => line.tool)).toEqual(
       scriptedCalls.map((entry) => entry.tool),
@@ -97,7 +97,7 @@ describe("audit log", () => {
   });
 
   it("writes nothing in an ephemeral session", async () => {
-    const log = createAuditLog({ vixPaths: temporary.paths, ephemeral: true, secrets: [] });
+    const log = createAuditLog({ clankrPaths: temporary.paths, ephemeral: true, secrets: [] });
     for (const entry of scriptedCalls) await log.record(entry);
     expect(await readdir(temporary.paths.logsDirectory)).toEqual([]);
   });

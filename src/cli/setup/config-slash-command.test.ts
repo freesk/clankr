@@ -18,7 +18,7 @@ let server: FakeLmStudioServer;
 let baseUrl: string;
 
 beforeEach(async () => {
-  scratch = await mkdtemp(join(tmpdir(), "vix-config-slash-"));
+  scratch = await mkdtemp(join(tmpdir(), "clankr-config-slash-"));
   server = new FakeLmStudioServer({ requiredToken: token, models: [{ key: "qwen/qwen3-4b" }] });
   baseUrl = await server.start();
 });
@@ -102,7 +102,7 @@ describe("/config in the REPL", () => {
     const text = entryText(state);
     expect(text).toContain("Settings (hidden; Enter for none): (hidden)");
     expect(text).toContain("Permission mode is now read-only.");
-    expect(text).toContain("Restart vix to use the new base URL, API token, default model.");
+    expect(text).toContain("Restart clankr to use the new base URL, API token, default model.");
     expect(text).toContain("Use /model to switch models now.");
     expect(text).not.toContain(token);
     const saved = JSON.parse(await readFile(configFilePath, "utf8"));

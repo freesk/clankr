@@ -1,4 +1,4 @@
-// One-off checks for the setup flow (`vix config`): does LM Studio accept this token, which
+// One-off checks for the setup flow (`clankr config`): does LM Studio accept this token, which
 // models does it offer, and is this base URL a loopback address (SEC-1). No session needed.
 
 import type { ModelInfo } from "../contracts/index.ts";

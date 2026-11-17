@@ -1,4 +1,4 @@
-// Picks what `vix` does from its arguments. Ink is loaded only when the REPL starts
+// Picks what `clankr` does from its arguments. Ink is loaded only when the REPL starts
 // (CLAUDE.md rule 7), so `-p`, `wipe`, `config`, `--help`, and `--version` never pay for it.
 
 import { createInterface } from "node:readline/promises";
@@ -22,7 +22,7 @@ export async function runCli(environment: CliEnvironment): Promise<ExitCode> {
       environment.stdout.write(`${usageText}\n`);
       return exitCodes.done;
     case "version":
-      environment.stdout.write(`vix ${environment.version}\n`);
+      environment.stdout.write(`clankr ${environment.version}\n`);
       return exitCodes.done;
     case "wipe":
       return runWipe({
@@ -73,7 +73,7 @@ async function runOneShotSession(
       ephemeral: command.ephemeral,
       resume: command.resume,
       workingDirectory: environment.workingDirectory,
-      notify: (text) => environment.stderr.write(`vix: ${redactSecrets(text, config)}\n`),
+      notify: (text) => environment.stderr.write(`clankr: ${redactSecrets(text, config)}\n`),
     })
     .catch((error: unknown) => reportFailure(environment, config, error));
   if (!harness) return exitCodes.failed;
@@ -128,18 +128,18 @@ async function loadConfigOrReport(
     });
   } catch (error) {
     if (!(error instanceof ConfigError)) throw error;
-    environment.stderr.write(`vix: ${error.message}\n`);
+    environment.stderr.write(`clankr: ${error.message}\n`);
     return undefined;
   }
 }
 
 function reportFailure(environment: CliEnvironment, config: Config, error: unknown): undefined {
-  environment.stderr.write(`vix: ${redactSecrets(errorMessage(error), config)}\n`);
+  environment.stderr.write(`clankr: ${redactSecrets(errorMessage(error), config)}\n`);
   return undefined;
 }
 
 function usageError(environment: CliEnvironment, message: string): ExitCode {
-  environment.stderr.write(`vix: ${message}\n\n${usageText}\n`);
+  environment.stderr.write(`clankr: ${message}\n\n${usageText}\n`);
   return exitCodes.usage;
 }
 

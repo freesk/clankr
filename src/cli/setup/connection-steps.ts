@@ -33,11 +33,11 @@ function isHttpUrl(text: string): boolean {
 // SEC-1: the flow does not offer the override; it only says where it lives.
 function nonLoopbackNote(context: SetupContext): string {
   if (context.allowNonLoopbackHost) {
-    return "This host is not on this machine. lmStudio.allowNonLoopbackHost is true, so vix will connect to it.";
+    return "This host is not on this machine. lmStudio.allowNonLoopbackHost is true, so clankr will connect to it.";
   }
   return (
-    "Warning: this host is not a loopback address, so vix will refuse to connect to it. " +
-    'vix talks only to an LM Studio on this machine unless you add "allowNonLoopbackHost": true ' +
+    "Warning: this host is not a loopback address, so clankr will refuse to connect to it. " +
+    'clankr talks only to an LM Studio on this machine unless you add "allowNonLoopbackHost": true ' +
     `under "lmStudio" in ${context.configFilePath}.`
   );
 }

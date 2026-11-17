@@ -1,4 +1,4 @@
-// Process exit statuses for `vix` (specs/cli.md, "One-shot exit status").
+// Process exit statuses for `clankr` (specs/cli.md, "One-shot exit status").
 
 export const exitCodes = {
   /** The turn finished. */

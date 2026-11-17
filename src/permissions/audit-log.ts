@@ -2,7 +2,7 @@
 // Arguments can hold sensitive values, so the file follows the storage rules (SEC-5)
 // and is not written at all in an ephemeral session.
 
-import type { AuditEntry, AuditLog, VixPaths } from "../contracts/index.ts";
+import type { AuditEntry, AuditLog, ClankrPaths } from "../contracts/index.ts";
 import { appendPrivateFile, ensurePrivateDirectory } from "../storage/index.ts";
 
 /** Longer string arguments (a whole file passed to write_file) are cut to this many characters. */
@@ -11,7 +11,7 @@ export const maxLoggedStringLength = 2_000;
 const redactedMarker = "[redacted]";
 
 export interface AuditLogOptions {
-  vixPaths: VixPaths;
+  clankrPaths: ClankrPaths;
   ephemeral: boolean;
   /** Values that must never reach the file: the LM Studio API token (MOD-2). */
   secrets: (string | undefined)[];
@@ -20,17 +20,17 @@ export interface AuditLogOptions {
 export function createAuditLog(options: AuditLogOptions): AuditLog {
   if (options.ephemeral) return new DiscardingAuditLog();
   const secrets = options.secrets.filter((secret): secret is string => Boolean(secret));
-  return new FileAuditLog(options.vixPaths, secrets);
+  return new FileAuditLog(options.clankrPaths, secrets);
 }
 
 export class FileAuditLog implements AuditLog {
-  private readonly vixPaths: VixPaths;
+  private readonly clankrPaths: ClankrPaths;
   private readonly secrets: string[];
   // Chained so lines land in call order even when callers do not await.
   private pending: Promise<void> = Promise.resolve();
 
-  constructor(vixPaths: VixPaths, secrets: string[]) {
-    this.vixPaths = vixPaths;
+  constructor(clankrPaths: ClankrPaths, secrets: string[]) {
+    this.clankrPaths = clankrPaths;
     this.secrets = secrets;
   }
 
@@ -42,8 +42,8 @@ export class FileAuditLog implements AuditLog {
   }
 
   private async append(line: string): Promise<void> {
-    await ensurePrivateDirectory(this.vixPaths.logsDirectory);
-    await appendPrivateFile(this.vixPaths.auditLog, line);
+    await ensurePrivateDirectory(this.clankrPaths.logsDirectory);
+    await appendPrivateFile(this.clankrPaths.auditLog, line);
   }
 
   private formatLine(entry: AuditEntry): string {

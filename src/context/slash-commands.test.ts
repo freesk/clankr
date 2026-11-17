@@ -2,13 +2,13 @@ import { describe, expect, it } from "vitest";
 import { defaultConfig } from "../config/index.ts";
 import type { ChatMessage, SlashCommandContext } from "../contracts/index.ts";
 import { InMemoryResultStore, respond, ScriptedLmClient } from "../testing/index.ts";
-import { VixContextEngine } from "./context-engine.ts";
+import { ClankrContextEngine } from "./context-engine.ts";
 import { createContextCommands } from "./slash-commands.ts";
 
 function setup(messages: ChatMessage[]) {
   const lm = new ScriptedLmClient([respond.text("Goal: g\nFacts found:\n- f\nOpen steps:\n- s")]);
   const config = defaultConfig();
-  const engine = new VixContextEngine({ lm, results: new InMemoryResultStore(), config });
+  const engine = new ClankrContextEngine({ lm, results: new InMemoryResultStore(), config });
   const printed: string[] = [];
   const context: SlashCommandContext = {
     session: {

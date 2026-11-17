@@ -175,7 +175,7 @@ describe("query_sql limits", () => {
     await setUp();
     const output = await runSql("SELECT current_setting('temp_directory') AS spill");
     expect(await storedRows(output.handles?.[0] ?? "")).toEqual([
-      { spill: test.context.vixPaths.session.scratch },
+      { spill: test.context.clankrPaths.session.scratch },
     ]);
   });
 
@@ -183,7 +183,7 @@ describe("query_sql limits", () => {
     await setUp({ sqlMemoryLimitMb: 200 });
     const seen = new Set<string>();
     const watcher = setInterval(async () => {
-      for (const name of await readdir(test.context.vixPaths.session.scratch)) seen.add(name);
+      for (const name of await readdir(test.context.clankrPaths.session.scratch)) seen.add(name);
     }, 2);
     try {
       const output = await runSql(

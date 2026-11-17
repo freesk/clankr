@@ -1,4 +1,4 @@
-// The schema for `~/.vix/config.json`. Every default in the harness is defined here, once.
+// The schema for `~/.clankr/config.json`. Every default in the harness is defined here, once.
 // Parts that need a new setting add a field here; they do not hard-code a default.
 
 import { z } from "zod";
@@ -30,7 +30,7 @@ const modelSchema = z.object({
 
 const permissionsSchema = z.object({
   mode: z.enum(["ask", "auto-edit", "read-only"]).default("ask"),
-  /** Empty means the folder `vix` was started in (PERM-3). The loader fills it in. */
+  /** Empty means the folder `clankr` was started in (PERM-3). The loader fills it in. */
   allowedRoots: z.array(z.string()).default([]),
   /** Added to the built-in deny list (PERM-4), never replacing it. */
   extraDeniedPaths: z.array(z.string()).default([]),

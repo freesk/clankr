@@ -19,7 +19,7 @@ const childScript = `
 const { writeFileSync } = await import("node:fs");
 const { join } = await import("node:path");
 const { openSession } = await import(process.env.STORAGE_URL);
-const session = await openSession({ root: process.env.VIX_ROOT, ephemeral: true });
+const session = await openSession({ root: process.env.CLANKR_ROOT, ephemeral: true });
 writeFileSync(join(session.paths.session.results, "r1.jsonl"), '{"salary":1}\\n');
 writeFileSync(join(session.paths.session.scratch, "spill.tmp"), "spill");
 process.stdout.write(session.paths.session.directory + "\\n");
@@ -34,7 +34,7 @@ if (mode !== "natural") setTimeout(() => {}, 10_000);
 
 function runChild(root: string, exitMode: string) {
   const result = spawnSync(process.execPath, ["--input-type=module", "-e", childScript], {
-    env: { ...process.env, STORAGE_URL: storageModuleUrl, VIX_ROOT: root, EXIT_MODE: exitMode },
+    env: { ...process.env, STORAGE_URL: storageModuleUrl, CLANKR_ROOT: root, EXIT_MODE: exitMode },
     encoding: "utf8",
     timeout: 20_000,
   });
@@ -66,8 +66,8 @@ let parent: string;
 let root: string;
 
 beforeEach(async () => {
-  parent = await mkdtemp(join(tmpdir(), "vix-ephemeral-"));
-  root = join(parent, ".vix");
+  parent = await mkdtemp(join(tmpdir(), "clankr-ephemeral-"));
+  root = join(parent, ".clankr");
 });
 
 afterEach(async () => {

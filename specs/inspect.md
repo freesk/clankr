@@ -86,7 +86,7 @@ Settled 2026-11-17. A D-number means the decision is also recorded in PRD sectio
 
 ## Measurements (2026-11-17, Apple M3 Pro)
 
-Opt-in: `VIX_PERF=1 npx vitest run src/tools/data/inspect/perf.test.ts --reporter=verbose`. Each profile runs in its own process.
+Opt-in: `CLANKR_PERF=1 npx vitest run src/tools/data/inspect/perf.test.ts --reporter=verbose`. Each profile runs in its own process.
 
 | File | Profile time | Peak RSS |
 |---|---|---|

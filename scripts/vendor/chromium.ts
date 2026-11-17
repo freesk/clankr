@@ -29,7 +29,7 @@ export const chromiumStep: VendorStep = {
     const expectedSha256 = archiveSha256ByArchitecture[architecture];
     if (process.platform !== "darwin" || !expectedSha256) {
       throw new Error(
-        `No pinned Chromium build for ${process.platform}-${architecture}; vix supports Apple silicon macOS`,
+        `No pinned Chromium build for ${process.platform}-${architecture}; clankr supports Apple silicon macOS`,
       );
     }
     const url = `https://cdn.playwright.dev/builds/cft/${chromiumVersion}/mac-${architecture}/${archiveName(architecture)}`;

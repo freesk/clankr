@@ -50,7 +50,7 @@ export function plannedTool<Parameters extends z.ZodObject>(
 }
 
 async function applyWithSnapshot(plan: ChangePlan, context: ToolContext): Promise<string> {
-  const store = new SnapshotStore(context.vixPaths.session.snapshots);
+  const store = new SnapshotStore(context.clankrPaths.session.snapshots);
   const recorder = await store.begin(plan.preview.summary);
   try {
     return await plan.apply(recorder);

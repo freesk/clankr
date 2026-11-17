@@ -31,7 +31,7 @@ export function isExcelExtensionInstalled(): boolean {
 export function requireExcelExtension(): string {
   if (!isExcelExtensionInstalled()) {
     throw new ToolError(
-      "The .xlsx reader is not installed. Ask the user to run `npm run vendor` in the vix folder.",
+      "The .xlsx reader is not installed. Ask the user to run `npm run vendor` in the clankr folder.",
     );
   }
   return excelExtensionPath;

@@ -1,4 +1,4 @@
-# vix workstream specs
+# clankr workstream specs
 
 These specs split the build described in [PRD.md](../PRD.md) into parts that can be built mostly in parallel.
 
@@ -16,7 +16,7 @@ Interfaces and file paths in these specs are proposals until the code exists. On
 | [agent-loop.md](agent-loop.md) | The turn loop, tool registry, tool-call parsing, tool scoping | `src/agent/` | M0 | 1 |
 | [context.md](context.md) | Token ledger, result store, caps, eviction, compaction, `read_result` | `src/context/` | M0, M2 | 1 |
 | [permissions.md](permissions.md) | Permission modes, path policy, deny list, audit log | `src/permissions/` | M1 | 1 |
-| [storage.md](storage.md) | `~/.vix/` layout, sessions, resume, `vix wipe`, `--ephemeral` | `src/storage/` | M0, M5 | 1 |
+| [storage.md](storage.md) | `~/.clankr/` layout, sessions, resume, `clankr wipe`, `--ephemeral` | `src/storage/` | M0, M5 | 1 |
 | [search.md](search.md) | `find_files`, `search_content`, `list_dir`, `read_file` | `src/tools/search/` | M1 | 1 |
 | [files.md](files.md) | `write_file`, `edit_file`, `make_dir`, `move`, `copy`, `delete`, `/undo` | `src/tools/fs/` | M1 | 1 |
 | [image.md](image.md) | `view_image` with downscaling and an isolated sub-call | `src/tools/image/` | M3 | 1 |
@@ -70,7 +70,7 @@ Each row is a place where two parts meet. The contract named here is defined in 
 | Profiling a tabular file | The DuckDB engine module | sql | inspect |
 | Running model-written JS | `runInIsolate` | sandbox | chart |
 | Turning a spec into a file | `renderChart` | pdf | chart |
-| Where a session writes | `VixPaths` | storage | context, permissions, files, sql |
+| Where a session writes | `ClankrPaths` | storage | context, permissions, files, sql |
 | Registering a slash command | `SlashCommand` | lmstudio, context, permissions, files, agent-loop | cli |
 
 ## Requirements that span parts

@@ -46,7 +46,7 @@ Two tools use the isolate: `run_js` for reshaping data, and `make_chart` for bui
 - **Console output** is captured and returned as part of the tool result, subject to the cap. It is the model's only debugging aid.
 - **Errors are short.** Message and line number in the model's own code. No host stack frames.
 - **The addon is loaded lazily**, on first use.
-- **Start-up flag.** `vix` runs Node with `--no-node-snapshot` (D35). Tests that load the addon run under vitest, which does not pass the flag; the spike saw no failure without it, but a crash seen only in tests should be checked against this first.
+- **Start-up flag.** `clankr` runs Node with `--no-node-snapshot` (D35). Tests that load the addon run under vitest, which does not pass the flag; the spike saw no failure without it, but a crash seen only in tests should be checked against this first.
 
 ## Not in this part
 

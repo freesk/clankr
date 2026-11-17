@@ -1,10 +1,11 @@
 // Everything that belongs to one session and is replaced by `/clear`: its storage, result
 // store, context engine, data registry, read tracker, audit log, and permission gate.
 
-import { createContextCommands, DiskResultStore, VixContextEngine } from "../context/index.ts";
+import { ClankrContextEngine, createContextCommands, DiskResultStore } from "../context/index.ts";
 import type {
   ApprovalPrompter,
   AuditLog,
+  ClankrPaths,
   Config,
   LmClient,
   LoadedModel,
@@ -12,7 +13,6 @@ import type {
   SessionState,
   SessionTranscript,
   SlashCommand,
-  VixPaths,
 } from "../contracts/index.ts";
 import { SessionDataSourceRegistry } from "../data/index.ts";
 import { closeSessionEngine } from "../engines/duckdb/index.ts";
@@ -39,10 +39,10 @@ export interface SessionRuntimeOptions {
 }
 
 export interface SessionRuntime {
-  paths: VixPaths;
+  paths: ClankrPaths;
   transcript: SessionTranscript;
   results: DiskResultStore;
-  context: VixContextEngine;
+  context: ClankrContextEngine;
   dataSources: SessionDataSourceRegistry;
   readTracker: SessionReadTracker;
   pathPolicy: RealPathPolicy;
@@ -61,7 +61,7 @@ export async function openSessionRuntime(options: SessionRuntimeOptions): Promis
   });
   const paths = storage.paths;
   const results = new DiskResultStore(paths.session.results);
-  const context = new VixContextEngine({
+  const context = new ClankrContextEngine({
     lm: options.lm,
     results,
     config: options.config,
@@ -71,12 +71,12 @@ export async function openSessionRuntime(options: SessionRuntimeOptions): Promis
   const pathPolicy = new RealPathPolicy({
     allowedRoots: options.config.permissions.allowedRoots,
     extraDeniedPaths: options.config.permissions.extraDeniedPaths,
-    vixRoot: paths.root,
+    clankrRoot: paths.root,
     workingDirectory: options.workingDirectory,
     ...(options.homeDirectory ? { homeDirectory: options.homeDirectory } : {}),
   });
   const audit = createAuditLog({
-    vixPaths: paths,
+    clankrPaths: paths,
     ephemeral: options.ephemeral,
     secrets: [options.config.lmStudio.apiToken],
   });

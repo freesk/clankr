@@ -201,6 +201,6 @@ describe("one-shot mode, with no prompter (D14)", () => {
     });
     const decision = await gate.check(querySql, {}, codePreview("/elsewhere/payroll.xlsx"));
     if (decision.allowed) throw new Error("expected a denial");
-    expect(decision.feedback).toMatch(/run vix interactively/);
+    expect(decision.feedback).toMatch(/run clankr interactively/);
   });
 });

@@ -23,7 +23,7 @@ Keep it small. This part defines shapes and conventions. It implements no featur
 
 ### 1. Scaffold
 
-- Node.js 22, TypeScript in strict mode, ESM, with a `vix` bin entry.
+- Node.js 22, TypeScript in strict mode, ESM, with a `clankr` bin entry.
 - `vitest` as the test runner, one linter, one formatter, wired to `npm test`, `npm run lint`, `npm run build`.
 - The directory layout listed in the parts table of [README.md](README.md), with an empty module per part so imports resolve from day one.
 
@@ -80,7 +80,7 @@ The remaining contracts, each a small interface or type:
 
 | Contract | Meaning |
 |---|---|
-| `ToolContext` | What a running tool receives: abort signal, `ResultStore`, `PathPolicy`, `DataSourceRegistry`, `ReadTracker`, `LmClient`, `VixPaths`, config |
+| `ToolContext` | What a running tool receives: abort signal, `ResultStore`, `PathPolicy`, `DataSourceRegistry`, `ReadTracker`, `LmClient`, `ClankrPaths`, config |
 | `ToolError` | An error whose message is short, safe to show the model, and says what to try next |
 | `ChangePreview` | A diff or a one-line summary of what a write or execute tool is about to do |
 | `PermissionGate` | `check(tool, args, preview)` returning allow, or deny with feedback for the model |
@@ -90,21 +90,21 @@ The remaining contracts, each a small interface or type:
 | `DataSourceRegistry` | Inspected data files: handle, path, and the SQL table names they expose |
 | `ReadTracker` | Which files were read in this session, and their state when read |
 | `SessionState` | Messages, active model, permission mode, session grants |
-| `VixPaths` | Every location under `~/.vix/` and inside the current session directory |
+| `ClankrPaths` | Every location under `~/.clankr/` and inside the current session directory |
 | `SlashCommand` | Name, help line, and handler, so parts register commands without editing the CLI |
 | `ChartRenderRequest` | Validated spec, rows, theme, output format, output path |
-| `Config` | The zod schema for `~/.vix/config.json` |
+| `Config` | The zod schema for `~/.clankr/config.json` |
 
 ### 3. Config (`src/config/`)
 
-Loads `~/.vix/config.json`, validates it with zod, and layers environment variables and command-line flags on top. Defaults come from the PRD (base URL, default model, context length, caps, allowed roots). Each default is defined once, here.
+Loads `~/.clankr/config.json`, validates it with zod, and layers environment variables and command-line flags on top. Defaults come from the PRD (base URL, default model, context length, caps, allowed roots). Each default is defined once, here.
 
 ### 4. Fakes (`src/testing/`)
 
 - A scripted `LmClient` that replays a list of responses, including tool calls and malformed ones.
 - An in-memory `ResultStore`.
 - An `ApprovalPrompter` that answers from a queue.
-- A temporary `VixPaths` rooted in a scratch directory.
+- A temporary `ClankrPaths` rooted in a scratch directory.
 
 ### 5. Vendoring convention
 
@@ -121,13 +121,13 @@ Nothing.
 ## Design notes
 
 - Contracts change after wave 1 starts only by agreement, because a change touches several parts at once. Add fields; avoid renaming.
-- `isolated-vm` has needed a Node start-up flag (`--no-node-snapshot`) on recent Node versions. The spike must confirm whether Node 22 needs it, because it changes how the `vix` bin launches Node.
+- `isolated-vm` has needed a Node start-up flag (`--no-node-snapshot`) on recent Node versions. The spike must confirm whether Node 22 needs it, because it changes how the `clankr` bin launches Node.
 - Heavy native modules (`isolated-vm`, DuckDB, `sharp`, Playwright) must be loaded lazily everywhere, or the 500 ms startup target in PRD section 9 is lost. State this as a rule in the scaffold.
 
 ## Not in this part
 
 - Any implementation of a contract. `src/contracts/` has types; the owning part has the code.
-- The tool registry (agent-loop) and `~/.vix/` file handling (storage).
+- The tool registry (agent-loop) and `~/.clankr/` file handling (storage).
 
 ## Done when
 
@@ -142,9 +142,9 @@ Settled 2026-11-17. A D-number means the decision is also recorded in PRD sectio
 | Topic | Decision |
 |---|---|
 | Test runner | `vitest` (D34). |
-| Vendored assets | Everything vendored lives in the project's `vendor/` directory, not under `~/.vix/` and not in a shared cache (D31). |
+| Vendored assets | Everything vendored lives in the project's `vendor/` directory, not under `~/.clankr/` and not in a shared cache (D31). |
 | Lint and format | Biome, one tool for both. |
-| Node start-up flag | `--no-node-snapshot`, passed in the shebang of `bin/vix.js`, so Node is never re-launched (D35). |
+| Node start-up flag | `--no-node-snapshot`, passed in the shebang of `bin/clankr.js`, so Node is never re-launched (D35). |
 | `.xls` reader | SheetJS 0.20.3 from the SheetJS CDN (D36, resolves O1). |
 | Native addon versions | `isolated-vm` 6.2.0 and `@duckdb/node-api` 1.4.5-r.1, pinned exactly (D37). |
 

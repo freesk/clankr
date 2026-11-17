@@ -82,7 +82,7 @@ describe("session features", () => {
     // PERM-8 covers the sub-agent's calls too; the log is written as each call ends.
     await harness.close();
     harness = undefined;
-    const audit = await readFile(join(kit.vixHome, "logs", "audit.jsonl"), "utf8");
+    const audit = await readFile(join(kit.clankrHome, "logs", "audit.jsonl"), "utf8");
     const tools = audit
       .trim()
       .split("\n")
@@ -106,7 +106,7 @@ describe("session features", () => {
     const printed = await runCommand(harness, "compact");
     expect(printed.join("\n")).toMatch(/Compacted/);
     const compacted = harness.session().messages;
-    const saved = await new FileSessionStore(kit.vixHome).load(firstId);
+    const saved = await new FileSessionStore(kit.clankrHome).load(firstId);
     expect(saved.messages).toEqual(compacted);
 
     // `/clear` is the cli's own command; what it calls on the harness is startNewSession.

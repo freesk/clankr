@@ -64,7 +64,7 @@ async function installBootstrap(
   await context.evalClosure(
     bootstrapSource,
     [logReference, helperReference, JSON.stringify(Object.keys(helpers))],
-    { filename: "vix-bootstrap.js" },
+    { filename: "clankr-bootstrap.js" },
   );
 }
 

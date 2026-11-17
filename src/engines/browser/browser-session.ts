@@ -49,7 +49,9 @@ export class BrowserSession {
         await guardContextRequests(context, this.servedFiles, this.options.logBlocked);
         const page = await context.newPage();
         await page.goto(`${renderOrigin}${renderPagePath}`);
-        await page.waitForFunction(() => (globalThis as { vixReady?: boolean }).vixReady === true);
+        await page.waitForFunction(
+          () => (globalThis as { clankrReady?: boolean }).clankrReady === true,
+        );
         signal?.throwIfAborted();
         try {
           return await runUnlessAborted(work(page), signal);
@@ -96,7 +98,7 @@ export class BrowserSession {
       executablePath: chromiumExecutablePath,
       headless: true,
       args: [...offlineLaunchArguments, ...(this.options.extraLaunchArguments ?? [])],
-      // Ctrl-C belongs to the CLI, which cancels the turn and calls close() on exit. If vix
+      // Ctrl-C belongs to the CLI, which cancels the turn and calls close() on exit. If clankr
       // dies without that, the browser loses its control pipe and exits on its own.
       handleSIGINT: false,
     });
@@ -105,7 +107,7 @@ export class BrowserSession {
   private startIdleTimer(): void {
     this.cancelIdleTimer();
     this.idleTimer = setTimeout(() => void this.close(), this.options.idleMilliseconds);
-    // The idle timer alone must never keep vix running.
+    // The idle timer alone must never keep clankr running.
     this.idleTimer.unref();
   }
 

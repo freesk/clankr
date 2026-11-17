@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-`vix` is a local-only CLI agent harness for LM Studio models, written in TypeScript on Node.js. Requirements, decisions, and milestones live in [PRD.md](PRD.md). Read it before making design choices, and update it when a decision changes.
+`clankr` is a local-only CLI agent harness for LM Studio models, written in TypeScript on Node.js. Requirements, decisions, and milestones live in [PRD.md](PRD.md). Read it before making design choices, and update it when a decision changes.
 
 ## Rules
 

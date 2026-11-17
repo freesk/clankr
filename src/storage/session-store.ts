@@ -8,7 +8,7 @@ import type {
   SessionSummary,
   ToolGroup,
 } from "../contracts/index.ts";
-import { buildRootPaths, buildVixPaths, isValidSessionId } from "./layout.ts";
+import { buildClankrPaths, buildRootPaths, isValidSessionId } from "./layout.ts";
 import { isMissingFileError } from "./private-files.ts";
 import { parseTranscript } from "./transcript.ts";
 
@@ -41,7 +41,7 @@ export class FileSessionStore implements SessionStore {
 
   async load(sessionId: string): Promise<SavedSession> {
     if (!isValidSessionId(sessionId)) throw new Error(`No saved session "${sessionId}".`);
-    const transcriptPath = buildVixPaths(this.root, sessionId).session.transcript;
+    const transcriptPath = buildClankrPaths(this.root, sessionId).session.transcript;
     let text: string;
     try {
       text = await readFile(transcriptPath, "utf8");
@@ -65,7 +65,7 @@ export class FileSessionStore implements SessionStore {
   private async transcriptsNewestFirst(): Promise<TranscriptOnDisk[]> {
     const found: TranscriptOnDisk[] = [];
     for (const sessionId of await this.sessionIds()) {
-      const transcriptPath = buildVixPaths(this.root, sessionId).session.transcript;
+      const transcriptPath = buildClankrPaths(this.root, sessionId).session.transcript;
       const lastActivity = await modifiedTime(transcriptPath);
       if (lastActivity) found.push({ sessionId, lastActivity });
     }

@@ -32,8 +32,8 @@ const trash: TrashFunction = async (paths) => {
 };
 
 beforeEach(async () => {
-  work = await realpath(await mkdtemp(join(tmpdir(), "vix-fs-work-")));
-  fakeTrash = await mkdtemp(join(tmpdir(), "vix-fs-trash-"));
+  work = await realpath(await mkdtemp(join(tmpdir(), "clankr-fs-work-")));
+  fakeTrash = await mkdtemp(join(tmpdir(), "clankr-fs-trash-"));
   const created = await createTestToolContext({ workingDirectory: work });
   context = created.context;
   cleanupContext = created.cleanup;
@@ -54,7 +54,7 @@ function run(name: string, args: Record<string, unknown>) {
 }
 
 const undo = () => undoLastChange({ trash, snapshotsDirectory: snapshots() });
-const snapshots = () => context.vixPaths.session.snapshots;
+const snapshots = () => context.clankrPaths.session.snapshots;
 const inWork = (path: string) => join(work, path);
 const read = (path: string) => readFile(inWork(path), "utf8");
 
@@ -112,7 +112,7 @@ describe("/undo", () => {
     expect(await read("notes.md")).toBe("one\ntwo\n");
   });
 
-  it("refuses when the file changed outside vix, and changes nothing", async () => {
+  it("refuses when the file changed outside clankr, and changes nothing", async () => {
     await run("edit_file", { path: "notes.md", old: "two", new: "2" });
     await writeFile(inWork("notes.md"), "edited by hand, much longer\n");
     expect(await undo()).toMatch(/Cannot undo .*notes\.md changed after the change was made/);
@@ -150,7 +150,7 @@ describe("/undo", () => {
   });
 
   it("is registered as a slash command that prints its result", async () => {
-    const [command] = createFileSlashCommands(context.vixPaths, { trash });
+    const [command] = createFileSlashCommands(context.clankrPaths, { trash });
     const printed: string[] = [];
     const commandContext: SlashCommandContext = {
       session: {

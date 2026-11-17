@@ -1,4 +1,4 @@
-// A local HTTP server that imitates the LM Studio endpoints vix uses. Test code only:
+// A local HTTP server that imitates the LM Studio endpoints clankr uses. Test code only:
 // it lets the client be tested end to end without LM Studio running.
 
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from "node:http";

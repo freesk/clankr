@@ -1,4 +1,4 @@
-// `vix wipe` (CLI-6, SEC-6): permanently deletes sessions, stored results, snapshots,
+// `clankr wipe` (CLI-6, SEC-6): permanently deletes sessions, stored results, snapshots,
 // scratch files, and logs. Keeps the settings files. Never moves anything to the Trash,
 // since a Trash full of transcripts would defeat the purpose.
 
@@ -16,7 +16,7 @@ export interface WipePlan {
   entries: string[];
 }
 
-/** `{ yes: true }` is `vix wipe --yes`; otherwise the cli shows the plan and asks. */
+/** `{ yes: true }` is `clankr wipe --yes`; otherwise the cli shows the plan and asks. */
 export type WipeConfirmation = { yes: true } | { confirm(plan: WipePlan): Promise<boolean> };
 
 export type WipeOutcome = "deleted" | "declined" | "nothing-to-delete";

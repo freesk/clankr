@@ -1,4 +1,4 @@
-// `vix -p` end to end with every real part except the model: storage, config, context,
+// `clankr -p` end to end with every real part except the model: storage, config, context,
 // permissions, the agent loop, and the search and file tools (M1 scenarios in miniature).
 
 import { readFile, writeFile } from "node:fs/promises";
@@ -34,7 +34,7 @@ describe("one-shot file turn", () => {
       "auto-edit",
     ]);
 
-    expect(result.stderr).not.toMatch(/vix: /);
+    expect(result.stderr).not.toMatch(/clankr: /);
     expect(result.exitCode).toBe(0);
     expect(result.stdout).toBe("Wrote summary.txt.\n");
     expect(result.stderr).toMatch(/find_files \*\.txt/);
@@ -47,7 +47,7 @@ describe("one-shot file turn", () => {
     // ChatRequest.model is the loaded instance, not the key.
     expect(requests[0]?.model).toBe(`${testModel.key}:1`);
 
-    const saved = await new FileSessionStore(kit.vixHome).newest();
+    const saved = await new FileSessionStore(kit.clankrHome).newest();
     expect(saved?.modelKey).toBe(testModel.key);
     expect(saved?.messages.map((message) => message.role)).toEqual([
       "user",
@@ -60,13 +60,13 @@ describe("one-shot file turn", () => {
       "assistant",
     ]);
     const transcript = await readFile(
-      join(kit.vixHome, "sessions", saved?.id ?? "", "transcript.jsonl"),
+      join(kit.clankrHome, "sessions", saved?.id ?? "", "transcript.jsonl"),
       "utf8",
     );
     // A turn that never compacted only appends.
     expect(transcript).not.toContain('"type":"history"');
 
-    const audit = (await readFile(join(kit.vixHome, "logs", "audit.jsonl"), "utf8"))
+    const audit = (await readFile(join(kit.clankrHome, "logs", "audit.jsonl"), "utf8"))
       .trim()
       .split("\n")
       .map((line) => JSON.parse(line));
@@ -104,7 +104,7 @@ describe("one-shot file turn", () => {
     const result = await kit.run(["-p", "Read notes.txt", "--ephemeral"]);
 
     expect(result.exitCode).toBe(0);
-    expect(await kit.filesUnderVixHome()).toEqual(["config.json"]);
+    expect(await kit.filesUnderClankrHome()).toEqual(["config.json"]);
   });
 
   it("resumes the most recent session with its history", async () => {

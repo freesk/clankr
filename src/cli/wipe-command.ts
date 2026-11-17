@@ -1,4 +1,4 @@
-// `vix wipe` (CLI-6): confirm unless --yes (D32), then let storage delete everything.
+// `clankr wipe` (CLI-6): confirm unless --yes (D32), then let storage delete everything.
 
 import type { WipeReport } from "../contracts/index.ts";
 import type { TextSink } from "./cli-environment.ts";
@@ -16,13 +16,13 @@ export interface WipeRequest {
 }
 
 const confirmation =
-  "Delete all saved sessions, stored tool results, and logs under ~/.vix? This cannot be undone. [y/N] ";
+  "Delete all saved sessions, stored tool results, and logs under ~/.clankr? This cannot be undone. [y/N] ";
 
 export async function runWipe(request: WipeRequest): Promise<ExitCode> {
   if (!request.assumeYes) {
     if (!request.canAsk) {
       request.stderr.write(
-        "vix: wipe needs confirmation; pass --yes when stdin is not a terminal.\n",
+        "clankr: wipe needs confirmation; pass --yes when stdin is not a terminal.\n",
       );
       return exitCodes.usage;
     }
@@ -37,7 +37,7 @@ export async function runWipe(request: WipeRequest): Promise<ExitCode> {
     request.stdout.write(`${describeWipe(report)}\n`);
     return exitCodes.done;
   } catch (error) {
-    request.stderr.write(`vix: wipe failed: ${errorMessage(error)}\n`);
+    request.stderr.write(`clankr: wipe failed: ${errorMessage(error)}\n`);
     return exitCodes.failed;
   }
 }

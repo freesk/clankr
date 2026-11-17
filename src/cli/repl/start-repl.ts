@@ -36,7 +36,7 @@ export async function startRepl(request: StartReplRequest): Promise<ExitCode> {
       notify: (text) => showNotice(text),
     });
   } catch (error) {
-    environment.stderr.write(`vix: ${redactSecrets(errorMessage(error), config)}\n`);
+    environment.stderr.write(`clankr: ${redactSecrets(errorMessage(error), config)}\n`);
     await offerSetupAfterFailedStart(environment, config);
     return exitCodes.failed;
   }

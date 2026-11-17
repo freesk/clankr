@@ -1,5 +1,5 @@
-// Tests against a running LM Studio. Skipped unless VIX_LIVE_LMSTUDIO=1 and LM_API_TOKEN are set,
-// so the default suite runs without LM Studio. VIX_LIVE_LOAD=1 adds the load test, which reloads
+// Tests against a running LM Studio. Skipped unless CLANKR_LIVE_LMSTUDIO=1 and LM_API_TOKEN are set,
+// so the default suite runs without LM Studio. CLANKR_LIVE_LOAD=1 adds the load test, which reloads
 // the model with another context length and then restores the length it had before.
 // Uses google/gemma-4-e4b until the target 12B is downloaded (specs/lmstudio.md).
 
@@ -9,12 +9,12 @@ import { parseChatStream } from "./chat-stream.ts";
 import { LmStudioClient } from "./client.ts";
 import { configForServer } from "./fake-lm-studio-server.test-support.ts";
 
-const liveEnabled = process.env.VIX_LIVE_LMSTUDIO === "1" && Boolean(process.env.LM_API_TOKEN);
-const loadEnabled = liveEnabled && process.env.VIX_LIVE_LOAD === "1";
-const modelKey = process.env.VIX_LIVE_MODEL ?? "google/gemma-4-e4b";
+const liveEnabled = process.env.CLANKR_LIVE_LMSTUDIO === "1" && Boolean(process.env.LM_API_TOKEN);
+const loadEnabled = liveEnabled && process.env.CLANKR_LIVE_LOAD === "1";
+const modelKey = process.env.CLANKR_LIVE_MODEL ?? "google/gemma-4-e4b";
 
 function liveClient(onWarning: (text: string) => void = console.warn): LmStudioClient {
-  const config = configForServer(process.env.VIX_LIVE_BASE_URL ?? "http://localhost:1234", {
+  const config = configForServer(process.env.CLANKR_LIVE_BASE_URL ?? "http://localhost:1234", {
     lmStudio: { apiToken: process.env.LM_API_TOKEN },
   });
   return new LmStudioClient({ config, onWarning });

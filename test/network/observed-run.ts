@@ -1,6 +1,6 @@
 // The whole-process network test (SEC-4, D33): run a command with both
 // observers attached and report every destination other than LM Studio.
-// Wave 2 points this at the real `vix` running a session that exercises
+// Wave 2 points this at the real `clankr` running a session that exercises
 // every engine; the tests here point it at small scripts.
 
 import { spawn } from "node:child_process";

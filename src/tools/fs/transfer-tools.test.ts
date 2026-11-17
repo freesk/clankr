@@ -26,8 +26,8 @@ let cleanupContext: () => Promise<void>;
 let tools: Map<string, ToolDefinition>;
 
 beforeEach(async () => {
-  work = await realpath(await mkdtemp(join(tmpdir(), "vix-fs-work-")));
-  fakeTrash = await mkdtemp(join(tmpdir(), "vix-fs-trash-"));
+  work = await realpath(await mkdtemp(join(tmpdir(), "clankr-fs-work-")));
+  fakeTrash = await mkdtemp(join(tmpdir(), "clankr-fs-trash-"));
   trashed = [];
   const created = await createTestToolContext({
     workingDirectory: work,

@@ -62,7 +62,7 @@ async function identifyImageFormat(path: string, realPath: string): Promise<Imag
 
 function convert(realPath: string, context: ToolContext): Promise<Buffer> {
   return convertToPngWithSips(realPath, {
-    scratchDirectory: context.vixPaths.session.scratch,
+    scratchDirectory: context.clankrPaths.session.scratch,
     timeoutMs: context.config.image.conversionTimeoutMs,
     signal: context.signal,
   });

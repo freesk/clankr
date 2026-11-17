@@ -14,7 +14,7 @@ let handle: string;
 
 beforeEach(async () => {
   testContext = await createTestToolContext();
-  const results = new DiskResultStore(testContext.context.vixPaths.session.results);
+  const results = new DiskResultStore(testContext.context.clankrPaths.session.results);
   context = { ...testContext.context, results };
   handle = await results.putText(lines.join("\n"), {
     tool: "list_dir",

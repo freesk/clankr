@@ -47,7 +47,7 @@ async function startCanary(): Promise<{ server: Server; port: number; connection
 }
 
 describe.skipIf(!isBrowserVendored())("offline browser (needs `npm run vendor`)", () => {
-  const marker = `vix-test-marker=${randomUUID()}`;
+  const marker = `clankr-test-marker=${randomUUID()}`;
   let renderer: ChartRenderer;
   let canary: Awaited<ReturnType<typeof startCanary>>;
   let folder: string;
@@ -58,7 +58,7 @@ describe.skipIf(!isBrowserVendored())("offline browser (needs `npm run vendor`)"
       extraLaunchArguments: [`--${marker}`],
     });
     canary = await startCanary();
-    folder = await mkdtemp(join(tmpdir(), "vix-offline-"));
+    folder = await mkdtemp(join(tmpdir(), "clankr-offline-"));
   });
 
   afterAll(async () => {

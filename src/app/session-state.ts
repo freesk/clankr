@@ -49,7 +49,7 @@ export function toolCallingWarning(model: LoadedModel, config: Config): string |
   if (toolCallingStyleFor(model, config) === "native") return undefined;
   if (config.model.profiles[model.key]?.toolCallingStyle === "prompt") return undefined;
   return (
-    `${model.key} is not trained for tool use, so vix asks it to write tool calls as text. ` +
+    `${model.key} is not trained for tool use, so clankr asks it to write tool calls as text. ` +
     "Expect more failed tool calls; a model with native tool use works better."
   );
 }

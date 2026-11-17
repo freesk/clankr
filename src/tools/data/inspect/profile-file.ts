@@ -53,7 +53,7 @@ export async function profileFile(
   const rowSetHandles = converted ? await storeRowSets(converted.plans, request, context) : [];
   const database = await openLockedDatabase({
     allowedFiles: readsInPlace ? [request.realPath] : rowSetFiles(rowSetHandles, context),
-    scratchDirectory: context.vixPaths.session.scratch,
+    scratchDirectory: context.clankrPaths.session.scratch,
     memoryLimitMb: context.config.data.sqlMemoryLimitMb,
     loadExcelReader: format === "xlsx",
   });

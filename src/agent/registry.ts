@@ -73,7 +73,7 @@ function assertValidDefinition(definition: ToolDefinition): void {
     throw new Error(`Tool name "${name}" must be lower snake case`);
   }
   if (forbiddenShellToolNames.has(name)) {
-    throw new Error(`Tool "${name}" looks like a shell tool, which vix never offers (PERM-6)`);
+    throw new Error(`Tool "${name}" looks like a shell tool, which clankr never offers (PERM-6)`);
   }
   if (definition.groups.length === 0) {
     throw new Error(`Tool "${name}" belongs to no tool group`);

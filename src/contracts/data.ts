@@ -47,7 +47,7 @@ export interface DataSourceRegistry {
 
 export type PageSize = "A4" | "Letter";
 
-/** `~/.vix/theme.json` (DATA-15). Chart applies palette and fonts; pdf applies the page. */
+/** `~/.clankr/theme.json` (DATA-15). Chart applies palette and fonts; pdf applies the page. */
 export interface Theme {
   palette: string[];
   fontFamily: string;

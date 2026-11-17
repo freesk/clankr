@@ -43,7 +43,7 @@ export interface FixtureTree {
 
 export async function writeFixtureTree(nowMs = Date.now()): Promise<FixtureTree> {
   // realpath: /var is a symbolic link to /private/var, and the tools report real paths.
-  const root = await realpath(await mkdtemp(join(tmpdir(), "vix-search-")));
+  const root = await realpath(await mkdtemp(join(tmpdir(), "clankr-search-")));
   for (const [relativePath, file] of Object.entries(fixtureFiles)) {
     const path = join(root, relativePath);
     await mkdir(dirname(path), { recursive: true });

@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { defaultConfig } from "../config/index.ts";
 import type { ChatEvent, LoadedModel } from "../contracts/index.ts";
 import { InMemoryResultStore, ScriptedLmClient, testModel } from "../testing/index.ts";
-import { VixContextEngine } from "./context-engine.ts";
+import { ClankrContextEngine } from "./context-engine.ts";
 
 function loadedModel(contextLength: number): LoadedModel {
   return {
@@ -16,7 +16,7 @@ function loadedModel(contextLength: number): LoadedModel {
 function createEngine(contextLength = 16_384) {
   const lm = new ScriptedLmClient();
   const results = new InMemoryResultStore();
-  const engine = new VixContextEngine({
+  const engine = new ClankrContextEngine({
     lm,
     results,
     config: defaultConfig(),
@@ -91,7 +91,7 @@ describe("capResult", () => {
 
 describe("token ledger", () => {
   const input = {
-    systemPrompt: "You are vix.".repeat(10),
+    systemPrompt: "You are clankr.".repeat(10),
     tools: [{ name: "find_files", description: "Find files.", parameters: { type: "object" } }],
     history: [
       { role: "user" as const, content: "Find my invoices please" },

@@ -79,7 +79,7 @@ export function createMakeChartTool(
     },
 
     async run(args, context) {
-      const { theme, problem: themeProblem } = await loadTheme(context.vixPaths.themeFile);
+      const { theme, problem: themeProblem } = await loadTheme(context.clankrPaths.themeFile);
       const limits = isolateLimitsFrom(context.config);
       const captured = await runChartCode(
         args.code,

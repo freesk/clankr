@@ -1,13 +1,13 @@
-# vix
+# clankr
 
-`vix` is a command-line assistant that runs entirely on your Mac. It talks to a model served by [LM Studio](https://lmstudio.ai) and can:
+clankr is a local AI assistant that runs entirely on your Mac. You use it through the **clankr CLI** (`clankr`), which talks to a model served by [LM Studio](https://lmstudio.ai) and can:
 
 - find files by name, date, size, or content;
 - read, create, edit, move, copy, and trash text files and folders, with your approval;
 - describe images and transcribe text from screenshots and scans;
 - profile spreadsheets, CSV/TSV files, and Word documents, query them with SQL, and turn the results into charts saved as PDF, PNG, or SVG.
 
-Nothing leaves your machine. `vix` connects only to LM Studio on `localhost`, and its tools make no network requests. Requirements and design decisions are in [PRD.md](PRD.md).
+Nothing leaves your machine. `clankr` connects only to LM Studio on `localhost`, and its tools make no network requests. Requirements and design decisions are in [PRD.md](PRD.md).
 
 ## Requirements
 
@@ -24,23 +24,23 @@ Nothing leaves your machine. `vix` connects only to LM Studio on `localhost`, an
 2. Start the local server (Developer tab). The default address is `http://localhost:1234`.
 3. In **Developer > Server Settings**, create an API token and copy it.
 
-### 2. Install vix
+### 2. Install clankr
 
 ```sh
-git clone <this repository> vix
-cd vix
+git clone <this repository> clankr
+cd clankr
 npm ci            # dependencies
 npm run vendor    # pinned ripgrep, DuckDB Excel reader, Vega-Lite, and Chromium (about 210 MB)
 npm run build     # compiles to dist/
-npm link          # optional: puts `vix` on your PATH
+npm link          # optional: puts `clankr` on your PATH
 ```
 
-`npm run vendor` is the only step that downloads anything. Every file is pinned to a version and checked against a SHA-256 checksum, and nothing is fetched while `vix` runs. Without `npm link`, run `./bin/vix.js` instead of `vix`.
+`npm run vendor` is the only step that downloads anything. Every file is pinned to a version and checked against a SHA-256 checksum, and nothing is fetched while `clankr` runs. Without `npm link`, run `./bin/clankr.js` instead of `clankr`.
 
 ### 3. Configure
 
 ```sh
-vix config
+clankr config
 ```
 
 The setup asks six questions. Press Enter to keep the value shown in brackets.
@@ -50,17 +50,17 @@ The setup asks six questions. Press Enter to keep the value shown in brackets.
 3. Default model, picked from the models LM Studio reports.
 4. Context length (default 16,384).
 5. Permission mode: `ask`, `auto-edit`, or `read-only` (see [Permissions](#permissions)).
-6. Allowed folders, where file changes are permitted. Leave it empty to mean "the folder I start vix in".
+6. Allowed folders, where file changes are permitted. Leave it empty to mean "the folder I start clankr in".
 
-It saves `~/.vix/config.json`, readable only by you. If you start `vix` without a token, it offers to run this setup for you. The `LM_API_TOKEN` environment variable, if set, overrides the saved token.
+It saves `~/.clankr/config.json`, readable only by you. If you start `clankr` without a token, it offers to run this setup for you. The `LM_API_TOKEN` environment variable, if set, overrides the saved token.
 
-## Using vix
+## Using clankr
 
 ### Interactive
 
 ```sh
 cd ~/Documents/some-project
-vix
+clankr
 ```
 
 Type a request and press Enter. Each tool call is shown as one line (tool, main argument, result size, time). The status line shows the model, how much of the context is used, and the permission mode.
@@ -96,10 +96,10 @@ Example requests:
 ### One-shot
 
 ```sh
-vix -p "Which file in this folder mentions the vendor renewal?"
-cat notes.txt | vix -p "Summarize this"
-vix -p "Total units per region in samples/sales_2025.csv" --allow-data
-vix -p "List the PDFs in ~/Downloads" --json
+clankr -p "Which file in this folder mentions the vendor renewal?"
+cat notes.txt | clankr -p "Summarize this"
+clankr -p "Total units per region in samples/sales_2025.csv" --allow-data
+clankr -p "List the PDFs in ~/Downloads" --json
 ```
 
 One-shot mode prints the answer to stdout, and tool lines and errors to stderr. It cannot ask for approval, so anything that would need approval is refused unless a flag allows it:
@@ -123,7 +123,7 @@ Exit status: `0` done, `1` failed or something was refused, `2` usage error, `13
 | `--base-url <url>` | LM Studio address for this run |
 | `--ephemeral` | Leave nothing on disk when the session ends |
 | `--resume` | Reopen the most recent saved session |
-| `vix wipe [--yes]` | Delete all saved sessions, stored results, and logs |
+| `clankr wipe [--yes]` | Delete all saved sessions, stored results, and logs |
 
 ## Permissions
 
@@ -137,45 +137,45 @@ Reading never asks. Changes depend on the mode:
 
 When asked, you can approve once, approve for the rest of the session, or deny with a note that is passed back to the model.
 
-Some places are never read or written in any mode: `~/.ssh`, keychains, browser profiles, credential files such as `id_rsa`, `.netrc`, and `.git-credentials`, system folders, and `~/.vix` itself. `delete` moves things to the macOS Trash, and `/undo` reverses the last change. Nothing is ever permanently deleted by the model.
+Some places are never read or written in any mode: `~/.ssh`, keychains, browser profiles, credential files such as `id_rsa`, `.netrc`, and `.git-credentials`, system folders, and `~/.clankr` itself. `delete` moves things to the macOS Trash, and `/undo` reverses the last change. Nothing is ever permanently deleted by the model.
 
 There is no shell tool: the model cannot run commands.
 
 ## Working with data
 
-Point `vix` at a `.csv`, `.tsv`, `.xlsx`, `.xls`, or `.docx` file. It works in steps, and the full data never enters the model's context:
+Point `clankr` at a `.csv`, `.tsv`, `.xlsx`, `.xls`, or `.docx` file. It works in steps, and the full data never enters the model's context:
 
 1. `inspect_data` profiles the file: sheets or tables, header row, and per column the type, nulls, distinct values, range, and three sample values.
 2. `query_sql` runs a read-only SQL query with DuckDB.
 3. `run_js` reshapes rows in a sandboxed JavaScript isolate with no file or network access (optional).
 4. `make_chart` builds a Vega-Lite chart and renders it in an offline browser. The chart is saved beside the data file as PDF (default), PNG, or SVG, together with its SQL and spec so it can be reproduced.
 
-Chart colors, fonts, page size, logo, and footer come from `~/.vix/theme.json`. Without that file, a built-in theme is used.
+Chart colors, fonts, page size, logo, and footer come from `~/.clankr/theme.json`. Without that file, a built-in theme is used.
 
 ### Sample data
 
 [`samples/`](samples/README.md) holds six small, fictional files to try this on: sales orders (CSV), warehouse stock (TSV), a three-sheet payroll workbook (XLSX), a legacy budget workbook (XLS), a board report with four tables (DOCX), and an XLSX saved with a `.csv` name. The [samples README](samples/README.md) lists prompts for each.
 
 ```sh
-vix -p "What were total units sold per region in samples/sales_2025.csv? Use SQL." --allow-data
+clankr -p "What were total units sold per region in samples/sales_2025.csv? Use SQL." --allow-data
 ```
 
 ## Files and privacy
 
 ```
-~/.vix/
-  config.json        settings (from vix config)
+~/.clankr/
+  config.json        settings (from clankr config)
   theme.json         chart styling (optional)
   logs/audit.jsonl   one line per tool call
   sessions/<id>/     transcript, stored results, undo snapshots, scratch files
 ```
 
-Everything under `~/.vix` is readable only by you. Sessions are saved so `--resume` works. Transcripts and stored results can contain real values from your files, so:
+Everything under `~/.clankr` is readable only by you. Sessions are saved so `--resume` works. Transcripts and stored results can contain real values from your files, so:
 
-- `vix wipe` deletes all sessions, stored results, snapshots, and logs (it keeps `config.json` and `theme.json`);
+- `clankr wipe` deletes all sessions, stored results, snapshots, and logs (it keeps `config.json` and `theme.json`);
 - `--ephemeral` runs a session that leaves nothing on disk.
 
-Set `VIX_HOME` to use a folder other than `~/.vix`.
+Set `CLANKR_HOME` to use a folder other than `~/.clankr`.
 
 ## Development
 
@@ -191,11 +191,11 @@ Set `VIX_HOME` to use a folder other than `~/.vix`.
 Run `npm run vendor` before `npm test`, or the tests that need ripgrep, DuckDB's Excel reader, or the browser skip themselves. Tests that talk to a real LM Studio are opt-in:
 
 ```sh
-VIX_LIVE_LMSTUDIO=1 LM_API_TOKEN=… npx vitest run src/lmstudio/live.test.ts
+CLANKR_LIVE_LMSTUDIO=1 LM_API_TOKEN=… npx vitest run src/lmstudio/live.test.ts
 ```
 
 Project rules for contributors are in [CLAUDE.md](CLAUDE.md), the per-part design in [specs/](specs/README.md), and current status in [ROADMAP.md](ROADMAP.md).
 
 ## Status
 
-`vix` is pre-release. It runs end to end against LM Studio with Gemma 4 12B QAT. The golden task suite has not yet been run against the model, so success rates are not measured yet. Known gaps are tracked in [ROADMAP.md](ROADMAP.md).
+`clankr` is pre-release. It runs end to end against LM Studio with Gemma 4 12B QAT. The golden task suite has not yet been run against the model, so success rates are not measured yet. Known gaps are tracked in [ROADMAP.md](ROADMAP.md).

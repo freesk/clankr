@@ -6,8 +6,8 @@ import type { ChatMessage, LmClient, LoadedModel, ReasoningSetting } from "./mod
 import type { PermissionMode } from "./permissions.ts";
 import type { ToolGroup } from "./tools.ts";
 
-/** Every location under `~/.vix/`. Nobody else builds a path there. */
-export interface VixPaths {
+/** Every location under `~/.clankr/`. Nobody else builds a path there. */
+export interface ClankrPaths {
   root: string;
   configFile: string;
   themeFile: string;
@@ -129,6 +129,6 @@ export interface SessionStore {
   /** Newest first. */
   list(): Promise<SessionSummary[]>;
   load(sessionId: string): Promise<SavedSession>;
-  /** The session `vix --resume` opens (D32), or undefined when none is saved. */
+  /** The session `clankr --resume` opens (D32), or undefined when none is saved. */
   newest(): Promise<SavedSession | undefined>;
 }

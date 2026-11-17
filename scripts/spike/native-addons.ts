@@ -11,7 +11,7 @@ import { DuckDBInstance, StatementType } from "@duckdb/node-api";
 import ivm from "isolated-vm";
 import * as XLSX from "xlsx";
 
-const scratchDirectory = fs.mkdtempSync(path.join(os.tmpdir(), "vix-spike-"));
+const scratchDirectory = fs.mkdtempSync(path.join(os.tmpdir(), "clankr-spike-"));
 
 async function checkIsolate(): Promise<void> {
   const isolate = new ivm.Isolate({ memoryLimit: 32 });

@@ -1,10 +1,10 @@
-// One run of one golden task: a clean working directory and `~/.vix/`, the
+// One run of one golden task: a clean working directory and `~/.clankr/`, the
 // fixtures, a fresh harness, the steps, then the assertions.
 
 import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { createTemporaryVixPaths } from "../../src/testing/index.ts";
+import { createTemporaryClankrPaths } from "../../src/testing/index.ts";
 import { evaluateAssertions } from "../checks/assertions.ts";
 import { assertNoShellTool } from "../checks/no-shell-tool.ts";
 import { type FixtureSnapshot, materializeFixtures } from "../fixtures/materialize.ts";
@@ -43,14 +43,14 @@ export async function runTaskOnce(
   options: RunOptions,
 ): Promise<RunResult> {
   const startedAt = performance.now();
-  const workingDirectory = await mkdtemp(join(tmpdir(), `vix-eval-${task.id}-`));
-  const vix = await createTemporaryVixPaths(`eval-${task.id}-${runIndex}`);
+  const workingDirectory = await mkdtemp(join(tmpdir(), `clankr-eval-${task.id}-`));
+  const clankr = await createTemporaryClankrPaths(`eval-${task.id}-${runIndex}`);
   let harness: EvalHarness | undefined;
   try {
     const fixtureSnapshot = await materializeFixtures(workingDirectory, task.fixtures, {
       cacheDirectory: options.fixtureCacheDirectory,
     });
-    harness = await createHarness({ workingDirectory, vixPaths: vix.paths });
+    harness = await createHarness({ workingDirectory, clankrPaths: clankr.paths });
     // A shell tool invalidates every result, so it stops the suite rather than failing one task.
     assertNoShellTool(harness.toolNames());
     const capabilities = harnessCapabilities(harness);
@@ -67,7 +67,7 @@ export async function runTaskOnce(
   } finally {
     await harness?.close();
     await rm(workingDirectory, { recursive: true, force: true });
-    await vix.cleanup();
+    await clankr.cleanup();
   }
 }
 

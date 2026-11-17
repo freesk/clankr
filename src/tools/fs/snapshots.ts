@@ -8,7 +8,7 @@ import { mkdir, readdir, readFile, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { copyEntry, createDirectories, pathExists } from "./disk.ts";
 
-/** What an entry looked like right after the change, to detect later edits outside vix. */
+/** What an entry looked like right after the change, to detect later edits outside clankr. */
 export interface Fingerprint {
   kind: "file" | "directory" | "other";
   sizeBytes: number;
@@ -87,7 +87,7 @@ export class SnapshotStore {
     return undefined;
   }
 
-  /** Removes every snapshot except `keep`. Snapshots are vix's own files, never the user's. */
+  /** Removes every snapshot except `keep`. Snapshots are clankr's own files, never the user's. */
   async removeAllExcept(keep?: string): Promise<void> {
     for (const name of await this.snapshotNames()) {
       const directory = join(this.directory, name);

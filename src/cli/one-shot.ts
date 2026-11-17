@@ -125,7 +125,7 @@ function writePlainEnding(
   if (outcome.reason === "done") return;
   const fallback =
     outcome.reason === "cancelled" ? "Cancelled." : `The turn ended: ${outcome.reason}.`;
-  request.stderr.write(`vix: ${redactSecrets(outcome.message ?? fallback, config)}\n`);
+  request.stderr.write(`clankr: ${redactSecrets(outcome.message ?? fallback, config)}\n`);
 }
 
 function writeJson(

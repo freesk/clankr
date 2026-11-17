@@ -28,7 +28,9 @@ export interface ActiveSessionContext {
 export async function findSessionToResume(root: string): Promise<SavedSession> {
   const saved = await new FileSessionStore(root).newest();
   if (!saved) {
-    throw new Error("There is no saved session to resume. Run vix without --resume to start one.");
+    throw new Error(
+      "There is no saved session to resume. Run clankr without --resume to start one.",
+    );
   }
   return saved;
 }

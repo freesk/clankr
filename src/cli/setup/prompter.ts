@@ -1,4 +1,4 @@
-// How the setup flow talks to the user. `vix config` answers through readline, `/config`
+// How the setup flow talks to the user. `clankr config` answers through readline, `/config`
 // through the REPL's input line; the flow itself is the same for both.
 
 export interface SetupPrompter {

@@ -1,4 +1,4 @@
-// Reading and writing `~/.vix/config.json` for the setup flow. Only the six settings the
+// Reading and writing `~/.clankr/config.json` for the setup flow. Only the six settings the
 // flow asks about change; every other key in the file is kept as it was.
 
 import { dirname } from "node:path";

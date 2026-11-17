@@ -16,7 +16,7 @@ Model-written code is the only chart path (decision D2), and the PRD expects a 1
 
 - DATA-10: `make_chart`.
 - DATA-11: run in the isolate, validate against the Vega-Lite schema, return short fixable errors.
-- DATA-15, its share: load `~/.vix/theme.json` and apply palette and fonts. Page size, logo, and footer are applied by [pdf](pdf.md).
+- DATA-15, its share: load `~/.clankr/theme.json` and apply palette and fonts. Page size, logo, and footer are applied by [pdf](pdf.md).
 - DATA-16, its share: write the Vega-Lite reference text. [agent-loop](agent-loop.md) decides when it is loaded.
 - DATA-17: the row cap.
 - DATA-18: the vision self-check.

@@ -257,7 +257,7 @@ describe("view_image", () => {
       const sent = await sentMetadata(lm.requests[0]);
       expect(sentImage(lm.requests[0]).mimeType).toBe("image/png");
       expect([sent.width, sent.height]).toEqual([64, 48]);
-      expect(await readdir(context.vixPaths.session.scratch)).toEqual([]);
+      expect(await readdir(context.clankrPaths.session.scratch)).toEqual([]);
     },
   );
 });

@@ -6,7 +6,7 @@ import type { DataSourceRegistry } from "./data.ts";
 import type { LmClient, LoadedModel, ReasoningSetting } from "./model.ts";
 import type { ChangePreview, PathPolicy } from "./permissions.ts";
 import type { ResultHandle, ResultStore } from "./results.ts";
-import type { ReadTracker, VixPaths } from "./session.ts";
+import type { ClankrPaths, ReadTracker } from "./session.ts";
 
 export type PermissionClass = "read" | "write" | "execute";
 export type ToolGroup = "core" | "vision" | "data";
@@ -19,9 +19,9 @@ export interface ToolContext {
   dataSources: DataSourceRegistry;
   readTracker: ReadTracker;
   lm: LmClient;
-  vixPaths: VixPaths;
+  clankrPaths: ClankrPaths;
   config: Config;
-  /** Folder that relative paths resolve against: where `vix` was started. */
+  /** Folder that relative paths resolve against: where `clankr` was started. */
   workingDirectory: string;
   /**
    * The model the session is talking to, for tools that make their own model

@@ -3,7 +3,7 @@
 // `npm run evals` stops here with a clear message (only `--dry-run` works).
 //
 // What wave 2 builds here, per run:
-// - Load config with `allowedRoots: [setup.workingDirectory]` and the run's VixPaths.
+// - Load config with `allowedRoots: [setup.workingDirectory]` and the run's ClankrPaths.
 // - Create the real LmClient and wrap it in UsageRecordingLmClient; report its tally.
 // - Build the session and tool registry, and adapt runTurn with bindRunTurn.
 // - Answer approval prompts automatically ("once"), so a run never waits on a person.

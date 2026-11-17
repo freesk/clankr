@@ -50,7 +50,7 @@ const suiteOptions = { model: "test/model-12b", runsPerTask: 3, timeoutMs: 5_000
 let reportDirectory: string;
 
 beforeEach(async () => {
-  reportDirectory = await mkdtemp(join(tmpdir(), "vix-evals-report-"));
+  reportDirectory = await mkdtemp(join(tmpdir(), "clankr-evals-report-"));
 });
 
 afterEach(async () => {

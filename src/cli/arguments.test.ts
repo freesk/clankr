@@ -66,7 +66,7 @@ describe("parseCliArguments", () => {
     [["hello"], /Unexpected argument "hello"/],
     [["--nope"], /nope/],
     [["wipe", "--json"], /wipe takes no arguments/],
-    [["--yes"], /only applies to `vix wipe`/],
+    [["--yes"], /only applies to `clankr wipe`/],
     [["-p", "  "], /-p needs a prompt/],
   ])("rejects %j", (argv, message) => {
     const result = parseCliArguments(argv);

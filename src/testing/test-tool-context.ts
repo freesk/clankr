@@ -9,7 +9,7 @@ import {
   InMemoryDataSourceRegistry,
   InMemoryReadTracker,
 } from "./simple-fakes.ts";
-import { createTemporaryVixPaths } from "./temporary-vix-paths.ts";
+import { createTemporaryClankrPaths } from "./temporary-clankr-paths.ts";
 
 export interface TestToolContext {
   context: ToolContext;
@@ -20,7 +20,7 @@ export interface TestToolContext {
 export async function createTestToolContext(
   overrides: Partial<ToolContext> = {},
 ): Promise<TestToolContext> {
-  const temporary = await createTemporaryVixPaths();
+  const temporary = await createTemporaryClankrPaths();
   const workingDirectory = overrides.workingDirectory ?? temporary.paths.root;
   const config = defaultConfig();
   config.permissions.allowedRoots = [workingDirectory];
@@ -32,7 +32,7 @@ export async function createTestToolContext(
     dataSources: new InMemoryDataSourceRegistry(),
     readTracker: new InMemoryReadTracker(),
     lm: new ScriptedLmClient(),
-    vixPaths: temporary.paths,
+    clankrPaths: temporary.paths,
     config,
     workingDirectory,
     ...overrides,

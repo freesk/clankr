@@ -1,4 +1,4 @@
-// What the cli needs from the rest of vix, as one dependency object. The cli never
+// What the cli needs from the rest of clankr, as one dependency object. The cli never
 // imports another part's implementation; composition.ts builds a Harness from them.
 
 import type { ConfigFlags } from "../config/index.ts";
@@ -60,6 +60,6 @@ export interface CliComposition {
   }): Promise<Config>;
   openHarness(options: HarnessOptions): Promise<Harness>;
   wipe(): Promise<WipeReport>;
-  /** Where `vix config` and `/config` save the settings: `config.json` under `VIX_HOME`. */
+  /** Where `clankr config` and `/config` save the settings: `config.json` under `CLANKR_HOME`. */
   configFilePath(): string;
 }

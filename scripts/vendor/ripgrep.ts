@@ -33,7 +33,7 @@ export const ripgrepStep: VendorStep = {
     const folderName = `ripgrep-${version}-${archive.target}`;
     const url = `https://github.com/BurntSushi/ripgrep/releases/download/${version}/${folderName}.tar.gz`;
 
-    const workDirectory = await mkdtemp(join(tmpdir(), "vix-vendor-ripgrep-"));
+    const workDirectory = await mkdtemp(join(tmpdir(), "clankr-vendor-ripgrep-"));
     try {
       const archivePath = join(workDirectory, `${folderName}.tar.gz`);
       await downloadVerified(url, archive.sha256, archivePath);

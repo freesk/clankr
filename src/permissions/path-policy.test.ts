@@ -11,7 +11,7 @@ let project: string;
 let policy: RealPathPolicy;
 
 beforeEach(async () => {
-  base = await realpath(await mkdtemp(join(tmpdir(), "vix-paths-")));
+  base = await realpath(await mkdtemp(join(tmpdir(), "clankr-paths-")));
   home = join(base, "home");
   project = join(home, "project");
   await mkdir(join(home, ".ssh"), { recursive: true });
@@ -22,7 +22,7 @@ beforeEach(async () => {
   policy = new RealPathPolicy({
     allowedRoots: [project],
     extraDeniedPaths: ["~/Private"],
-    vixRoot: join(home, ".vix"),
+    clankrRoot: join(home, ".clankr"),
     workingDirectory: project,
     homeDirectory: home,
   });
@@ -89,8 +89,8 @@ describe("RealPathPolicy", () => {
     expect(await classOf(join(project, "deploy", "id_rsa"))).toBe("denied");
   });
 
-  it("denies the vix root and paths added in config", async () => {
-    expect(await classOf("~/.vix/config.json")).toBe("denied");
+  it("denies the clankr root and paths added in config", async () => {
+    expect(await classOf("~/.clankr/config.json")).toBe("denied");
     expect(await classOf("~/Private/diary.txt")).toBe("denied");
   });
 

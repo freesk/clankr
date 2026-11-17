@@ -2,15 +2,15 @@ import { lstat, mkdtemp, readdir, rm, stat, utimes, writeFile } from "node:fs/pr
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { buildVixPaths } from "./layout.ts";
+import { buildClankrPaths } from "./layout.ts";
 import { openSession } from "./session.ts";
 import { chooseResumeModel, FileSessionStore } from "./session-store.ts";
 
-// Every test works in a fresh temporary root: the real ~/.vix is never touched.
+// Every test works in a fresh temporary root: the real ~/.clankr is never touched.
 let root: string;
 
 beforeEach(async () => {
-  root = join(await mkdtemp(join(tmpdir(), "vix-storage-")), ".vix");
+  root = join(await mkdtemp(join(tmpdir(), "clankr-storage-")), ".clankr");
 });
 
 afterEach(async () => {
@@ -61,7 +61,7 @@ describe("openSession", () => {
 
   it("keeps a session that has a transcript", async () => {
     const id = await saveSession("hello");
-    expect((await stat(buildVixPaths(root, id).session.transcript)).isFile()).toBe(true);
+    expect((await stat(buildClankrPaths(root, id).session.transcript)).isFile()).toBe(true);
   });
 
   it("writes messages and model changes in call order without awaiting each", async () => {
@@ -100,7 +100,7 @@ describe("FileSessionStore", () => {
     ];
     // Make the first session the most recently written, regardless of its id.
     const future = new Date(Date.now() + 60_000);
-    await utimes(buildVixPaths(root, ids[0] ?? "").session.transcript, future, future);
+    await utimes(buildClankrPaths(root, ids[0] ?? "").session.transcript, future, future);
 
     const store = new FileSessionStore(root);
     const newest = await store.newest();
@@ -115,7 +115,7 @@ describe("FileSessionStore", () => {
 
   it("skips a line cut short by a crash", async () => {
     const id = await saveSession("kept");
-    await writeFile(buildVixPaths(root, id).session.transcript, '{"type":"mess', { flag: "a" });
+    await writeFile(buildClankrPaths(root, id).session.transcript, '{"type":"mess', { flag: "a" });
     const saved = await new FileSessionStore(root).load(id);
     expect(saved.messages).toEqual([{ role: "user", content: "kept" }]);
   });

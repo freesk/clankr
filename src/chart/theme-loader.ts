@@ -1,4 +1,4 @@
-// Loads ~/.vix/theme.json (DATA-15). Every field is optional and falls back to the default
+// Loads ~/.clankr/theme.json (DATA-15). Every field is optional and falls back to the default
 // theme. A broken file never fails a chart: the problem is reported and the default is used.
 
 import { readFile } from "node:fs/promises";

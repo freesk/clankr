@@ -1,14 +1,14 @@
-// The one place that knows the layout of `~/.vix/` (specs/storage.md, "Proposed layout").
-// Every other part asks for a VixPaths built here instead of joining paths itself,
-// which is what keeps `vix wipe` and `--ephemeral` complete.
+// The one place that knows the layout of `~/.clankr/` (specs/storage.md, "Proposed layout").
+// Every other part asks for a ClankrPaths built here instead of joining paths itself,
+// which is what keeps `clankr wipe` and `--ephemeral` complete.
 
 import { randomBytes } from "node:crypto";
 import { homedir } from "node:os";
 import { join, resolve } from "node:path";
-import type { SessionPaths, VixPaths } from "../contracts/index.ts";
+import type { ClankrPaths, SessionPaths } from "../contracts/index.ts";
 
-/** Overrides the root, so tests and experiments never touch the real `~/.vix/`. */
-export const vixHomeVariable = "VIX_HOME";
+/** Overrides the root, so tests and experiments never touch the real `~/.clankr/`. */
+export const clankrHomeVariable = "CLANKR_HOME";
 
 /** Settings files. `wipe` keeps these and deletes everything else. */
 export const keptFileNames: readonly string[] = ["config.json", "theme.json"];
@@ -24,16 +24,16 @@ const transcriptName = "transcript.jsonl";
 /** Session ids appear in directory names and on the command line, so they stay this plain. */
 const sessionIdPattern = /^[A-Za-z0-9][A-Za-z0-9-]*$/;
 
-export type RootPaths = Omit<VixPaths, "session">;
+export type RootPaths = Omit<ClankrPaths, "session">;
 
-/** `$VIX_HOME` when set, otherwise `~/.vix`. */
-export function resolveVixRoot(
+/** `$CLANKR_HOME` when set, otherwise `~/.clankr`. */
+export function resolveClankrRoot(
   environment: Record<string, string | undefined> = process.env,
   homeDirectory: string = homedir(),
 ): string {
-  const override = environment[vixHomeVariable];
+  const override = environment[clankrHomeVariable];
   if (override) return resolve(expandHome(override, homeDirectory));
-  return join(homeDirectory, ".vix");
+  return join(homeDirectory, ".clankr");
 }
 
 export function buildRootPaths(root: string): RootPaths {
@@ -49,7 +49,7 @@ export function buildRootPaths(root: string): RootPaths {
 }
 
 /** Paths for a saved session, under `sessions/<id>/`. */
-export function buildVixPaths(root: string, sessionId: string): VixPaths {
+export function buildClankrPaths(root: string, sessionId: string): ClankrPaths {
   assertValidSessionId(sessionId);
   const rootPaths = buildRootPaths(root);
   const directory = join(rootPaths.sessionsDirectory, sessionId);
@@ -60,11 +60,11 @@ export function buildVixPaths(root: string, sessionId: string): VixPaths {
  * Paths for an ephemeral session, under `ephemeral/<pid>-<id>/`. The process id in the
  * name lets the startup sweep tell a crashed session from one that is still running.
  */
-export function buildEphemeralVixPaths(
+export function buildEphemeralClankrPaths(
   root: string,
   sessionId: string,
   processId: number,
-): VixPaths {
+): ClankrPaths {
   assertValidSessionId(sessionId);
   const directory = join(ephemeralDirectory(root), `${processId}-${sessionId}`);
   return { ...buildRootPaths(root), session: buildSessionPaths(sessionId, directory) };

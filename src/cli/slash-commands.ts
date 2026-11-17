@@ -75,7 +75,7 @@ function builtinCommands(actions: BuiltinCommandActions, helpText: () => string)
     },
     {
       name: "exit",
-      summary: "Quit vix",
+      summary: "Quit clankr",
       run: async () => actions.requestExit(),
     },
   ];

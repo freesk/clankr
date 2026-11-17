@@ -8,7 +8,7 @@
 // `capResult` accepts any text, including short corrective error messages, which pass through.
 
 export { computeBudgets, computeWindowLimits, type WindowLimits } from "./budgets.ts";
-export { type ContextEngineOptions, VixContextEngine } from "./context-engine.ts";
+export { ClankrContextEngine, type ContextEngineOptions } from "./context-engine.ts";
 export { DiskResultStore, UnknownResultError } from "./disk-result-store.ts";
 export { isResultHandle } from "./handles.ts";
 export { createReadResultTool } from "./read-result-tool.ts";

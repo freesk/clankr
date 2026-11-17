@@ -53,7 +53,7 @@ describe("evaluateAssertions", () => {
   let context: AssertionContext;
 
   beforeEach(async () => {
-    directory = await mkdtemp(join(tmpdir(), "vix-evals-checks-"));
+    directory = await mkdtemp(join(tmpdir(), "clankr-evals-checks-"));
     const fixtureSnapshot = await materializeFixtures(directory, [
       { kind: "text", path: "kept.txt", content: "original" },
       { kind: "text", path: "changed.txt", content: "original" },

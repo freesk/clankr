@@ -54,7 +54,7 @@ This part is the most independent of all: its input is plain data and its output
 ### Rendering
 
 - **Start late, linger briefly.** Launch the browser only when a render is requested. Keep it for about 60 s after the last render, so a follow-up tweak or a self-check retry does not pay the cold start again, then close it. It holds memory beside the model for that minute, which is the accepted cost.
-- **Never outlive `vix`.** The browser is closed on every exit path, including a cancelled turn and an interrupt signal, whether or not the idle timer has fired.
+- **Never outlive `clankr`.** The browser is closed on every exit path, including a cancelled turn and an interrupt signal, whether or not the idle timer has fired.
 - **A fresh page per render.** The process is reused; pages are not. Nothing from one chart's data is left in a page that a later render could see.
 - **Wait for the chart.** Export only after fonts have loaded and the Vega view reports it has finished rendering. Exporting early is the classic cause of blank or half-drawn PDFs.
 - **PDF** is vector, with the page size from the theme. The logo and footer are part of the page template, not of the chart spec.
@@ -78,7 +78,7 @@ This part is the most independent of all: its input is plain data and its output
 - A spec containing an expression renders correctly under the content security policy, and a spec containing a script injection attempt renders as inert text or fails without executing.
 - The whole-process test observes zero outbound connection attempts during a render.
 - A second render within the idle period reuses the browser process and uses a new page.
-- No browser process remains once the idle period has passed, or after `vix` exits, including after a failed render and after an interrupt.
+- No browser process remains once the idle period has passed, or after `clankr` exits, including after a failed render and after an interrupt.
 - Cold and warm render times are measured on the reference machine and recorded.
 
 ## Decisions
@@ -88,7 +88,7 @@ Settled 2026-11-17. A D-number means the decision is also recorded in PRD sectio
 | Topic | Decision |
 |---|---|
 | Browser lifetime | Kept alive for about 60 s after the last render, then closed (D30). |
-| Where Chromium is installed | Inside the project's `vendor/` directory, so `vix wipe` cannot touch it (D31). |
+| Where Chromium is installed | Inside the project's `vendor/` directory, so `clankr wipe` cannot touch it (D31). |
 | Default theme font | A macOS system font. No font is vendored (D31). |
 | Browser build | Chrome headless shell 156.0.8078.4 for mac-arm64, the build `playwright-core` 1.64.1 expects, installed by the `chromium` vendor step (checksummed). Vega 6.4.0, Vega-Lite 6.5.0, and vega-interpreter 2.3.2 come from the npm registry tarballs via the `vega` step. |
 | Default font | Helvetica Neue (`systemFontFamily`). Whether a theme font is installed is measured in the page; a missing one is swapped in the spec's `config` and noted in `ChartRenderResult.notes`. |

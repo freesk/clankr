@@ -75,7 +75,7 @@ Settled while building, internal to this part:
 | What a "turn" is | One tool round of the loop. The sub-agent runs one `runTurn` with `agent.maxToolRoundsPerTurn` set to `subagents.turnLimit`. Hitting the invalid-call limit also ends the work early and asks for a summary. |
 | Asking for the summary | At the limit, or when the final reply is empty, one more round runs with no tools offered and a request for the summary. If that is empty too, a fixed "stopped without a summary" text is returned. |
 | Over-cap summary | One no-tools round asks for a rewrite within the cap; then `capSummary` cuts at a word boundary with a marker, measured with `LmClient.countTokens`. |
-| Where model, store, and client come from | The `delegate` call's own `ToolContext` (`model`, `reasoning`, `lm`, `results`), so the sub-agent uses the loaded model and the session's result store. A new `VixContextEngine` per delegation. |
+| Where model, store, and client come from | The `delegate` call's own `ToolContext` (`model`, `reasoning`, `lm`, `results`), so the sub-agent uses the loaded model and the session's result store. A new `ClankrContextEngine` per delegation. |
 | Defence in depth | The sub-agent's gate is `ReadOnlyPermissionGate`, which refuses any non-read tool and `delegate` before the session's gate could ask. |
 | One at a time | A second `delegate` call while one runs fails with a `ToolError`. |
 | Visibility and metrics | `onEvent` receives every sub-agent event (nested tool lines; `tool-end.validity` for evals), `onResult` receives each `SubAgentResult` with tool-call validity counts. Token use is seen by any wrapper around the shared `LmClient`. |

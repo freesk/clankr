@@ -1,20 +1,27 @@
 import { describe, expect, it } from "vitest";
-import { buildEphemeralVixPaths, buildVixPaths, newSessionId, resolveVixRoot } from "./layout.ts";
+import {
+  buildClankrPaths,
+  buildEphemeralClankrPaths,
+  newSessionId,
+  resolveClankrRoot,
+} from "./layout.ts";
 
-describe("resolveVixRoot", () => {
-  it("defaults to ~/.vix", () => {
-    expect(resolveVixRoot({}, "/Users/me")).toBe("/Users/me/.vix");
+describe("resolveClankrRoot", () => {
+  it("defaults to ~/.clankr", () => {
+    expect(resolveClankrRoot({}, "/Users/me")).toBe("/Users/me/.clankr");
   });
 
-  it("honours VIX_HOME, expanding ~", () => {
-    expect(resolveVixRoot({ VIX_HOME: "/tmp/elsewhere" }, "/Users/me")).toBe("/tmp/elsewhere");
-    expect(resolveVixRoot({ VIX_HOME: "~/alt" }, "/Users/me")).toBe("/Users/me/alt");
+  it("honours CLANKR_HOME, expanding ~", () => {
+    expect(resolveClankrRoot({ CLANKR_HOME: "/tmp/elsewhere" }, "/Users/me")).toBe(
+      "/tmp/elsewhere",
+    );
+    expect(resolveClankrRoot({ CLANKR_HOME: "~/alt" }, "/Users/me")).toBe("/Users/me/alt");
   });
 });
 
-describe("buildVixPaths", () => {
+describe("buildClankrPaths", () => {
   it("follows the layout in specs/storage.md", () => {
-    const paths = buildVixPaths("/r", "s1");
+    const paths = buildClankrPaths("/r", "s1");
     expect(paths).toEqual({
       root: "/r",
       configFile: "/r/config.json",
@@ -34,12 +41,12 @@ describe("buildVixPaths", () => {
   });
 
   it("puts ephemeral sessions under ephemeral/<pid>-<id>", () => {
-    expect(buildEphemeralVixPaths("/r", "s1", 42).session.directory).toBe("/r/ephemeral/42-s1");
+    expect(buildEphemeralClankrPaths("/r", "s1", 42).session.directory).toBe("/r/ephemeral/42-s1");
   });
 
   it("rejects session ids that could escape the sessions directory", () => {
-    expect(() => buildVixPaths("/r", "../etc")).toThrow(/Invalid session id/);
-    expect(() => buildVixPaths("/r", "")).toThrow(/Invalid session id/);
+    expect(() => buildClankrPaths("/r", "../etc")).toThrow(/Invalid session id/);
+    expect(() => buildClankrPaths("/r", "")).toThrow(/Invalid session id/);
   });
 
   it("creates ids that sort by creation time", () => {

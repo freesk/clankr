@@ -3,7 +3,7 @@
 // sub-agent's tool results.
 
 import { z } from "zod";
-import { VixContextEngine } from "../context/index.ts";
+import { ClankrContextEngine } from "../context/index.ts";
 import {
   type AgentEvent,
   type AuditLog,
@@ -39,7 +39,7 @@ export interface DelegateToolDependencies {
   permissions: PermissionGate;
   /** Tool context for the sub-agent's calls. Defaults to the delegate call's own context. */
   createToolContext?(signal: AbortSignal): ToolContext;
-  /** Defaults to a new VixContextEngine over the session's result store, so handles stay valid. */
+  /** Defaults to a new ClankrContextEngine over the session's result store, so handles stay valid. */
   createContextEngine?(toolContext: ToolContext): ContextEngine;
   /** Sub-agent events, for nested tool lines in the cli and validity counts in evals. */
   onEvent?(event: AgentEvent): void;
@@ -112,7 +112,7 @@ async function delegate(
 }
 
 function defaultEngine(context: ToolContext): ContextEngine {
-  return new VixContextEngine({
+  return new ClankrContextEngine({
     lm: context.lm,
     results: context.results,
     config: context.config,

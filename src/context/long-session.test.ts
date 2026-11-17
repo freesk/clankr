@@ -5,17 +5,17 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { defaultConfig } from "../config/index.ts";
 import type { ChatMessage, CompactionReport, ToolSchema } from "../contracts/index.ts";
 import {
-  createTemporaryVixPaths,
+  createTemporaryClankrPaths,
   respond,
   ScriptedLmClient,
-  type TemporaryVixPaths,
+  type TemporaryClankrPaths,
   testModel,
 } from "../testing/index.ts";
-import { VixContextEngine } from "./context-engine.ts";
+import { ClankrContextEngine } from "./context-engine.ts";
 import { DiskResultStore } from "./disk-result-store.ts";
 
 const turns = 50;
-const systemPrompt = `You are vix, a local assistant for files and data. ${"Rules. ".repeat(60)}`;
+const systemPrompt = `You are clankr, a local assistant for files and data. ${"Rules. ".repeat(60)}`;
 const tools: ToolSchema[] = ["find_files", "search_content", "list_dir", "read_file"].map(
   (name) => ({
     name,
@@ -37,10 +37,10 @@ function toolOutput(turn: number, round: number): string {
   ).join("\n");
 }
 
-let temporary: TemporaryVixPaths;
+let temporary: TemporaryClankrPaths;
 
 beforeEach(async () => {
-  temporary = await createTemporaryVixPaths();
+  temporary = await createTemporaryClankrPaths();
 });
 
 afterEach(async () => {
@@ -62,7 +62,7 @@ describe("a scripted 50-turn session", () => {
       const lm = new ScriptedLmClient(Array.from({ length: turns }, () => respond.text(summary)));
       const results = new DiskResultStore(temporary.paths.session.results);
       const config = defaultConfig();
-      const engine = new VixContextEngine({
+      const engine = new ClankrContextEngine({
         lm,
         results,
         config,

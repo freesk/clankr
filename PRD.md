@@ -1,14 +1,15 @@
-# PRD: vix, a local LLM harness
+# PRD: clankr, a local LLM harness
 
 | | |
 |---|---|
-| **Status** | Draft v0.4 (foundation built; native-addon spike findings recorded) |
+| **Status** | Draft v0.5 (all parts built and wired; renamed to clankr) |
 | **Last updated** | 2026-11-17 |
-| **CLI name** | `vix` (after Vixen, Santa's smartest reindeer) |
+| **Product** | clankr |
+| **CLI name** | `clankr` (the clankr CLI). Renamed from `vix` on 2026-11-17 (D76) |
 
 ## 1. Summary
 
-`vix` is a command-line agent harness, written in TypeScript on Node.js, that drives a small local model hosted by LM Studio. It lets the user search their file system, create and edit text files and folders, read images, and turn local spreadsheets and Word documents into charts and PDF reports.
+`clankr` is a command-line agent harness, written in TypeScript on Node.js, that drives a small local model hosted by LM Studio. It lets the user search their file system, create and edit text files and folders, read images, and turn local spreadsheets and Word documents into charts and PDF reports.
 
 Everything runs on the user's machine. The data it is built for is sensitive and must never leave the computer, which is the reason for using a local model at all.
 
@@ -71,19 +72,19 @@ Priorities: **P0** = required for v1, **P1** = should have, **P2** = later.
 
 | ID | Requirement | Pri |
 |---|---|---|
-| CLI-1 | Interactive REPL started with `vix`, with streamed model output. | P0 |
-| CLI-2 | One-shot mode: `vix -p "prompt"` prints the result and exits with a status code. Accepts piped stdin. | P0 |
+| CLI-1 | Interactive REPL started with `clankr`, with streamed model output. | P0 |
+| CLI-2 | One-shot mode: `clankr -p "prompt"` prints the result and exits with a status code. Accepts piped stdin. | P0 |
 | CLI-3 | Slash commands: `/model`, `/context`, `/compact`, `/clear`, `/think`, `/permissions`, `/config`, `/undo`, `/help`, `/exit`. | P0 |
 | CLI-4 | Tool calls are shown as one compact line each (tool, key argument, result size, duration). | P0 |
 | CLI-5 | `Ctrl+C` cancels the current generation or tool run without exiting; a second press exits. | P0 |
-| CLI-6 | `vix wipe` deletes all saved sessions, stored tool results, and logs. | P0 |
+| CLI-6 | `clankr wipe` deletes all saved sessions, stored tool results, and logs. | P0 |
 | CLI-7 | `--ephemeral` runs a session that leaves nothing on disk when it exits. | P0 |
 | CLI-8 | A status line shows the active model, context used versus available, and permission mode. | P1 |
-| CLI-9 | Sessions are saved to disk and can be resumed with `vix --resume`. | P1 |
+| CLI-9 | Sessions are saved to disk and can be resumed with `clankr --resume`. | P1 |
 | CLI-10 | Image and file paths can be attached by typing or dragging a path into the prompt. | P1 |
 | CLI-11 | `--json` output for one-shot mode, for scripting. | P2 |
 
-Configuration, sessions, and the theme file live in `~/.vix/`.
+Configuration, sessions, and the theme file live in `~/.clankr/`.
 
 ### 5.2 Model management
 
@@ -197,7 +198,7 @@ file ──► inspect_data ──► query_sql ──► run_js (optional) ─�
 | DATA-12 | Rendering happens in a headless browser page that contains only vendored Vega-Lite, the validated spec, and the data. Model-written code never executes in the browser. | P0 |
 | DATA-13 | Output is PDF by default. PNG and SVG export are also available. | P0 |
 | DATA-14 | The headless browser runs fully offline. All outbound requests are blocked and logged. | P0 |
-| DATA-15 | Styling comes from `~/.vix/theme.json`: palette, fonts, page size, and an optional logo and footer. The harness applies it to every chart; the model does not set styling. A built-in default theme is used when the file is absent. | P0 |
+| DATA-15 | Styling comes from `~/.clankr/theme.json`: palette, fonts, page size, and an optional logo and footer. The harness applies it to every chart; the model does not set styling. A built-in default theme is used when the file is absent. | P0 |
 | DATA-16 | A short Vega-Lite reference with worked examples is added to the context only while the chart tool is in use. | P0 |
 | DATA-17 | Rows passed to a chart are capped (default 50,000). Above the cap, the tool tells the model to aggregate with `query_sql` first. | P0 |
 | DATA-18 | After rendering, the harness can show the chart image to the model to self-check, on vision-capable models. A failed check triggers one automatic retry. | P1 |
@@ -210,7 +211,7 @@ file ──► inspect_data ──► query_sql ──► run_js (optional) ─�
 |---|---|---|
 | PERM-1 | Three permission modes: **ask** (default, confirm each change), **auto-edit** (file changes inside allowed roots are automatic), **read-only**. | P0 |
 | PERM-2 | Read-only tools never prompt. | P0 |
-| PERM-3 | Writes are limited to configured allowed roots (default: the directory `vix` was started in). Writing elsewhere always asks. | P0 |
+| PERM-3 | Writes are limited to configured allowed roots (default: the directory `clankr` was started in). Writing elsewhere always asks. | P0 |
 | PERM-4 | A deny list of protected paths that are never read or written: `~/.ssh`, keychains, browser profiles, credential files, system directories. | P0 |
 | PERM-5 | `delete` and the execute-class tools (`query_sql`, `run_js`, `make_chart`) ask unless explicitly allowed for the session. | P0 |
 | PERM-6 | There is no shell tool. The model cannot run arbitrary commands. | P0 |
@@ -332,8 +333,8 @@ Loading a second model for delegation is out of scope for v1: on an 18 GB machin
 | SEC-2 | No telemetry, analytics, crash reporting, or update checks. |
 | SEC-3 | All third-party assets (Vega-Lite, fonts, the browser binary, the DuckDB Excel reader) are installed up front and loaded from disk at run time. |
 | SEC-4 | The headless browser, the V8 isolate, and DuckDB have no network access, and this is verified by an automated test. |
-| SEC-5 | Sessions are saved by default. Transcripts, the result store, and the audit log are stored under `~/.vix/` with user-only file permissions. |
-| SEC-6 | Data profiles include real sample values, so saved transcripts can contain sensitive cell values. `vix wipe` deletes everything; `--ephemeral` avoids saving in the first place. |
+| SEC-5 | Sessions are saved by default. Transcripts, the result store, and the audit log are stored under `~/.clankr/` with user-only file permissions. |
+| SEC-6 | Data profiles include real sample values, so saved transcripts can contain sensitive cell values. `clankr wipe` deletes everything; `--ephemeral` avoids saving in the first place. |
 | SEC-7 | Content read from files is treated as data. Instructions found inside files do not change permissions or bypass approval. |
 
 ## 9. Non-functional requirements
@@ -372,7 +373,7 @@ A golden task suite of roughly 40 scripted tasks, covering each scenario in sect
 | **M2 Context engine** | Result store, caps, eviction, compaction, sub-agents, `/context` | A 50-turn session stays within the window |
 | **M3 Vision** | `view_image` with isolation and downscaling | Scenario S6 passes |
 | **M4 Data and charts** | `inspect_data`, `query_sql`, `run_js`, `make_chart`, theme file, PDF export | Scenarios S7–S9 pass on a 1M-row file |
-| **M5 Hardening** | Golden suite, session resume, undo, audit log, `vix wipe` | Metrics in section 10 are met |
+| **M5 Hardening** | Golden suite, session resume, undo, audit log, `clankr wipe` | Metrics in section 10 are met |
 
 An early spike in M0 confirms that `isolated-vm` and DuckDB build and run on Node 22 on Apple silicon, since M4 depends on both. Done 2026-11-17 (`npm run spike`); findings are D35 to D38.
 
@@ -389,7 +390,7 @@ Milestones give the order in which scenarios must pass. The work itself is split
 | 12B model plus Chromium on 18 GB RAM | Memory pressure, swapping | Start the browser only when rendering and close it 60 s after the last render; 16k default context |
 | Compaction loses a detail the task needs | Wrong answers late in long sessions | Structured summaries; handles to stored results survive compaction |
 | Spotlight index is incomplete or disabled | Search misses files | Detect index state, fall back to a walk, tell the user |
-| Sensitive cell values are saved in transcripts | Exposure if the disk or backups are accessed | User-only permissions, `vix wipe`, `--ephemeral` (SEC-5, SEC-6) |
+| Sensitive cell values are saved in transcripts | Exposure if the disk or backups are accessed | User-only permissions, `clankr wipe`, `--ephemeral` (SEC-5, SEC-6) |
 | LM Studio API changes | Breakage | Single client module; pin and test against a minimum LM Studio version |
 
 ## 13. Decisions and open questions
@@ -409,8 +410,8 @@ Milestones give the order in which scenarios must pass. The work itself is split
 | D9 | Chart styling | User-editable `theme.json`; the model does not style | Consistent output without spending tokens |
 | D10 | Shell tool | None | Keeps the local-only guarantee simple to verify |
 | D11 | Sample data | Real sample values are shown to the model | Best column and chart selection; values stay local |
-| D12 | Transcripts | Saved by default, with `vix wipe` and `--ephemeral` | Resume works; the user controls retention |
-| D13 | Name | `vix` | After Vixen |
+| D12 | Transcripts | Saved by default, with `clankr wipe` and `--ephemeral` | Resume works; the user controls retention |
+| D13 | Name | Superseded by D76 (the project was first named `vix`) | — |
 | D14 | Approvals in one-shot mode | Anything that would prompt is denied; a `--permission-mode` flag pre-authorizes a mode for the run | There is no terminal to ask on; scripts still need a way to allow changes |
 | D15 | Activating the data tools | The harness adds the data group when a data file path appears in the prompt, an attachment, or a tool result. One prompt-cache miss per activation is accepted | `inspect_data` is itself a data tool, so the model cannot switch the group on; native tool calling is kept |
 | D16 | Stored row sets | JSON Lines | Readable by DuckDB, the isolate, and `read_result` without an engine |
@@ -428,18 +429,18 @@ Milestones give the order in which scenarios must pass. The work itself is split
 | D28 | Chart output location | Beside the data file, named from the chart title, never overwriting | The chart lives with its source |
 | D29 | Chart self-check | One automatic retry on a failed check | Fewer bad charts reach the user |
 | D30 | Browser lifetime | Kept for 60 s after the last render, then closed | Follow-up charts skip the cold start |
-| D31 | Vendored assets | In the project's `vendor/`: Chromium, Vega-Lite, the DuckDB Excel reader, and a pinned ripgrep. The default theme uses a macOS system font | `vix wipe` cannot touch them; nothing third-party runs at install |
-| D32 | Sessions | `/clear` starts a new session; `--resume` opens the most recent; sessions are kept until wiped; `vix wipe` confirms unless `--yes` | Extends D12 |
+| D31 | Vendored assets | In the project's `vendor/`: Chromium, Vega-Lite, the DuckDB Excel reader, and a pinned ripgrep. The default theme uses a macOS system font | `clankr wipe` cannot touch them; nothing third-party runs at install |
+| D32 | Sessions | `/clear` starts a new session; `--resume` opens the most recent; sessions are kept until wiped; `clankr wipe` confirms unless `--yes` | Extends D12 |
 | D33 | Evals | 3 runs per task, run by hand before a release; the network test uses a recording proxy and a socket monitor together | A local model cannot run in hosted CI; neither observer is complete alone |
 | D34 | Test runner | vitest | Native TypeScript and ESM |
-| D35 | Node start-up flag | `vix` runs Node with `--no-node-snapshot`, set in the bin's shebang so Node is never re-launched | `isolated-vm` documents the flag as required on Node 20+. The spike ran fine without it, but it cannot rule out an intermittent crash, and the flag costs about 18 ms at startup |
+| D35 | Node start-up flag | `clankr` runs Node with `--no-node-snapshot`, set in the bin's shebang so Node is never re-launched | `isolated-vm` documents the flag as required on Node 20+. The spike ran fine without it, but it cannot rule out an intermittent crash, and the flag costs about 18 ms at startup |
 | D36 | Legacy `.xls` reader | SheetJS 0.20.3, installed from the SheetJS CDN (the npm registry copy is stale). The sheet is converted to a stored row set that DuckDB reads (resolves O1) | DuckDB's Excel reader handles `.xlsx` only. SheetJS is not streaming, but the `.xls` format caps a sheet at 65,536 rows, so memory is bounded; the spike read a full-size sheet in under 200 ms |
 | D37 | Native addon versions | `isolated-vm` 6.2.0 and `@duckdb/node-api` 1.4.5-r.1 (DuckDB 1.4.5, the LTS line), pinned exactly | `isolated-vm` 7.x needs Node 24+. Both versions passed the spike on Node 22.22 on Apple silicon |
 | D38 | Files added to a locked DuckDB session | The in-memory DuckDB instance is rebuilt, with the new file added to `allowed_paths`, whenever a file is registered | A locked configuration cannot be extended. A rebuild takes 10 to 20 ms and the instance holds no state worth keeping, since inputs are views over files |
 | D39 | HEIC and BMP images | Converted by the harness with the macOS built-in `/usr/bin/sips`, run with an argument list and no shell, writing into the session scratch folder. Other formats try `sharp` first and fall back to `sips` | `sharp` 0.35.5 has no HEVC decoder and cannot read BMP. This is harness code, not a model-facing shell, so D10 and PERM-6 still hold |
 | D40 | AVIF images | Accepted by `view_image` in addition to the IMG-1/IMG-4 formats | `sharp` decodes it at no extra cost |
 | D41 | Undo and cross-volume moves never delete permanently | `/undo` of a created file or copy sends it to the Trash; a `delete` is snapshotted in full first so `/undo` restores it; a move across volumes is copy then Trash the original | Extends FS-6 to undo. Under D27 (no size limit), deleting a large folder also copies it into the session snapshot folder |
-| D42 | The vix root is on the deny list | `~/.vix` is denied to every tool, so the model cannot read transcripts or rewrite `config.json` to change its own permission mode. Parts that store session data use `VixPaths` directly, not `PathPolicy` | A model must not be able to escalate its own permissions |
+| D42 | The clankr root is on the deny list | `~/.clankr` is denied to every tool, so the model cannot read transcripts or rewrite `config.json` to change its own permission mode. Parts that store session data use `ClankrPaths` directly, not `PathPolicy` | A model must not be able to escalate its own permissions |
 | D43 | Credential files denied anywhere | Private key names (`id_rsa`, `id_ed25519`, …), `.netrc`, `.pgpass`, and `.git-credentials` are denied by file name, even inside allowed roots. `.env` files are not (see O5) | They hold secrets wherever they live |
 | D44 | Approvals without a preview | A write or execute call without a `ChangePreview` asks in every mode; "always for this session" never grants a location outside the allowed roots | Fails safe when a tool forgets its preview |
 | D45 | Token counting | `@lmstudio/sdk` 2.1.0, loaded on first count; falls back to about 4 characters per token with a one-time warning if the SDK cannot answer | Refines section 6.1 |
@@ -470,9 +471,10 @@ Milestones give the order in which scenarios must pass. The work itself is split
 | D70 | Compaction in the transcript | A `history` record replaces earlier messages on resume; older lines stay on disk until wiped | Append-only file, correct resume |
 | D71 | Shared helpers | Pure helpers used by several parts live in `src/shared/` | Rule 4, no duplication |
 | D72 | zod advisory through `@lmstudio/sdk` | Kept as is: the SDK's bundled zod 3.25.76 (GHSA-mrhx-c7xc-m3w5) is accepted | User decision. The SDK only parses messages from the local LM Studio server |
-| D73 | Setting the API token | Through a guided `vix config` / `/config` flow that writes `~/.vix/config.json` at 0600; `LM_API_TOKEN` still overrides it | User decision: setup should not require editing files or the shell |
-| D74 | Data tools in one-shot mode | `vix -p … --allow-data` grants the execute-class tools (`query_sql`, `run_js`, `make_chart`) for that run only, on data files inside the allowed folders. Without it they are denied, and the denial names `--allow-data`, not `--permission-mode`. Write and delete rules are unchanged | User decision. One-shot cannot ask (D14), and PERM-5 allows an explicit session grant |
-| D75 | Setup flow details (D73) | Six questions only. A rejected token can be retried or skipped; skipping keeps the saved token, so a known-bad token is never saved. Allowed folders are saved as absolute paths. A non-loopback host gets a warning, not an offer to override. On first run with no or a rejected token, a terminal is offered the setup; afterwards the user starts vix again. Ctrl+C in `vix config` exits 0 and writes nothing | Keeps setup short and never stores a bad secret |
+| D73 | Setting the API token | Through a guided `clankr config` / `/config` flow that writes `~/.clankr/config.json` at 0600; `LM_API_TOKEN` still overrides it | User decision: setup should not require editing files or the shell |
+| D74 | Data tools in one-shot mode | `clankr -p … --allow-data` grants the execute-class tools (`query_sql`, `run_js`, `make_chart`) for that run only, on data files inside the allowed folders. Without it they are denied, and the denial names `--allow-data`, not `--permission-mode`. Write and delete rules are unchanged | User decision. One-shot cannot ask (D14), and PERM-5 allows an explicit session grant |
+| D75 | Setup flow details (D73) | Six questions only. A rejected token can be retried or skipped; skipping keeps the saved token, so a known-bad token is never saved. Allowed folders are saved as absolute paths. A non-loopback host gets a warning, not an offer to override. On first run with no or a rejected token, a terminal is offered the setup; afterwards the user starts clankr again. Ctrl+C in `clankr config` exits 0 and writes nothing | Keeps setup short and never stores a bad secret |
+| D76 | Name | The project is **clankr** and its command-line program is the **clankr CLI**, run as `clankr`. Everything named after the old name moved with it: the bin (`bin/clankr.js`), the settings folder (`~/.clankr`), environment variables (`CLANKR_HOME`, `CLANKR_LIVE_LMSTUDIO`, …), and code identifiers (`ClankrPaths`, `ClankrContextEngine`, …) | User decision, 2026-11-17. No `~/.vix` folder existed on the development machine, so nothing needed migrating |
 
 Decisions internal to one part (limits, cache rules, eviction age) are recorded in that part's spec under [specs/](specs/README.md).
 
@@ -482,7 +484,7 @@ Decisions internal to one part (limits, cache rules, eviction age) are recorded 
 |---|---|---|
 | O5 | Should `.env` files be on the deny list (D43)? | Undecided; they often hold secrets but are also edited legitimately |
 | O6 | Is the 3 s content-search target (section 9) for a cold or warm cache? Measured warm: 1.9–3.0 s, median 2.2 s on 10 GB | Decide before the M5 metrics run |
-| O3 | Is the `vix` package name free on npm, if the tool is ever published? | Not checked; irrelevant while it is installed locally |
+| O3 | Is the `clankr` package name free on npm, if the tool is ever published? | Not checked; irrelevant while it is installed locally |
 
 O1, O2, and O4 were resolved by D36, D19, and D23. Questions local to one part are listed in [specs/README.md](specs/README.md).
 

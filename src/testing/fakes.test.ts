@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { ChatEvent } from "../contracts/index.ts";
 import {
-  createTemporaryVixPaths,
+  createTemporaryClankrPaths,
   FixedPathPolicy,
   InMemoryResultStore,
   QueuedApprovalPrompter,
@@ -105,9 +105,9 @@ describe("FixedPathPolicy", () => {
   });
 });
 
-describe("createTemporaryVixPaths", () => {
+describe("createTemporaryClankrPaths", () => {
   it("creates the session directories and removes them on cleanup", async () => {
-    const { paths, cleanup } = await createTemporaryVixPaths();
+    const { paths, cleanup } = await createTemporaryClankrPaths();
     const { stat } = await import("node:fs/promises");
     expect((await stat(paths.session.results)).isDirectory()).toBe(true);
     await cleanup();

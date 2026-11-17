@@ -2,14 +2,14 @@
 // The cli calls this once at startup and again for `/clear`, and closes it on exit.
 
 import { readdir, rm } from "node:fs/promises";
-import type { SessionTranscript, VixPaths } from "../contracts/index.ts";
+import type { ClankrPaths, SessionTranscript } from "../contracts/index.ts";
 import { createEphemeralSession, sweepEphemeralLeftovers } from "./ephemeral.ts";
-import { buildRootPaths, buildVixPaths, newSessionId, sessionDirectories } from "./layout.ts";
+import { buildClankrPaths, buildRootPaths, newSessionId, sessionDirectories } from "./layout.ts";
 import { ensurePrivateDirectories, isMissingFileError } from "./private-files.ts";
 import { DiscardingTranscript, FileTranscript } from "./transcript.ts";
 
 export interface OpenSessionOptions {
-  /** From `resolveVixRoot()`. */
+  /** From `resolveClankrRoot()`. */
   root: string;
   /** `--ephemeral`: nothing is left on disk after exit. */
   ephemeral?: boolean;
@@ -21,7 +21,7 @@ export interface OpenSessionOptions {
 }
 
 export interface StorageSession {
-  paths: VixPaths;
+  paths: ClankrPaths;
   transcript: SessionTranscript;
   ephemeral: boolean;
   /** Ends the session's storage. Call on every exit; ephemeral sessions also clean up on their own. */
@@ -51,7 +51,7 @@ async function openSavedSession(
   root: string,
   resumeSessionId: string | undefined,
 ): Promise<StorageSession> {
-  const paths = buildVixPaths(root, resumeSessionId ?? newSessionId());
+  const paths = buildClankrPaths(root, resumeSessionId ?? newSessionId());
   const rootPaths = buildRootPaths(root);
   await ensurePrivateDirectories([
     rootPaths.root,
@@ -67,8 +67,8 @@ async function openSavedSession(
   };
 }
 
-// Starting `vix` and quitting without a word should not leave an empty session behind.
-async function removeIfUnused(paths: VixPaths): Promise<void> {
+// Starting `clankr` and quitting without a word should not leave an empty session behind.
+async function removeIfUnused(paths: ClankrPaths): Promise<void> {
   const subdirectories = sessionDirectories(paths.session).slice(1);
   for (const directory of [paths.session.directory, ...subdirectories]) {
     const expected = directory === paths.session.directory ? subdirectories.length : 0;

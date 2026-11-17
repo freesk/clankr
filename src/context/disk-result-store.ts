@@ -42,7 +42,7 @@ export class DiskResultStore implements ResultStore {
   private ready: Promise<void> | undefined;
   private nextNumber = 1;
 
-  /** `directory` is `VixPaths.session.results`. */
+  /** `directory` is `ClankrPaths.session.results`. */
   constructor(directory: string) {
     this.directory = directory;
   }

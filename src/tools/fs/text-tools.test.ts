@@ -16,7 +16,7 @@ let context: ToolContext;
 let cleanupContext: () => Promise<void>;
 
 beforeEach(async () => {
-  work = await realpath(await mkdtemp(join(tmpdir(), "vix-fs-work-")));
+  work = await realpath(await mkdtemp(join(tmpdir(), "clankr-fs-work-")));
   const created = await createTestToolContext({
     workingDirectory: work,
     paths: new FixedPathPolicy({ allowedRoots: [work], deniedPaths: [join(work, "secrets")] }),

@@ -1,4 +1,4 @@
-// D30 and "never outlive vix": the browser starts late, is reused briefly, closes when idle,
+// D30 and "never outlive clankr": the browser starts late, is reused briefly, closes when idle,
 // and is gone after every kind of exit.
 
 import { type ChildProcess, spawn } from "node:child_process";
@@ -23,7 +23,7 @@ const spec = {
 const rows = [{ a: "x", b: 1 }];
 
 function newMarker(): string {
-  return `vix-test-marker=${randomUUID()}`;
+  return `clankr-test-marker=${randomUUID()}`;
 }
 
 async function waitUntil(condition: () => Promise<boolean>, timeoutMs: number): Promise<boolean> {
@@ -41,7 +41,7 @@ describe.skipIf(!isBrowserVendored())("browser lifecycle (needs `npm run vendor`
   let folder: string;
 
   beforeAll(async () => {
-    folder = await mkdtemp(join(tmpdir(), "vix-lifecycle-"));
+    folder = await mkdtemp(join(tmpdir(), "clankr-lifecycle-"));
   });
 
   afterAll(async () => {
@@ -124,7 +124,7 @@ describe.skipIf(!isBrowserVendored())("browser lifecycle (needs `npm run vendor`
   });
 
   for (const ending of ["exit", "SIGINT", "SIGTERM", "SIGKILL"] as const) {
-    it(`leaves no browser behind when vix ends by ${ending}`, async () => {
+    it(`leaves no browser behind when clankr ends by ${ending}`, async () => {
       const marker = newMarker();
       const child = await startRenderingChild(marker, ending === "exit");
       try {

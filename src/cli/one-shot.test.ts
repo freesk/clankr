@@ -69,7 +69,7 @@ describe("one-shot mode", () => {
         composition: compositionWithTurn(endingWith(reason, `stopped by ${reason}`)),
       });
       expect(await runCli(environment)).toBe(exitCodes.failed);
-      expect(environment.errors()).toContain(`vix: stopped by ${reason}`);
+      expect(environment.errors()).toContain(`clankr: stopped by ${reason}`);
     }
   });
 
@@ -237,7 +237,7 @@ describe("one-shot mode", () => {
   });
 });
 
-describe("vix wipe", () => {
+describe("clankr wipe", () => {
   it("wipes with --yes", async () => {
     const composition = createFakeComposition();
     const environment = createTestEnvironment({ argv: ["wipe", "--yes"], composition });

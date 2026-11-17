@@ -1,4 +1,4 @@
-// storage part. See specs/storage.md. Owns every byte written under `~/.vix/`.
+// storage part. See specs/storage.md. Owns every byte written under `~/.clankr/`.
 
 export {
   createEphemeralSession,
@@ -6,16 +6,16 @@ export {
   sweepEphemeralLeftovers,
 } from "./ephemeral.ts";
 export {
-  buildEphemeralVixPaths,
+  buildClankrPaths,
+  buildEphemeralClankrPaths,
   buildRootPaths,
-  buildVixPaths,
+  clankrHomeVariable,
   isValidSessionId,
   keptFileNames,
   newSessionId,
   type RootPaths,
-  resolveVixRoot,
+  resolveClankrRoot,
   sessionDirectories,
-  vixHomeVariable,
 } from "./layout.ts";
 export {
   appendPrivateFile,

@@ -1,5 +1,5 @@
 {
-  "name": "vix",
+  "name": "clankr",
   "version": "0.0.0",
   "description": "A local-only CLI agent harness for LM Studio models",
   "private": true,
@@ -12,7 +12,7 @@
     "darwin"
   ],
   "bin": {
-    "vix": "bin/vix.js"
+    "clankr": "bin/clankr.js"
   },
   "scripts": {
     "build": "tsc -p tsconfig.build.json",

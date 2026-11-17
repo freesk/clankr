@@ -28,10 +28,10 @@ export type ParseResult = { ok: true; command: CliCommand } | { ok: false; error
 const permissionModes: readonly PermissionMode[] = ["ask", "auto-edit", "read-only"];
 
 export const usageText = `Usage:
-  vix [options]              Start the interactive REPL
-  vix -p "prompt" [options]  Run one prompt and exit (stdin may be piped in)
-  vix wipe [--yes]           Delete all saved sessions, stored results, and logs
-  vix config                 Set up the LM Studio address, API token, model, and preferences
+  clankr [options]              Start the interactive REPL
+  clankr -p "prompt" [options]  Run one prompt and exit (stdin may be piped in)
+  clankr wipe [--yes]           Delete all saved sessions, stored results, and logs
+  clankr config                 Set up the LM Studio address, API token, model, and preferences
 
 Options:
   -p, --print <prompt>       One-shot mode: print the result and exit
@@ -106,7 +106,7 @@ function parseConfig(values: ParsedValues, positionals: string[]): ParseResult {
 }
 
 function parseSession(values: ParsedValues): ParseResult {
-  if (values.yes) return { ok: false, error: "--yes only applies to `vix wipe`." };
+  if (values.yes) return { ok: false, error: "--yes only applies to `clankr wipe`." };
   if (values.ephemeral && values.resume) {
     return { ok: false, error: "--ephemeral and --resume cannot be combined." };
   }

@@ -9,7 +9,7 @@ import { type WipePlan, wipe } from "./wipe.ts";
 let root: string;
 
 beforeEach(async () => {
-  root = join(await mkdtemp(join(tmpdir(), "vix-wipe-")), ".vix");
+  root = join(await mkdtemp(join(tmpdir(), "clankr-wipe-")), ".clankr");
 });
 
 afterEach(async () => {

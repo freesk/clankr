@@ -50,7 +50,7 @@ interface CompactedView {
   history: ChatMessage[];
 }
 
-export class VixContextEngine implements ContextEngine {
+export class ClankrContextEngine implements ContextEngine {
   private readonly lm: LmClient;
   private readonly results: ResultStore;
   private readonly settings: ContextSettings;

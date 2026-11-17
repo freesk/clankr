@@ -28,11 +28,11 @@ const hookUrl = `data:text/javascript,${encodeURIComponent(recordingHook)}`;
 const mainPath = fileURLToPath(new URL("./main.ts", import.meta.url));
 const viewPath = fileURLToPath(new URL("./repl/view.ts", import.meta.url));
 
-// The real ~/.vix is never touched: every run gets a private VIX_HOME. Without a token, a
+// The real ~/.clankr is never touched: every run gets a private CLANKR_HOME. Without a token, a
 // one-shot run stops at LM Studio's startup check whether or not LM Studio is running.
-const scratch = mkdtempSync(join(tmpdir(), "vix-startup-"));
-const vixHome = join(scratch, ".vix");
-const environment: NodeJS.ProcessEnv = { ...process.env, VIX_HOME: vixHome };
+const scratch = mkdtempSync(join(tmpdir(), "clankr-startup-"));
+const clankrHome = join(scratch, ".clankr");
+const environment: NodeJS.ProcessEnv = { ...process.env, CLANKR_HOME: clankrHome };
 delete environment.LM_API_TOKEN;
 
 afterAll(() => rmSync(scratch, { recursive: true, force: true }));
@@ -65,7 +65,7 @@ describe("startup", () => {
     expect(result.status).toBe(1);
     expect(result.loaded).toEqual([]);
     // A start that failed before the model connected leaves nothing on disk.
-    expect(existsSync(join(vixHome, "sessions"))).toBe(false);
+    expect(existsSync(join(clankrHome, "sessions"))).toBe(false);
   });
 
   it("wipe, --help, and --version do not load Ink or React", () => {
@@ -74,13 +74,13 @@ describe("startup", () => {
     }
   });
 
-  it("vix config runs on readline without loading Ink or React", () => {
+  it("clankr config runs on readline without loading Ink or React", () => {
     // Stdin is closed, so the setup ends at its first question and saves nothing.
     const result = run(mainPath, ["config"]);
     expect(result.stderr).not.toMatch(/Error/);
     expect(result.status).toBe(0);
     expect(result.loaded).toEqual([]);
-    expect(existsSync(join(vixHome, "config.json"))).toBe(false);
+    expect(existsSync(join(clankrHome, "config.json"))).toBe(false);
   });
 
   it("the hook does see Ink when the REPL view is loaded", () => {

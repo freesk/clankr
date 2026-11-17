@@ -5,7 +5,7 @@ import type { Page } from "playwright-core";
 import { isPlainObject } from "../../shared/index.ts";
 import { isFontInstalled } from "./page-calls.ts";
 
-/** Ships with every macOS release vix supports, and embeds cleanly in a PDF. */
+/** Ships with every macOS release clankr supports, and embeds cleanly in a PDF. */
 export const systemFontFamily = "Helvetica Neue";
 
 export interface ResolvedFont {

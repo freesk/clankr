@@ -10,7 +10,7 @@ describe("loadTheme", () => {
   let themeFile: string;
 
   beforeEach(async () => {
-    folder = await mkdtemp(join(tmpdir(), "vix-theme-"));
+    folder = await mkdtemp(join(tmpdir(), "clankr-theme-"));
     themeFile = join(folder, "theme.json");
   });
 

@@ -70,7 +70,7 @@ export async function askPermissionMode(
   }
 }
 
-const startFolderLabel = "the folder vix is started in";
+const startFolderLabel = "the folder clankr is started in";
 const clearWord = "-";
 
 export function describeAllowedRoots(roots: string[]): string {
@@ -80,7 +80,7 @@ export function describeAllowedRoots(roots: string[]): string {
 /** PERM-3. Folders are saved as absolute paths, so they mean the same from any start folder. */
 export async function askAllowedRoots(context: SetupContext, current: string[]): Promise<string[]> {
   context.prompter.print(
-    `Allowed folders are where vix may change files. Comma-separated; "${clearWord}" means ${startFolderLabel}.`,
+    `Allowed folders are where clankr may change files. Comma-separated; "${clearWord}" means ${startFolderLabel}.`,
   );
   const answer = await askOrCancel(
     context.prompter,

@@ -2,7 +2,7 @@
 // storage implements it.
 
 import type { ChatMessage } from "./model.ts";
-import type { VixPaths } from "./session.ts";
+import type { ClankrPaths } from "./session.ts";
 
 export interface OpenSessionOptions {
   /** CLI-7: nothing is left on disk after `close()`. */
@@ -12,7 +12,7 @@ export interface OpenSessionOptions {
 }
 
 export interface OpenSession {
-  paths: VixPaths;
+  paths: ClankrPaths;
   /** True when an existing session was reopened. */
   resumed: boolean;
   /** History restored from the transcript; empty for a new session. */
@@ -22,7 +22,7 @@ export interface OpenSession {
   close(): Promise<void>;
 }
 
-/** What `vix wipe` removed (CLI-6). */
+/** What `clankr wipe` removed (CLI-6). */
 export interface WipeReport {
   sessionsRemoved: number;
   bytesFreed: number;
