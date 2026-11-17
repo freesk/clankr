@@ -1,0 +1,2 @@
+# The samples are compared byte for byte with the generator; never rewrite line endings.
+* -text
