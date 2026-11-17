@@ -37,7 +37,7 @@ Build `vix` as described in [PRD.md](PRD.md), part by part, following the waves 
 | 13 | chart | [chart.md](specs/chart.md) | 1 | agent-chart-pdf | done (verified) | Merged in `65c20f5`: validation, theme, naming, row cap, self-check retry all tested with a fake isolate. Not verified: S8 end to end with the real isolate, reference-text budget with the real tokenizer, self-check with a real vision model |
 | 14 | pdf | [pdf.md](specs/pdf.md) | 1 | agent-chart-pdf | done (verified) | Merged in `65c20f5`; vega and Chromium vendored on main, full suite 591 passing + 5 skipped. Offline proven (blocked requests logged, 0 leak connections, no sockets via `lsof`). Chart to PDF 853 ms cold, about 100 ms warm. Flaky under load: three browser tests timed out at 5 s while the machine was busy, passed in 0.1–1 s otherwise |
 | 15 | evals | [evals.md](specs/evals.md) | 1 | agent-evals | done (verified) | Merged in `4b3d27d`: 41 golden tasks validated, runner and metrics tested with a scripted harness, network observers catch deliberate outbound traffic; full suite 409 passing + 5 skipped. Not verified: any golden run against a real model (real harness is wave 2), network test against real `vix`, PRD section 9 performance script (not built) |
-| 16 | subagents | [subagents.md](specs/subagents.md) | 2 | agent-subagents | in progress | Build `delegate` and `runSubAgent` against the merged `runTurn` |
+| 16 | subagents | [subagents.md](specs/subagents.md) | 2 | agent-subagents | done (verified) | Merged in `683a17e`: 24 tests with the real `runTurn` (brief-only context, read-only tools, no nesting, turn limit, summary cap, cancellation); full suite 685 passing + 7 skipped. Not verified: a real model keeping to the cap. Integration agent told to wire `delegate` |
 | 17 | integration | [README.md](specs/README.md) | 2 | agent-integration | in progress | Wire real parts in `src/cli/composition.ts`; work through the integration notes |
 | 18 | real eval harness and golden run | [evals.md](specs/evals.md) | 3 | unassigned | blocked | Waits for task 17; then implement `evals/runner/real-harness.ts` and run the golden suite against the model |
 
@@ -124,4 +124,5 @@ Build `vix` as described in [PRD.md](PRD.md), part by part, following the waves 
 | 2026-11-17 | D59–D62 from chart and pdf | See PRD 13.1 |
 | 2026-11-17 | Build also excludes `src/**/test-support.ts` | chart and browser test helpers use that exact name |
 | 2026-11-17 | D63–D64 from sql and inspect. Wave 1 complete: all 15 parts merged | See PRD 13.1 |
+| 2026-11-17 | D65 from subagents | See PRD 13.1 |
 | 2026-11-17 | Config `data.rowCap` is one number for the chart row cap and the isolate helper cap | specs/sandbox.md requires them to be defined once |
