@@ -26,7 +26,9 @@ The loop is where the small-model accommodations live: forgiving parsing, correc
 
 ## Provides
 
-- `runTurn(session, input, signal)` returning an `AgentEvent` stream.
+- `runTurn(dependencies, session, input, signal)` returning an `AgentEvent` stream.
+- `toolCallingStyleFor(model, config)`, so the CLI can warn when a model falls back to prompt-based tool calling (MOD-6).
+- `measureFixedOverhead(...)`, to check CTX-5 with the real token counter and the real tools.
 - The tool registry: each tool part exports its `ToolDefinition`s; the registry collects them and generates the JSON schema sent to the model from the zod parameters.
 - The system prompt.
 - The `/think` slash command.
@@ -83,6 +85,14 @@ Settled 2026-11-17. A D-number means the decision is also recorded in PRD sectio
 | What activates the data group | Path detection. The loop adds the group when a path with one of the DATA-1 extensions appears in the user's message, an attachment, or a tool result (D15). |
 | Prompt cache on activation | Accept one cache miss. Tool definitions stay in the standard tools field, so native tool calling keeps working (D15). |
 | Removing the Vega-Lite reference | After 3 turns without a `make_chart` call, the same age as stale-result eviction in [context](context.md). |
+| `runTurn` signature | `runTurn(dependencies, session, input, signal)`. `dependencies` is an explicit `AgentDependencies` object (lm, context, permissions, tools, `createToolContext`, config, working directory, optional tool references and extra instructions), so integration and sub-agents wire their own parts. Documented in `src/agent/index.ts`. |
+| Loading the Vega-Lite reference | Loaded while `make_chart` is offered and either the user's latest message contains one of the reference's trigger words (chart supplies them, for example "chart" or "plot") or `make_chart` was called within the eviction age. It is appended to the system prompt, costing one prompt-cache miss when it appears or goes. |
+| Keeping the data group on | The loop records it in `SessionState.activatedToolGroups`, so eviction or compaction removing the path does not switch the tools off again. Vision is never recorded there; it always follows the current model. |
+| Prompt-based format | `<tool_call>{"name": ..., "arguments": {...}}</tool_call>` blocks in the reply. Results go back as `<tool_result name="...">` in a user message. Stored history always keeps the native shape; it is rewritten only in the request, so a session can change model and style. Blocks are hidden from the streamed text. A natively prompted model that writes a block as text is also accepted. |
+| What counts as a repair | Code fences, prose around the object, trailing commas, a double-encoded object, a number, boolean, or array sent as a string, a number sent for a string, a single value for an array, a parameter name in the wrong case, and an unknown extra field (dropped). Any of these makes the call `repaired`, not `valid`. |
+| Limits | Both are checked after a round, once every call in it has a result. An unknown tool counts as an invalid call. |
+| Cancellation of a tool that ignores its signal | The run is raced against the signal, so the turn ends at once; the tool may finish in the background. Every unanswered call gets a "Cancelled by the user." result. |
+| No shell tool (PERM-6) | The registry refuses shell-like tool names (`shell`, `bash`, `exec`, `run_command`, and similar) at registration. |
 
 ## Open questions
 
