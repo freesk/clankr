@@ -72,7 +72,21 @@ Settled 2026-11-17. A D-number means the decision is also recorded in PRD sectio
 | Model loaded with a different context length | Reload it with the configured length (D22). |
 | Minimum LM Studio version | 0.4.0. Older versions get a warning at startup and `vix` continues (D23, resolves O4). |
 | New model fails to load | The session stays on the previous model and the error is shown with its fix. If the previous model was unloaded to make room, it is loaded again. |
+| Token counting library | `@lmstudio/sdk` 2.1.0, pinned exactly and imported lazily at the first count (about 50 ms to import; 8.4 MB installed, including its own zod 3). Counts are `applyPromptTemplate` then `countTokens` on the loaded instance, found with `llm.listLoaded()`. `llm.model(key)` is never called, because it loads a model as a side effect. Image parts are not counted; usage after the call corrects that. If the SDK cannot answer, the count falls back to four characters per token and warns once. |
+| How the version is checked | LM Studio's HTTP API reports no version. The v1 API arrived in 0.4.0, so a 404 on `GET /api/v1/models` is read as "older than 0.4.0": warn and continue (D23). The reference machine runs LM Studio 0.4.20. |
+| Loopback check | Every address the host resolves to must be loopback (127.0.0.0/8, ::1, IPv4-mapped 127.x), compared with `net.BlockList` so every spelling matches. The override skips resolution. The SDK's WebSocket connection waits on the same check. |
+| Error text and the token | LM Studio echoes a malformed token back in its 401 message, so a 401 or 403 body is never shown: it becomes `token-missing` (no token configured) or `token-rejected`. Every other server message passes through a scrubber that replaces the token. |
+| Which code reloads | `LmStudioClient.loadModel(key, { contextLength })` guarantees the model is loaded with that length: it reuses a matching instance, reloads one with another length, or loads fresh. `ModelSwitcher` decides with the same `planLoad` function and prints the reload notice before calling it. |
+| Context length above the model's maximum | Capped at the model's `max_context_length`. |
+| `ChatRequest.model` | The `LoadedModel.instanceId`. The client maps it back to the model key to apply the profile (MOD-9). Request sampling values win over the profile's. |
+| Missing usage in a stream | `stream_options.include_usage` is always sent. If the stream still ends without usage, the client emits a usage event before `done`: the prompt counted with the tokenizer, the completion estimated. |
+| Typed startup errors | `LmStudioError` with `kind` (`server-unreachable`, `token-missing`, `token-rejected`, `model-not-downloaded`, `model-load-failed`, plus `host-not-allowed` and `request-failed`), `message`, `fix`, and `describe()` for printing. |
+| Live tests | `src/lmstudio/live.test.ts`, skipped unless `VIX_LIVE_LMSTUDIO=1` and `LM_API_TOKEN` are set. The load test also needs `VIX_LIVE_LOAD=1`; it restores the context length the model had before. |
 
 ## Open questions
 
-None.
+| Question | Settled by |
+|---|---|
+| Does LM Studio's streaming `/v1/chat/completions` report `usage` with `stream_options.include_usage`? The fallback covers either answer. | Running `live.test.ts` with a token |
+| Does `reasoning_effort` (`"none"` for off, `"medium"` for on) toggle reasoning for the Gemma 4 models, or is another field needed? | Running a live chat with reasoning on and off |
+| Does the SDK accept the HTTP API token for its WebSocket connection, and do its counts match `usage.prompt_tokens`? | Running `live.test.ts` with a token |
