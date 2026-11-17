@@ -2,8 +2,9 @@
 // layered end labels with transforms, and years on a quantitative axis.
 
 import { describe, expect, it } from "vitest";
-import { emptyCategoryNotes } from "./empty-categories.ts";
+import { emptyCategoryNotes, labelEmptyCategories } from "./empty-categories.ts";
 import { findMissingField } from "./field-check.ts";
+import { keepMonthsInTimeOrder } from "./month-order.ts";
 import { polishAxes, polishSpec } from "./spec-polish.ts";
 
 const rows = [
@@ -164,12 +165,69 @@ describe("emptyCategoryNotes", () => {
       { month: null, amount: 12_000 },
     ]);
     expect(notes).toEqual([
-      '1 row has no "month" (amount 12,000) and is drawn as "null". Filter them out in query_sql (WHERE "month" IS NOT NULL) or say what they are in the summary.',
+      '1 row has no "month" (amount 12,000) and is shown as "(no month)". Filter them out in query_sql (WHERE "month" IS NOT NULL) or say what they are in the summary.',
     ]);
   });
 
   it("says nothing when every category has a value", () => {
     const spec = { mark: "bar", encoding: { x: { field: "month", type: "ordinal" } } };
     expect(emptyCategoryNotes(spec, [{ month: "01" }])).toEqual([]);
+  });
+});
+
+describe("keepMonthsInTimeOrder", () => {
+  const bars = () => ({
+    mark: "bar",
+    encoding: {
+      x: { field: "month", type: "nominal", sort: "-y" } as Record<string, unknown>,
+      y: { field: "total", type: "quantitative" },
+    },
+  });
+
+  it("keeps a fiscal year in the order of the rows, April first", () => {
+    const spec = bars();
+    const rows = ["Apr", "May", "Jun", "Dec", "Jan", "Mar"].map((month, total) => ({
+      month,
+      total,
+    }));
+    // Not consecutive (Jun to Dec), so calendar order is used.
+    keepMonthsInTimeOrder(spec, rows);
+    expect(spec.encoding.x.sort).toEqual(["Jan", "Mar", "Apr", "May", "Jun", "Dec"]);
+
+    const fiscal = bars();
+    const fiscalRows = [
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+      "Jan",
+      "Feb",
+      "Mar",
+    ].map((month, total) => ({ month, total }));
+    expect(keepMonthsInTimeOrder(fiscal, fiscalRows)).toHaveLength(1);
+    expect((fiscal.encoding.x.sort as string[])[0]).toBe("Apr");
+  });
+
+  it("leaves categories that are not months alone", () => {
+    const spec = bars();
+    keepMonthsInTimeOrder(spec, [
+      { month: "North", total: 1 },
+      { month: "South", total: 2 },
+    ]);
+    expect(spec.encoding.x.sort).toBe("-y");
+  });
+});
+
+describe("labelEmptyCategories", () => {
+  it("labels an empty category instead of drawing null", () => {
+    const spec = { mark: "bar", encoding: { x: { field: "month", type: "nominal" } } };
+    labelEmptyCategories(spec, [{ month: "Jan" }, { month: null }]);
+    const axis = (spec.encoding.x as { axis?: { labelExpr?: string } }).axis;
+    expect(axis?.labelExpr).toBe("datum.value === null ? '(no month)' : datum.label");
   });
 });

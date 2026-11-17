@@ -18,6 +18,7 @@ import { createDelegateTool } from "../subagent/index.ts";
 import { inspectDataTool } from "../tools/data/inspect/index.ts";
 import { createMakeChartTool } from "../tools/data/make-chart.ts";
 import { querySqlTool } from "../tools/data/query-sql.ts";
+import { dataQuestionReference } from "../tools/data/question-reference.ts";
 import { createRunJsTool } from "../tools/data/run-js.ts";
 import { createFileTools, type FileToolDependencies } from "../tools/fs/index.ts";
 import { viewImageTool } from "../tools/image/index.ts";
@@ -71,7 +72,10 @@ export function buildToolSet(options: ToolSetOptions): ToolSet {
     onEvent: options.onSubAgentEvent,
     audit: options.currentAudit,
   });
-  return { tools: [...baseTools, delegate], toolReferences: [chartToolReference] };
+  return {
+    tools: [...baseTools, delegate],
+    toolReferences: [chartToolReference, dataQuestionReference],
+  };
 }
 
 /**

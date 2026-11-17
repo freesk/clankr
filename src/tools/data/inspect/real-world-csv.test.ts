@@ -79,4 +79,22 @@ describe("inspect_data on real-world CSV exports", () => {
     expect(output.text).toContain('several rows share each "Licence Number"');
     expect(output.text).toContain('COUNT(DISTINCT "Licence Number")');
   });
+
+  it("says what one row is in a time series, and how to total per group", async () => {
+    await setUp();
+    // 3 cities x 4 shelters each x 60 nights: one row per shelter per night.
+    const lines = ["date,city,shelter,occupancy"];
+    for (let day = 0; day < 60; day++) {
+      const date = new Date(Date.UTC(2024, 0, 1 + day)).toISOString().slice(0, 10);
+      for (let city = 0; city < 3; city++) {
+        for (let shelter = 0; shelter < 4; shelter++) {
+          lines.push(`${date},City${city},Shelter${city}-${shelter},${day + shelter}`);
+        }
+      }
+    }
+    const path = await test.writeFixture("shelters.csv", `${lines.join("\n")}\n`);
+    const output = await inspectDataTool.run({ path }, test.context);
+    expect(output.text).toContain('each row is about one "shelter" per "date"');
+    expect(output.text).toContain('"city" cover several rows per "date"');
+  });
 });

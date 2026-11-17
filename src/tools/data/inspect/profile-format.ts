@@ -7,6 +7,7 @@ import { basename } from "node:path";
 import type { DataFormat } from "../../../contracts/index.ts";
 import type { ColumnProfile } from "./column-profile.ts";
 import type { DocxHeading } from "./docx-document.ts";
+import type { RowGrain } from "./row-grain.ts";
 
 export interface TableProfile {
   /** Absent when the table has no data rows and so was not registered. */
@@ -16,6 +17,8 @@ export interface TableProfile {
   headerRow?: number;
   rowCount: number;
   columns: ColumnProfile[];
+  /** What one row stands for, when the table is a time series by some category. */
+  grain?: RowGrain;
 }
 
 export interface FileProfile {
@@ -96,7 +99,25 @@ function tableLines(table: TableProfile, options: FormatOptions): string[] {
   }
   const repeated = repeatedIdentifierNote(table);
   if (repeated) lines.push(repeated);
+  if (table.grain) lines.push(grainNote(table.grain));
   return lines;
+}
+
+/**
+ * Tells the model what one row is, and that totals per a coarser group need a SUM per group
+ * and time first. Averaging the rows directly gives a per-row figure.
+ */
+function grainNote(grain: RowGrain): string {
+  const groups = grain.groupingColumns.slice(0, 2).map((name) => `"${name}"`);
+  const coarser =
+    groups.length > 0
+      ? ` ${groups.join(" and ")} cover several rows per "${grain.timeColumn}".`
+      : "";
+  return (
+    `Note: each row is about one "${grain.keyColumn}" per "${grain.timeColumn}".${coarser} ` +
+    `For a figure per group and "${grain.timeColumn}" (per city per day), SUM within the group and ` +
+    `"${grain.timeColumn}" first, then average those totals.`
+  );
 }
 
 /** Names that usually identify one thing: "Authorization Number", "employee_id", "EMP_KEY". */

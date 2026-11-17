@@ -16,6 +16,7 @@ import {
 import { type ProfileSource, profileTable } from "./column-profile.ts";
 import type { DetectedFormat } from "./detect-format.ts";
 import type { FileProfile, TableProfile } from "./profile-format.ts";
+import { findRowGrain } from "./row-grain.ts";
 import {
   assertKnownLabel,
   type HeaderRowFor,
@@ -209,7 +210,11 @@ async function profilePlans(
       rowsFilePath: table.rowsHandle ? context.results.rowsFilePath?.(table.rowsHandle) : undefined,
     };
     const statistics = await profileWithFullTypeScan(database, input);
-    profiles.push({ ...base, sqlName: table.sqlName, ...statistics });
+    // A hint, never a reason to fail the profile.
+    const grain = await findRowGrain(database.connection, tableSourceSql(input), statistics).catch(
+      () => undefined,
+    );
+    profiles.push({ ...base, sqlName: table.sqlName, ...statistics, ...(grain ? { grain } : {}) });
   }
   return profiles;
 }

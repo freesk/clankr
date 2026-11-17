@@ -44,7 +44,7 @@ function noteFor(field: string, rows: Row[], measures: string[]): string | undef
       : "";
   return (
     `${empty.length} ${empty.length === 1 ? "row has" : "rows have"} no "${field}"${share} and ` +
-    `${empty.length === 1 ? "is" : "are"} drawn as "null". Filter them out in query_sql ` +
+    `${empty.length === 1 ? "is" : "are"} shown as "(no ${field})". Filter them out in query_sql ` +
     `(WHERE "${field}" IS NOT NULL) or say what they are in the summary.`
   );
 }
@@ -57,4 +57,26 @@ function numberFields(encoding: Record<string, unknown>): string[] {
     }
   }
   return fields;
+}
+
+/**
+ * Draws an empty category on an axis as "(no month)" rather than Vega's "null", which reads
+ * like a data error. The rows themselves are not changed.
+ */
+export function labelEmptyCategories(spec: SpecObject, rows: Row[]): void {
+  forEachView(spec, (view) => {
+    if (!isPlainObject(view.encoding)) return;
+    for (const channel of ["x", "y"]) {
+      const definition = view.encoding[channel];
+      if (!isPlainObject(definition) || typeof definition.field !== "string") continue;
+      if (definition.type !== "nominal" && definition.type !== "ordinal") continue;
+      if (definition.axis === null) continue;
+      const field = definition.field;
+      if (!rows.some((row) => row[field] === null || row[field] === undefined)) continue;
+      const axis = isPlainObject(definition.axis) ? definition.axis : {};
+      if (axis.labelExpr !== undefined) continue;
+      const label = `(no ${field})`.replaceAll("\\", "\\\\").replaceAll("'", "\\'");
+      definition.axis = { ...axis, labelExpr: `datum.value === null ? '${label}' : datum.label` };
+    }
+  });
 }
