@@ -30,7 +30,7 @@ Build `vix` as described in [PRD.md](PRD.md), part by part, following the waves 
 | 6 | storage | [storage.md](specs/storage.md) | 1 | agent-storage-permissions | in progress | Real `VixPaths` builder; then point `src/testing/temporary-vix-paths.ts` at it |
 | 7 | search | [search.md](specs/search.md) | 1 | agent-search | in progress | Vendor step for ripgrep; `list_dir` and `read_file` first. Replace the smoke test in `src/tools/search/` |
 | 8 | files | [files.md](specs/files.md) | 1 | agent-files | in progress | `write_file` and `edit_file` with previews |
-| 9 | image | [image.md](specs/image.md) | 1 | agent-image | in progress | `view_image` with `sharp` downscaling and the isolated sub-call |
+| 9 | image | [image.md](specs/image.md) | 1 | agent-image | done (verified) | Merged in `03bba17`: 30 image tests, full suite 50 passing, lint and build clean on main. Not verified: live LM Studio check (no `LM_API_TOKEN`), so default max edge and the image token estimate stay open |
 | 10 | inspect | [inspect.md](specs/inspect.md) | 1 | agent-data | in progress | Format detection and the `.docx` parser; tabular profiling waits for task 11's engine module |
 | 11 | sql | [sql.md](specs/sql.md) | 1 | agent-data | in progress | Vendor step for the DuckDB excel extension; locked engine module first, since inspect needs it |
 | 12 | sandbox | [sandbox.md](specs/sandbox.md) | 1 | agent-sandbox | in progress | `runInIsolate` with limits and the escape tests |
@@ -42,12 +42,18 @@ Build `vix` as described in [PRD.md](PRD.md), part by part, following the waves 
 
 ## How wave 1 runs
 
-- 11 agents, one per row owner above, each in its own git worktree on its own branch, started from the commit that adds `src/contracts/isolate.ts`.
+- 12 agents, one per row owner above, each in its own git worktree on its own branch, started from the commit that adds `src/contracts/isolate.ts`.
 - Paired parts share an agent where one consumes the other: storage + permissions, sql + inspect (inspect needs sql's engine), chart + pdf.
 - Agents do not edit `ROADMAP.md`; the main session updates it as each agent reports.
 - Shared files agents may touch, add-only: `package.json` (their own dependencies), `src/config/schema.ts` (new fields in their own section), `scripts/vendor/steps.ts` (their own step), their own spec. Contracts change only add-only, and the agent reports it.
 - The main session merges each branch into `main` as it finishes, regenerates `package-lock.json` on conflict, and re-runs lint, test, and build after each merge.
 - If a session dies: `git worktree list` and `git branch` show each agent's branch; anything committed there can be merged, and anything unfinished restarts from the row's next step.
+
+## Integration notes (for wave 2)
+
+- `ToolContext` gained optional `model` and `reasoning` (from image). agent-loop must fill both from the session; without `model`, `view_image` refuses.
+- image sends `ChatRequest.model` = `LoadedModel.instanceId`; lmstudio must accept that and map image parts to OpenAI `image_url` data URLs.
+- chart's self-check (DATA-18) can reuse `prepareImage`, `buildImageRequest`, `askAboutImage` from `src/tools/image/`.
 
 ## Decisions made along the way
 
@@ -57,5 +63,6 @@ Build `vix` as described in [PRD.md](PRD.md), part by part, following the waves 
 | 2026-11-17 | TypeScript 7.0, Biome, vitest 5, zod 4 | Current stable versions; Biome is one tool for lint and format |
 | 2026-11-17 | D35 to D38 in the PRD (snapshot flag, `.xls` reader, pinned addon versions, DuckDB rebuild on registration) | Spike findings; details in [foundation.md](specs/foundation.md#spike-findings-2026-11-17) |
 | 2026-11-17 | Contracts added beyond the spec sketch: `ToolDefinition.keyArgument`, `ChangePreview.targetPaths` and `dataSourcePaths`, `ResultStore.rowsFilePath`, `ToolContext.workingDirectory`, `AgentEvent` tool-end `validity` | Needed by the CLI tool line, permission classification, DuckDB reading row sets, relative paths, and the evals validity metric |
-| 2026-11-17 | Wave 1 runs as 11 parallel agents in git worktrees | The user asked for parallel agents; worktrees keep `node_modules` and edits apart |
+| 2026-11-17 | Wave 1 runs as 12 parallel agents in git worktrees | The user asked for parallel agents; worktrees keep `node_modules` and edits apart |
+| 2026-11-17 | D39 (`sips` for HEIC/BMP) and D40 (AVIF accepted), from the image agent | `sharp` lacks those decoders; AVIF is free |
 | 2026-11-17 | Config `data.rowCap` is one number for the chart row cap and the isolate helper cap | specs/sandbox.md requires them to be defined once |

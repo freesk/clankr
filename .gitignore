@@ -7,3 +7,6 @@ coverage/
 # Vendored assets are installed by `npm run vendor`, not committed.
 vendor/*
 !vendor/README.md
+
+# Agent worktrees
+.claude/worktrees/
