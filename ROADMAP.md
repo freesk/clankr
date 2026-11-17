@@ -29,7 +29,7 @@ Build `vix` as described in [PRD.md](PRD.md), part by part, following the waves 
 | 5 | permissions | [permissions.md](specs/permissions.md) | 1 | agent-storage-permissions | in progress | `PathPolicy` with canonicalisation and the deny list, then the gate's decision table |
 | 6 | storage | [storage.md](specs/storage.md) | 1 | agent-storage-permissions | in progress | Real `VixPaths` builder; then point `src/testing/temporary-vix-paths.ts` at it |
 | 7 | search | [search.md](specs/search.md) | 1 | agent-search | in progress | Vendor step for ripgrep; `list_dir` and `read_file` first. Replace the smoke test in `src/tools/search/` |
-| 8 | files | [files.md](specs/files.md) | 1 | agent-files | in progress | `write_file` and `edit_file` with previews |
+| 8 | files | [files.md](specs/files.md) | 1 | agent-files | done (verified) | Merged in `c37d0ea`: 43 files tests; full suite 148 passing + 1 opt-in skipped, lint and build clean on main. Not verified: trashed file visible in `~/.Trash` (no Full Disk Access), cross-volume move fallback (EXDEV never triggered), behaviour against the real `PathPolicy` |
 | 9 | image | [image.md](specs/image.md) | 1 | agent-image | done (verified) | Merged in `03bba17`: 30 image tests, full suite 50 passing, lint and build clean on main. Not verified: live LM Studio check (no `LM_API_TOKEN`), so default max edge and the image token estimate stay open |
 | 10 | inspect | [inspect.md](specs/inspect.md) | 1 | agent-data | in progress | Format detection and the `.docx` parser; tabular profiling waits for task 11's engine module |
 | 11 | sql | [sql.md](specs/sql.md) | 1 | agent-data | in progress | Vendor step for the DuckDB excel extension; locked engine module first, since inspect needs it |
@@ -60,6 +60,10 @@ Build `vix` as described in [PRD.md](PRD.md), part by part, following the waves 
 - `run_js` previews omit `dataSourcePaths` when no data file is known; permissions must decide how D19 treats that (proposed: ask every time).
 - `isolateLimitsFrom(config)` lives in `src/tools/data/run-js.ts`; chart should use it after integration. The 20-row preview constant there should be shared with `query_sql`.
 
+- files: wire with `createFileTools(dependencies?)` and `createFileSlashCommands(vixPaths, dependencies?)`; `/undo` needs `VixPaths` because `SlashCommandContext` lacks it (consider adding it, add-only).
+- files: `/undo` does not update the `ReadTracker`, so the model must re-read before overwriting an undone file. Small race between target check and `rename` in move/copy.
+- Shared test fixtures inside a part go in `*.test-support.ts`, which the build excludes.
+
 ## Decisions made along the way
 
 | Date | Decision | Reason |
@@ -70,4 +74,5 @@ Build `vix` as described in [PRD.md](PRD.md), part by part, following the waves 
 | 2026-11-17 | Contracts added beyond the spec sketch: `ToolDefinition.keyArgument`, `ChangePreview.targetPaths` and `dataSourcePaths`, `ResultStore.rowsFilePath`, `ToolContext.workingDirectory`, `AgentEvent` tool-end `validity` | Needed by the CLI tool line, permission classification, DuckDB reading row sets, relative paths, and the evals validity metric |
 | 2026-11-17 | Wave 1 runs as 12 parallel agents in git worktrees | The user asked for parallel agents; worktrees keep `node_modules` and edits apart |
 | 2026-11-17 | D39 (`sips` for HEIC/BMP) and D40 (AVIF accepted), from the image agent | `sharp` lacks those decoders; AVIF is free |
+| 2026-11-17 | D41 (undo and cross-volume moves go through the Trash), from the files agent | Keeps FS-6's no-permanent-delete rule for every path |
 | 2026-11-17 | Config `data.rowCap` is one number for the chart row cap and the isolate helper cap | specs/sandbox.md requires them to be defined once |

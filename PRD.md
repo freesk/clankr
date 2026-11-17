@@ -438,6 +438,7 @@ Milestones give the order in which scenarios must pass. The work itself is split
 | D38 | Files added to a locked DuckDB session | The in-memory DuckDB instance is rebuilt, with the new file added to `allowed_paths`, whenever a file is registered | A locked configuration cannot be extended. A rebuild takes 10 to 20 ms and the instance holds no state worth keeping, since inputs are views over files |
 | D39 | HEIC and BMP images | Converted by the harness with the macOS built-in `/usr/bin/sips`, run with an argument list and no shell, writing into the session scratch folder. Other formats try `sharp` first and fall back to `sips` | `sharp` 0.35.5 has no HEVC decoder and cannot read BMP. This is harness code, not a model-facing shell, so D10 and PERM-6 still hold |
 | D40 | AVIF images | Accepted by `view_image` in addition to the IMG-1/IMG-4 formats | `sharp` decodes it at no extra cost |
+| D41 | Undo and cross-volume moves never delete permanently | `/undo` of a created file or copy sends it to the Trash; a `delete` is snapshotted in full first so `/undo` restores it; a move across volumes is copy then Trash the original | Extends FS-6 to undo. Under D27 (no size limit), deleting a large folder also copies it into the session snapshot folder |
 
 Decisions internal to one part (limits, cache rules, eviction age) are recorded in that part's spec under [specs/](specs/README.md).
 
