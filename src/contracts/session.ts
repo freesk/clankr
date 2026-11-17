@@ -3,6 +3,7 @@
 
 import type { Config } from "../config/schema.ts";
 import type { ChatMessage, LmClient, LoadedModel, ReasoningSetting } from "./model.ts";
+import type { OutputFormat } from "./output.ts";
 import type { PermissionMode } from "./permissions.ts";
 import type { ToolGroup } from "./tools.ts";
 
@@ -61,6 +62,11 @@ export interface SessionState {
    * file path appears (D15). Kept here so the switch survives eviction, compaction, and resume.
    */
   activatedToolGroups?: ToolGroup[];
+  /**
+   * The format files are saved in when a request names none: set by `--format`, `/format`, or
+   * a pick the user kept for the session (D85). Unset means the config default, else ask.
+   */
+  outputFormat?: OutputFormat;
 }
 
 export interface SlashCommandContext {

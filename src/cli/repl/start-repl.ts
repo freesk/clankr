@@ -25,11 +25,15 @@ export async function startRepl(request: StartReplRequest): Promise<ExitCode> {
   let showNotice = (text: string) => {
     earlyNotices.push(text);
   };
+  // The picker belongs to the controller, which is built after the harness it needs.
+  let choose: ReplController["choose"] = async () => undefined;
   let harness: Harness;
   try {
     harness = await environment.composition.openHarness({
       config,
       approvalPrompter: prompter,
+      ...(command.outputFormat ? { outputFormat: command.outputFormat } : {}),
+      choose: (prompt, options) => choose(prompt, options),
       ephemeral: command.ephemeral,
       resume: command.resume,
       workingDirectory: environment.workingDirectory,
@@ -53,6 +57,7 @@ export async function startRepl(request: StartReplRequest): Promise<ExitCode> {
     ],
   });
   prompter.connect(controller);
+  choose = (prompt, options) => controller.choose(prompt, options);
   showNotice = (text) => controller.showNotice(text);
   for (const notice of earlyNotices) controller.showNotice(notice);
   const { mountReplView } = await import("./view.ts");

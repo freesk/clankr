@@ -48,7 +48,8 @@ describe.skipIf(!isBrowserVendored())("make_chart (needs the vendored schema)", 
         tables: [{ sqlName: "payroll_sheet1", label: "Sheet1" }],
       },
     ]);
-    context = { ...test.context, results, dataSources };
+    // As after `--format pdf`: these tests are about charts, not about choosing a format.
+    context = { ...test.context, results, dataSources, outputFormat: { sessionFormat: "pdf" } };
     renderer = createFakeRenderer();
   });
 
@@ -62,6 +63,7 @@ describe.skipIf(!isBrowserVendored())("make_chart (needs the vendored schema)", 
       createStandardHelpers: fakeStandardHelpers(new Map([["r1", rows]])),
       renderChart: renderer.renderChart,
       renderChartPages: renderer.renderChartPages,
+      renderChartImage: renderer.renderChartImage,
       renderPreview: renderer.renderPreview,
       ...extra,
     });
@@ -122,10 +124,10 @@ render({ mark: "bars", encoding: { x: { field: "dept", type: "nominal" } } }, da
       expect(renderer.pageRequests).toEqual([]);
     });
 
-    it("refuses several charts as PNG, pointing at PDF", async () => {
+    it("refuses several charts as PNG, pointing at the formats that hold several", async () => {
       const code = `render(${barChart("A")}, data("r1")); render(${barChart("B")}, data("r1"));`;
       await expect(tool().run({ code, format: "png" }, context)).rejects.toThrow(
-        /Several charts go into one PDF.*Use format "pdf"/,
+        /PNG holds one chart, and the code rendered 2\..*one make_chart call per PNG chart.*pdf, docx, xlsx/,
       );
     });
 

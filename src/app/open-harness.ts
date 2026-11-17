@@ -15,6 +15,7 @@ import type {
 } from "../contracts/index.ts";
 import { createChartRenderer } from "../engines/browser/index.ts";
 import { createModelCommand, ModelSwitcher } from "../lmstudio/index.ts";
+import { createPickerFormatPrompter, formatCommand } from "../output/index.ts";
 import { permissionsCommand } from "../permissions/index.ts";
 import type { FileToolDependencies } from "../tools/fs/index.ts";
 import {
@@ -26,6 +27,7 @@ import {
 } from "./active-session.ts";
 import type { LmConnection } from "./lm-connection.ts";
 import { NestedEventQueue } from "./nested-events.ts";
+import { outputFormatContextFor } from "./output-format.ts";
 import { sessionCommandsFor } from "./session-commands.ts";
 import { reasoningFor, toolCallingWarning } from "./session-state.ts";
 import { buildToolSet } from "./tool-set.ts";
@@ -96,6 +98,9 @@ export async function openHarness(options: HarnessOptions, seams: HarnessSeams):
     currentAudit: () => active.runtime.audit,
   });
 
+  // D85: only the REPL lends a picker; without one, a tool that needs a format cannot ask.
+  const formatPrompter = options.choose ? createPickerFormatPrompter(options.choose) : undefined;
+
   function createToolContext(signal: AbortSignal): ToolContext {
     const { runtime, state } = active;
     const context: ToolContext = {
@@ -109,6 +114,7 @@ export async function openHarness(options: HarnessOptions, seams: HarnessSeams):
       config,
       workingDirectory: options.workingDirectory,
       reasoning: state.reasoning,
+      outputFormat: outputFormatContextFor(state, formatPrompter, signal),
     };
     if (state.model) context.model = state.model;
     return context;
@@ -156,6 +162,7 @@ export async function openHarness(options: HarnessOptions, seams: HarnessSeams):
       createModelCommand(switcher),
       permissionsCommand,
       thinkCommand,
+      formatCommand,
       ...sessionCommandsFor(active.runtime.slashCommands, () => active),
     ],
     resumed: options.resume,

@@ -2,8 +2,8 @@
 // small zip writer. Test code only.
 
 import { writeFile } from "node:fs/promises";
-import { crc32, deflateRawSync } from "node:zlib";
 import * as XLSX from "xlsx";
+import { createZip } from "../../../../shared/zip-writer.ts";
 
 export interface FixtureSheet {
   name: string;
@@ -55,10 +55,10 @@ export async function writeDocx(path: string, bodyXml: string): Promise<void> {
 <w:document ${wordNamespace}><w:body>${bodyXml}<w:sectPr/></w:body></w:document>`;
   await writeFile(
     path,
-    makeZip([
-      { name: "[Content_Types].xml", text: "<Types/>" },
-      { name: "word/document.xml", text: document },
-      { name: "word/styles.xml", text: headingStyles },
+    createZip([
+      zipEntry("[Content_Types].xml", "<Types/>"),
+      zipEntry("word/document.xml", document),
+      zipEntry("word/styles.xml", headingStyles),
     ]),
   );
 }
@@ -67,44 +67,7 @@ function escapeXml(text: string): string {
   return text.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
 }
 
-/** A zip archive with deflated entries, enough for OOXML readers. */
-export function makeZip(entries: { name: string; text: string }[]): Buffer {
-  const localParts: Buffer[] = [];
-  const directoryParts: Buffer[] = [];
-  let offset = 0;
-  for (const entry of entries) {
-    const data = Buffer.from(entry.text, "utf8");
-    const compressed = deflateRawSync(data);
-    const name = Buffer.from(entry.name, "utf8");
-    const checksum = crc32(data);
-    const local = Buffer.alloc(30);
-    local.writeUInt32LE(0x04034b50, 0);
-    local.writeUInt16LE(20, 4);
-    local.writeUInt16LE(8, 8);
-    local.writeUInt32LE(checksum, 14);
-    local.writeUInt32LE(compressed.length, 18);
-    local.writeUInt32LE(data.length, 22);
-    local.writeUInt16LE(name.length, 26);
-    const directory = Buffer.alloc(46);
-    directory.writeUInt32LE(0x02014b50, 0);
-    directory.writeUInt16LE(20, 4);
-    directory.writeUInt16LE(20, 6);
-    directory.writeUInt16LE(8, 10);
-    directory.writeUInt32LE(checksum, 16);
-    directory.writeUInt32LE(compressed.length, 20);
-    directory.writeUInt32LE(data.length, 24);
-    directory.writeUInt16LE(name.length, 28);
-    directory.writeUInt32LE(offset, 42);
-    localParts.push(local, name, compressed);
-    directoryParts.push(directory, name);
-    offset += local.length + name.length + compressed.length;
-  }
-  const directory = Buffer.concat(directoryParts);
-  const end = Buffer.alloc(22);
-  end.writeUInt32LE(0x06054b50, 0);
-  end.writeUInt16LE(entries.length, 8);
-  end.writeUInt16LE(entries.length, 10);
-  end.writeUInt32LE(directory.length, 12);
-  end.writeUInt32LE(offset, 16);
-  return Buffer.concat([...localParts, directory, end]);
+/** Deflated, as Word writes its parts, so the reader's inflate path is exercised. */
+function zipEntry(name: string, text: string) {
+  return { name, data: Buffer.from(text, "utf8"), compress: true };
 }

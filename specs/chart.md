@@ -16,6 +16,7 @@ Model-written code is the only chart path (decision D2), and the PRD expects a 1
 
 - DATA-10: `make_chart`.
 - DATA-11: run in the isolate, validate against the Vega-Lite schema, return short fixable errors.
+- DATA-13, DATA-22, DATA-23, their share: save the chart in the format the user chose, and decide what a Word or Excel file holds for a chart. The format list, the choosing order, and the writers are [output](output.md)'s.
 - DATA-15, its share: load `~/.clankr/theme.json` and apply palette and fonts. Page size, logo, and footer are applied by [pdf](pdf.md).
 - DATA-16, its share: write the Vega-Lite reference text. [agent-loop](agent-loop.md) decides when it is loaded.
 - DATA-17: the row cap.
@@ -35,9 +36,10 @@ Model-written code is the only chart path (decision D2), and the PRD expects a 1
 ```
 chart code ─► isolate ─► captured (spec, rows) ─► row cap ─► strip styling and
                 render()                                      external references
-   ─► apply theme ─► validate against schema ─► renderer ─► file path returned
-                          │
-                          └─► on failure: short error back to the model
+   ─► apply theme ─► validate against schema ─► self-check ─► format (the user's,
+                          │                                    D85) ─► renderer or
+                          └─► on failure: short error          office writer ─► file path
+                              back to the model
 ```
 
 ## Consumes
@@ -45,14 +47,17 @@ chart code ─► isolate ─► captured (spec, rows) ─► row cap ─► str
 | Contract | From | Fake until it exists |
 |---|---|---|
 | `runInIsolate` | sandbox | Tests start from a captured spec and rows, skipping the isolate |
-| `renderChart` | pdf | Fake that writes a placeholder file |
+| `renderChart`, `renderChartImage` | pdf | Fake that writes a placeholder file, or returns a one-pixel PNG |
+| Format order, Word and Excel writers | output | Real: they are plain code with no engine behind them |
 | `ResultStore` (rows and provenance) | context | In-memory fake |
 | `PathPolicy` (output location) | permissions | Fake |
 | `view_image`'s sub-call, for the self-check | image | Scripted `LmClient` |
 
 ## Design notes
 
-- **`render` captures; it does not draw.** Inside the isolate, `render(spec, rows, summary)` only records its arguments. All checking and drawing happen on the host afterwards. Each call adds one chart (at most 6); several charts become one portrait PDF, a page each, each with its summary under it.
+- **`render` captures; it does not draw.** Inside the isolate, `render(spec, rows, summary)` only records its arguments. All checking and drawing happen on the host afterwards. Each call adds one chart (at most 6); several charts become one file (PDF, Word, or Excel), a page or a sheet each, each with its summary.
+- **The user chooses the format** (D85, [output.md](output.md)). `format` is an optional parameter the model sets only when the user named a format. The format is settled after the charts are known to be good: the code ran, the specs validated, and the self-check passed, so a chart that fails never costs the user a question. One exception runs early: a request for PNG or SVG with several charts is refused before any checking.
+- **Word and Excel (DATA-23, D87).** For `docx`, each chart is drawn by the offline browser as a PNG at print resolution, without its title, and placed under a heading that carries the title, with the summary as text below; one chart uses the theme's page, several print portrait with a page each, like the PDF. For `xlsx` nothing is drawn: the workbook gets a `Summary` sheet and a sheet per chart with the rows that chart was given, and the result text tells the model the workbook holds no picture.
 - **Row cap first.** Over the cap (DATA-17), stop before validation and tell the model to aggregate with `query_sql`.
 - **The model does not style** (D9). Remove styling the model put in the spec, then apply the theme as the spec's configuration. Define exactly which properties count as styling, in one place.
 - **No external references.** A Vega-Lite spec can point at a URL for its data or for an image. Reject these here, before the spec reaches the browser. The browser blocks them too; this is the first of two layers.
@@ -83,6 +88,9 @@ chart code ─► isolate ─► captured (spec, rows) ─► row cap ─► str
 - A failed self-check triggers exactly one retry; a second failure is reported, not retried.
 - The reference text measures at or under its token budget.
 - With the real isolate and renderer, scenario S8 produces a PDF from a fixture spreadsheet.
+- A chart saved as `docx` holds a valid PNG part per chart, each title as a heading, and each summary as text, read back by the project's OOXML reader and by macOS `textutil`; with the real renderer the PNG is 2,160 x 1,320 pixels.
+- A chart saved as `xlsx` reads back through `inspect_data` and DuckDB with the chart's rows and their types.
+- With no format named, the tool asks where it can and fails with the formats and `--format` where it cannot; a failed chart or a failed self-check never asks.
 
 ## Decisions
 
@@ -103,13 +111,16 @@ Settled 2026-11-17. A D-number means the decision is also recorded in PRD sectio
 | External references | Any `url` key anywhere in the spec, and the `image` mark, are rejected before the browser. |
 | Field check | A field that is not a column is reported with the column list. Only checked for specs without transforms or repeat, where it cannot misfire. |
 | Validation errors | Ajv over the vendored schema. The deepest failing location wins; a property is "unknown" only if no alternative accepts it; enum lists get a "Did you mean" hint. At most 3 messages. |
-| Companion files | `<name>.chart.js`, `<name>.vl.json` (`<name>.N.vl.json` per chart when there are several), `<name>.sql`, beside `<name>.<format>`. A number is appended if any of them exists. An explicit `output_path` gets a number too rather than overwriting. |
+| Companion files | `<name>.chart.js`, `<name>.vl.json` (`<name>.N.vl.json` per chart when there are several), `<name>.sql`, beside `<name>.<format>`, for every format including `docx` and `xlsx`. A number is appended if any of them exists. An explicit `output_path` gets a number too rather than overwriting. |
 | Reference text export | `chartToolReference` = `{ toolName, text, triggerWords }`, the shape agent-loop's `ToolReference` expects. |
 | Chart summary (task 32) | The third `render` argument: `render(spec, rows, summary)`, 1–3 plain sentences on the main finding. Chosen over the spec's `description` so the spec stays pure Vega-Lite and the reference shows one way. Optional: a missing summary does not fail the call, but the result names the chart that lacks one. Not text: a `ToolError`. Whitespace and control characters are collapsed; over 400 characters it is cut with "…" and a note. It reaches the page only as data and is set with `textContent`, so markup prints as characters. PNG and SVG hold the drawing only; the summary is not printed there and the result does not ask for one. Needs a PRD row. |
-| Several charts in one call (task 32) | Each `render` call adds a chart, at most 6 (`maxChartsPerCall`); the 7th is a `ToolError` telling the model to use another call. Every chart goes through the same pipeline (`prepareCharts`: row cap, styling, theme, schema, field check, polish); errors and notes from the second chart on, and all of them once there are several, start "chart N: ". Several charts print into one PDF via pdf's `renderChartPages`; PNG or SVG with several charts is refused with a message to use PDF or one call per image (one file per image would need a second numbering scheme beside D28's). The file is named from the first chart's title. Needs a PRD row. |
+| Several charts in one call (task 32) | Each `render` call adds a chart, at most 6 (`maxChartsPerCall`); the 7th is a `ToolError` telling the model to use another call. Every chart goes through the same pipeline (`prepareCharts`: row cap, styling, theme, schema, field check, polish); errors and notes from the second chart on, and all of them once there are several, start "chart N: ". Several charts print into one PDF via pdf's `renderChartPages`, or go into one Word document or Excel workbook; PNG or SVG with several charts is refused with a message to use one call per image or a format that holds several (one file per image would need a second numbering scheme beside D28's). The file is named from the first chart's title. Needs a PRD row. |
 | Companion files for several charts | One spec per chart, `<name>.1.vl.json` … `<name>.N.vl.json`, each a spec Vega-Lite can draw alone; one `.chart.js` and one `.sql`. All are checked for a clash before a name is taken. A single chart keeps `<name>.vl.json`. Summaries live in the saved chart code. |
 | Self-check with several charts | Each chart's preview is checked in order; the first failure stops the check and is returned as "chart N: verdict", with nothing saved. The one automatic retry (D29) is per `make_chart` call, not per chart. All passing reads "Self-check passed: all N charts." |
-| Tool result | The saved path, size, page count (counted in the written PDF), "portrait, one chart per page" for several, the companion files, and either "Summary/Summaries: printed …" or "No summary for chart N …". |
+| Tool result | The saved path, size, page count (counted in the written PDF), "Word document" or "Excel workbook", "portrait, one chart per page" for several, the companion files, and either "Summary/Summaries: printed …" (for a workbook, "on the Summary sheet") or "No summary for chart N …". A workbook's result adds one line saying it holds the rows and summaries, not a picture. |
+| Output format (task 34) | D85 and D86, in [output.md](output.md). `make_chart` saves `pdf`, `docx`, `xlsx`, `png`, or `svg`; `csv` is refused with a pointer to `export_table`. With several charts the question offers only `pdf`, `docx`, and `xlsx`. The approval preview names the format when it is already settled, and otherwise says "you choose the format next". A guessed `output_path` extension is dropped with the guessed format: the name and folder are kept, and the file gets the chosen format's extension. |
+| Title in a Word document | The heading above the picture is the chart's title as real text, so the picture is drawn without it (the spec's `title` is left out for that one render). The saved `.vl.json` keeps the title. A chart without a title is headed "Chart N". |
+| Where the format code lives | `make-chart.ts` settles the format; `src/chart/chart-file.ts` picks the renderer call or the office writer; the writers are in `src/output/`. |
 
 ## Open questions
 

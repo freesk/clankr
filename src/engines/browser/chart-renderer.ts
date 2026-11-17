@@ -1,6 +1,7 @@
 // The pdf part's public face: turn a validated Vega-Lite spec and its rows into a PDF, PNG,
 // or SVG file (DATA-13), several charts into one PDF with a page each, a PNG preview for the
-// chart self-check, or a multi-chart report.
+// chart self-check, a print-resolution PNG for a Word document, a multi-chart report, or a
+// row set into a paginated PDF table.
 
 import { mkdir, writeFile } from "node:fs/promises";
 import { dirname } from "node:path";
@@ -11,12 +12,20 @@ import type {
   ChartRenderRequest,
   ChartRenderResult,
   Row,
+  TableRenderRequest,
   Theme,
 } from "../../contracts/index.ts";
 import { BrowserSession } from "./browser-session.ts";
 import { replaceConfigFont, resolveFontFamily } from "./fonts.ts";
 import type { BlockedRequest, BlockedRequestLogger } from "./offline.ts";
-import { drawChart, exportPng, exportSvg, setTextFont } from "./page-calls.ts";
+import {
+  addTable,
+  addTextBlock,
+  drawChart,
+  exportPng,
+  exportSvg,
+  setTextFont,
+} from "./page-calls.ts";
 import { type LoadedDecorations, loadDecorations } from "./page-decorations.ts";
 import { fitSpecToArea, pdfOptions, printableArea } from "./page-layout.ts";
 import { pdfPageCount } from "./pdf-pages.ts";
@@ -25,6 +34,8 @@ import { composeChartPages, composeReport, type ReportBlock } from "./report.ts"
 /** PNG and SVG exports use one fixed scale, so the same chart is the same file on every run. */
 export const exportScale = 2;
 const previewScale = 1;
+/** A chart placed in a document: about 300 dots per inch at the width of a page. */
+const printImageScale = 3;
 
 /** PNG, SVG, and preview charts with no size of their own get this one, in CSS pixels. */
 const imageArea = { width: 720, height: 440 };
@@ -51,6 +62,15 @@ export interface ChartRenderer {
     theme: Theme,
     signal?: AbortSignal,
   ): Promise<Buffer>;
+  /** The chart as PNG bytes at print resolution, for embedding in a document. Nothing is written. */
+  renderChartImage(
+    spec: Record<string, unknown>,
+    rows: Row[],
+    theme: Theme,
+    signal?: AbortSignal,
+  ): Promise<{ png: Buffer; notes: string[] }>;
+  /** A table of text cells as a PDF on the theme's page, header repeated on every page. */
+  renderTable(request: TableRenderRequest, signal?: AbortSignal): Promise<ChartRenderResult>;
   /** Several charts and text blocks in one PDF (DATA-19). */
   renderReport(
     blocks: ReportBlock[],
@@ -106,13 +126,30 @@ export function createChartRenderer(options: ChartRendererOptions): ChartRendere
     renderPreview(spec, rows, theme, signal) {
       return session.withRenderPage(async (page) => {
         const pageTheme = await resolvePageTheme(page, theme);
-        const drawn = await drawChart(
-          page,
-          fitSpecToArea(pageTheme.prepare(spec), imageArea, rows),
-          rows,
-        );
-        return exportPng(page, drawn.viewId, previewScale);
+        const image = await drawImage(page, { spec, rows }, pageTheme);
+        return exportPng(page, image.viewId, previewScale);
       }, signal);
+    },
+
+    renderChartImage(spec, rows, theme, signal) {
+      return session.withRenderPage(async (page) => {
+        const pageTheme = await resolvePageTheme(page, theme);
+        const image = await drawImage(page, { spec, rows }, pageTheme);
+        return { png: await exportPng(page, image.viewId, printImageScale), notes: image.notes };
+      }, signal);
+    },
+
+    async renderTable(request, signal) {
+      const decorations = await loadDecorations(request.theme);
+      const output = await session.withRenderPage(async (page) => {
+        const pageTheme = await resolvePageTheme(page, request.theme);
+        await setTextFont(page, pageTheme.theme.fontFamily);
+        if (request.title) await addTextBlock(page, "heading", request.title);
+        await addTable(page, request.columns, request.cells, request.numericColumns);
+        const bytes = await page.pdf(pdfOptions(pageTheme.theme, decorations));
+        return { bytes, notes: pageTheme.notes };
+      }, signal);
+      return writeOutput(request.outputPath, output.bytes, [...decorations.notes, ...output.notes]);
     },
 
     async renderReport(blocks, theme, outputPath, signal) {
@@ -171,21 +208,27 @@ async function printChartPages(
   return { bytes, notes: [...pageTheme.notes, ...warnings] };
 }
 
+/** Draws a chart at the fixed image size, ready for a PNG or SVG export. */
+async function drawImage(
+  page: Page,
+  chart: Pick<ChartPage, "spec" | "rows">,
+  pageTheme: PageTheme,
+): Promise<{ viewId: number; notes: string[] }> {
+  const spec = fitSpecToArea(pageTheme.prepare(chart.spec), imageArea, chart.rows);
+  const drawn = await drawChart(page, spec, chart.rows);
+  return { viewId: drawn.viewId, notes: [...pageTheme.notes, ...drawn.warnings] };
+}
+
 async function exportImage(
   page: Page,
   request: ChartRenderRequest,
   pageTheme: PageTheme,
 ): Promise<RenderedOutput> {
-  const drawn = await drawChart(
-    page,
-    fitSpecToArea(pageTheme.prepare(request.spec), imageArea, request.rows),
-    request.rows,
-  );
-  const notes = [...pageTheme.notes, ...drawn.warnings];
+  const { viewId, notes } = await drawImage(page, request, pageTheme);
   if (request.format === "png") {
-    return { bytes: await exportPng(page, drawn.viewId, exportScale), notes };
+    return { bytes: await exportPng(page, viewId, exportScale), notes };
   }
-  return { bytes: await exportSvg(page, drawn.viewId), notes };
+  return { bytes: await exportSvg(page, viewId), notes };
 }
 
 /** Never overwrites (D28): the caller picks a free name, and `wx` makes a race fail loudly. */

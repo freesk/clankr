@@ -1,7 +1,7 @@
 // Running the model's chart code in the isolate (DATA-10, DATA-11). The isolate is injected,
 // so this part never imports sandbox's implementation. Inside the isolate,
 // `render(spec, rows, summary)` only records its arguments; all checking and drawing happen on
-// the host afterwards. Each call adds one chart; several charts go into one PDF.
+// the host afterwards. Each call adds one chart; several charts go into one file.
 
 import {
   type IsolateHelper,
@@ -31,7 +31,7 @@ export interface CapturedCharts {
   logs: string[];
 }
 
-/** One PDF page per chart; more would be a report, which this tool does not write. */
+/** One page per chart; more would be a report, which this tool does not write. */
 export const maxChartsPerCall = 6;
 
 export interface ChartCodeRunner {

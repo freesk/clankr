@@ -4,7 +4,8 @@
 export const chartReferenceText = `## make_chart reference (Vega-Lite)
 Write JavaScript that builds a Vega-Lite spec and ends with render(spec, data("rN"), summary).
 - summary: 1-3 plain sentences for the reader on the main finding, not the axes. Printed under the chart.
-- Several charts: call render once per chart (at most 6), each with its own summary. They go into one PDF, a page each.
+- Several charts: call render once per chart (at most 6), each with its own summary. They go into one file, a page each.
+- format: set it only if the user named one; otherwise the user is asked.
 - data("rN") returns the rows of a stored result. Use the handle from query_sql.
 - Do the maths in query_sql, not JavaScript: totals (GROUP BY), shares, growth, and indexes to a base year (window functions), and new groupings (CASE WHEN). Then chart that result as it is.
 - Counting things (licences, people, orders): COUNT(DISTINCT id_column). A file often has several rows per thing; the inspect_data profile shows each column's distinct count.

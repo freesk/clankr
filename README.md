@@ -5,7 +5,7 @@ clankr is a local AI assistant that runs entirely on your Mac. You use it throug
 - find files by name, date, size, or content;
 - read, create, edit, move, copy, and trash text files and folders, with your approval;
 - describe images and transcribe text from screenshots and scans;
-- profile spreadsheets, CSV/TSV files, and Word documents, query them with SQL, and turn the results into charts saved as PDF, PNG, or SVG.
+- profile spreadsheets, CSV/TSV files, and Word documents, query them with SQL, and save the results as charts or tables in the format you choose: PDF, Word, Excel, PNG, SVG, or CSV.
 
 Nothing leaves your machine. `clankr` connects only to LM Studio on `localhost`, and its tools make no network requests. Requirements and design decisions are in [PRD.md](PRD.md).
 
@@ -97,7 +97,8 @@ Example requests:
 - "In config.yaml, change the port to 8080."
 - "What does receipt.jpg say?"
 - "What's in samples/payroll_2025.xlsx?"
-- "Chart monthly headcount by department as a stacked bar from samples/payroll_2025.xlsx."
+- "Chart monthly headcount by department as a stacked bar from samples/payroll_2025.xlsx, as a Word document."
+- "Total units per region in samples/sales_2025.csv, saved as an Excel file."
 
 ### Slash commands
 
@@ -108,6 +109,7 @@ Example requests:
 | `/compact` | Drop old tool results and summarize older turns now |
 | `/think [on\|off]` | Turn the model's reasoning on or off |
 | `/permissions` | Show or change the permission mode and this session's grants |
+| `/format [name\|ask]` | Show or set the format charts and tables are saved in (`xlsx`, `docx`, `pdf`, `png`, `svg`, `csv`); `ask` goes back to asking |
 | `/undo` | Undo the last file change made in this session |
 | `/config` | Run the setup again |
 | `/clear` | Start a new session with an empty context (the old one stays saved) |
@@ -127,6 +129,14 @@ One-shot mode prints the answer to stdout, and tool lines and errors to stderr. 
 
 - `--permission-mode auto-edit` allows file changes inside the allowed folders.
 - `--allow-data` allows SQL, scripts, and charts on data files inside the allowed folders.
+- `--format <name>` says which format to save a chart or table in. One-shot mode cannot ask, so without it (and without a format in the prompt or the config) nothing is saved and the answer says so.
+
+```sh
+clankr -p "Chart units per region in samples/sales_2025.csv" --allow-data --format docx
+clankr -p "Save units per region in samples/sales_2025.csv as a table" --allow-data --permission-mode auto-edit --format xlsx
+```
+
+Saving a table (`export_table`) is a file change, so it needs `--permission-mode auto-edit` as well.
 
 `delete` always needs interactive approval.
 
@@ -141,6 +151,7 @@ Exit status: `0` done, `1` failed or something was refused, `2` usage error, `13
 | `--allow-data` | One-shot: allow SQL, scripts, and charts on data files inside the allowed folders |
 | `--model <key>` | Use this model instead of the configured default |
 | `--permission-mode <mode>` | `ask`, `auto-edit`, or `read-only`, for this run |
+| `--format <name>` | Save charts and tables as `xlsx`, `docx`, `pdf`, `png`, `svg`, or `csv` when a request names no format |
 | `--base-url <url>` | LM Studio address for this run |
 | `--ephemeral` | Leave nothing on disk when the session ends |
 | `--resume` | Reopen the most recent saved session |
@@ -169,9 +180,24 @@ Point `clankr` at a `.csv`, `.tsv`, `.xlsx`, `.xls`, or `.docx` file. It works i
 1. `inspect_data` profiles the file: sheets or tables, header row, and per column the type, nulls, distinct values, range, and three sample values.
 2. `query_sql` runs a read-only SQL query with DuckDB.
 3. `run_js` reshapes rows in a sandboxed JavaScript isolate with no file or network access (optional).
-4. `make_chart` builds a Vega-Lite chart and renders it in an offline browser. The chart is saved beside the data file as PDF (default), PNG, or SVG, together with its SQL and spec so it can be reproduced.
+4. `make_chart` builds a Vega-Lite chart and renders it in an offline browser. The chart is saved beside the data file as PDF, Word, Excel, PNG, or SVG, together with its SQL and spec so it can be reproduced.
+5. `export_table` saves a query result as an Excel workbook, a Word table, a PDF table, or a CSV file, without drawing a chart.
 
-Chart colors, fonts, page size, logo, and footer come from `~/.clankr/theme.json`. Without that file, a built-in theme is used.
+### Output formats
+
+You choose the format. clankr uses, in this order: the format you name in the request ("as a Word document", "save it as totals.xlsx"); the session's format (`--format docx`, or `/format docx` in the REPL); `output.defaultFormat` in `~/.clankr/config.json`; and otherwise, in the REPL, it asks before it writes anything, and you can keep the answer for the rest of the session.
+
+| Format | A chart | A table |
+|---|---|---|
+| `pdf` | The drawing with a summary under it; several charts get a page each | A paginated table |
+| `docx` | The title, the chart as a picture, and the summary as text you can edit | A title and a Word table |
+| `xlsx` | A Summary sheet and one sheet per chart with its rows; no picture | One sheet, with numbers and dates as real numbers and dates |
+| `png`, `svg` | One chart per file | Not available |
+| `csv` | Not available | Plain rows |
+
+Word and Excel files are always new files; clankr never edits an existing one, and never overwrites a file (a number is added to the name). Word and PDF tables hold up to 2,000 rows (`output.maxDocumentTableRows`); for more, ask for Excel or CSV.
+
+Chart colors, fonts, page size, logo, and footer come from `~/.clankr/theme.json`. Without that file, a built-in theme is used. Word documents take the page size, font, and footer from it.
 
 ### Sample data
 

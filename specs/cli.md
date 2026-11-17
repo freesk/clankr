@@ -17,6 +17,7 @@ Everything the user sees and types. The CLI starts a session, reads input, hands
 - CLI-6, CLI-7, CLI-9, the front end only: the `wipe` subcommand and the `--ephemeral` and `--resume` flags call [storage](storage.md).
 - FS-7 and PERM-7, the drawing only: the approval prompt shows the preview and offers the choices.
 - MOD-5, the flag only: `--model`.
+- CLI-12, the flag only: `--format`. What it means is [output](output.md)'s.
 
 ## Provides
 
@@ -38,6 +39,7 @@ The CLI owns dispatch, `/help`, `/exit`, `/clear`, and `/config`. Every other co
 | `/model` | [lmstudio](lmstudio.md) (the picker widget is cli's) |
 | `/context`, `/compact` | [context](context.md) |
 | `/think` | [agent-loop](agent-loop.md) |
+| `/format` | [output](output.md) (the picker widget is cli's) |
 | `/permissions` | [permissions](permissions.md) |
 | `/undo` (FS-9) | [files](files.md) |
 
@@ -54,7 +56,8 @@ The CLI owns dispatch, `/help`, `/exit`, `/clear`, and `/config`. Every other co
 
 - **Startup budget.** The REPL must be interactive in under 500 ms (PRD section 9). Import nothing heavy at startup: no DuckDB, isolate, `sharp`, or Playwright until a tool needs it.
 - **Ink is loaded only for the REPL.** Ink brings React and a larger dependency tree, which costs startup time. One-shot mode and `clankr wipe` draw plain text and must not import it. The startup measurement under "Done when" is the check that the 500 ms target still holds with Ink; if it does not, raise it with the user instead of missing the target quietly.
-- **One-shot mode never prompts.** A call that would need approval is denied and the message names `--permission-mode`.
+- **One-shot mode never prompts.** A call that would need approval is denied and the message names `--permission-mode`. A file that needs a format nobody named is not written; the tool's error names `--format` (D85).
+- **The picker is lent to the harness.** `HarnessOptions.choose` is the REPL's picker, the one `/model` uses. A running tool reaches it through the harness to ask which format to save in (D85). It opens during a turn, takes the keys while it is open, and Ctrl+C closes it and cancels the turn. One-shot mode passes none, so nothing can ask.
 - **Cancellation.** Each turn gets an `AbortSignal`. The first `Ctrl+C` aborts it and returns to the prompt. A second press with no turn running exits.
 - **Tool lines.** One line per `tool-start` and `tool-end` pair: tool, key argument, result size, duration. The key argument comes from the event, so the CLI needs no knowledge of individual tools.
 - **Reasoning.** `reasoning` events are shown dimmed or hidden, never mixed into the answer text.
@@ -96,6 +99,8 @@ Settled 2026-11-17. A D-number means the decision is also recorded in PRD sectio
 | Approval keys | `o` once, `a` always for this session, `d` deny and type feedback, `Esc` deny without feedback. `Enter` alone does nothing, so a stray key cannot approve a change. Ctrl+C at the prompt cancels the turn. |
 | Ctrl+C | During a turn, the first press aborts it and the REPL stops waiting on the event stream at once, even if the producer is slow to notice. Any press arms exit; the next press exits unless another key came in between. |
 | Flag combinations | `--ephemeral` with `--resume`, `--json` without one-shot mode, and `--yes` outside `wipe` are usage errors. `clankr wipe` without `--yes` refuses when stdin is not a terminal. |
+| `--format` (task 34) | `--format <name>` takes one of the output formats (`src/contracts/output.ts`), in any letter case; anything else is a usage error that lists them. It applies to the REPL and to one-shot mode, starts a new or resumed session with that format, and is passed to the harness as `HarnessOptions.outputFormat`. `/format` changes it later; `/clear` keeps what the session had. |
+| The format question (task 34) | Two pickers in a row, both worded by [output](output.md): the format, then "This chart only" or "Every file in this session". Enter takes the highlighted row, so two presses of Enter save one file in the first format offered. Esc on either saves nothing and the model is told. The question comes after any approval prompt for the same call. |
 | Setup flow (D73) | `clankr config` and `/config` run one flow: base URL (non-loopback warns, SEC-1 override explained but not offered), API token (hidden; tested at once with `GET /api/v1/models`; rejected means retry or skip, and skip leaves the saved token as it was), default model (numbered MOD-3 list when LM Studio answers, else a typed key), context length (capped at the model's maximum, D47), permission mode, allowed folders (saved as absolute paths; `-` means the start folder). Enter keeps each current value. A summary shows the token as `sk-…last4` at most; nothing is written until the user confirms. The file is merged with every key the flow does not own, validated with `configSchema`, and written at 0600 in a 0700 folder under `CLANKR_HOME`. A file that is not valid JSON or not a valid config is never overwritten. |
 | `clankr config` input | Plain readline, never Ink. Echo is off during the token question and between questions, so typed-ahead or pasted text cannot show the token. Ctrl+C or the end of input cancels and writes nothing (exit 0). |
 | `/config` in the REPL | Questions use the REPL's input line (`SlashCommandContext.ask`); a secret answer is drawn as asterisks and kept in scrollback as `(hidden)`. After saving, the permission mode applies to the running session at once. Base URL, token, model, context length, and allowed folders apply on the next start, and the REPL says so (`/model` switches models now). |

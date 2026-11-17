@@ -1,19 +1,18 @@
 // make_chart (DATA-10): the model writes JavaScript that builds Vega-Lite specs and calls
 // render(spec, data("rN"), summary) once per chart. The code runs in the isolate; the specs are
-// checked, themed, and drawn on the host. One chart prints on the theme's page; several print
-// portrait, a page each, in one PDF. See specs/chart.md for the flow and the reasons.
+// checked, themed, and drawn on the host. The file is a PDF, a Word document, an Excel
+// workbook, or one PNG or SVG image; the user chooses which (D85). See specs/chart.md for the
+// flow and the reasons.
 
 import { dirname } from "node:path";
 import { z } from "zod";
 import { type ChartCodeRunner, runChartCode } from "../../chart/chart-code.ts";
+import { type ChartFileRenderer, writeChartFile } from "../../chart/chart-file.ts";
 import { writeCompanionFiles } from "../../chart/companion-files.ts";
 import {
   baseNameFromTitle,
   type ChartOutputPaths,
   chooseOutputPaths,
-  formatFromPath,
-  resolveUserPath,
-  splitOutputPath,
   titleText,
 } from "../../chart/output-naming.ts";
 import { type PreparedChartPage, prepareCharts } from "../../chart/prepare-spec.ts";
@@ -22,10 +21,8 @@ import { failedCheckText, savedText } from "../../chart/result-text.ts";
 import type { SelfCheck, SelfCheckVerdict } from "../../chart/self-check.ts";
 import { loadTheme } from "../../chart/theme-loader.ts";
 import {
-  type ChartFormat,
-  type ChartPagesRequest,
-  type ChartRenderRequest,
-  type ChartRenderResult,
+  type OutputFormat,
+  outputFormats,
   type Row,
   type Theme,
   type ToolContext,
@@ -33,22 +30,26 @@ import {
   ToolError,
 } from "../../contracts/index.ts";
 import { isolateLimitsFrom } from "../../engines/isolate/limits.ts";
+import { chartOutputFormats, formatList, holdsSeveralCharts } from "../../output/formats.ts";
+import { resolveUserPath, splitOutputPath } from "../../output/naming.ts";
+import {
+  askOutputFormat,
+  type FormatRequest,
+  settledOutputFormat,
+} from "../../output/resolve-format.ts";
 
 const parameters = z.object({
   code: z
     .string()
     .min(1)
     .describe('Builds Vega-Lite specs; calls render(spec, data("rN"), summary) once per chart'),
-  format: z.enum(["pdf", "png", "svg"]).optional().describe("Default pdf"),
+  format: z.enum(outputFormats).optional().describe("Only if the user named a format"),
   output_path: z.string().optional().describe("Default: next to the data file"),
 });
 
 type MakeChartArguments = z.infer<typeof parameters>;
 
-export interface MakeChartDependencies extends ChartCodeRunner {
-  renderChart(request: ChartRenderRequest, signal?: AbortSignal): Promise<ChartRenderResult>;
-  /** Several charts in one portrait PDF, a page each. */
-  renderChartPages(request: ChartPagesRequest, signal?: AbortSignal): Promise<ChartRenderResult>;
+export interface MakeChartDependencies extends ChartCodeRunner, ChartFileRenderer {
   /** Needed for the self-check only. */
   renderPreview?(
     spec: Record<string, unknown>,
@@ -60,6 +61,8 @@ export interface MakeChartDependencies extends ChartCodeRunner {
   selfCheck?: SelfCheck;
 }
 
+const severalChartFormats = chartOutputFormats.filter(holdsSeveralCharts);
+
 export function createMakeChartTool(
   dependencies: MakeChartDependencies,
 ): ToolDefinition<typeof parameters> {
@@ -70,7 +73,7 @@ export function createMakeChartTool(
     name: "make_chart",
     description:
       "Draw charts with JavaScript that renders Vega-Lite specs, saved as a file. " +
-      "Give each chart a short summary of what it shows. Several charts go into one PDF, " +
+      "Give each chart a short summary of what it shows. Several charts go into one file, " +
       "a page each. Aggregate with query_sql first.",
     parameters,
     permission: "execute",
@@ -80,8 +83,12 @@ export function createMakeChartTool(
     async previewChange(args, context) {
       const sources = await traceRowSources(args.code, context);
       const target = outputTarget(args, sources, context.workingDirectory);
+      const settled = settledOutputFormat(formatRequest(args), context);
+      const chart = settled
+        ? `a ${settled.format.toUpperCase()} chart in ${target.folder}`
+        : `a chart in ${target.folder} (you choose the format next)`;
       return {
-        summary: `Run chart code and save a ${target.format.toUpperCase()} chart in ${target.folder}`,
+        summary: `Run chart code and save ${chart}`,
         code: args.code,
         targetPaths: [target.explicitPath ?? target.folder],
         dataSourcePaths: sources.dataFiles,
@@ -99,15 +106,11 @@ export function createMakeChartTool(
         context.signal,
       );
       const sources = await traceRowSources(args.code, context);
-      const target = outputTarget(args, sources, context.workingDirectory);
-      if (captured.charts.length > 1 && target.format !== "pdf") {
-        throw new ToolError(
-          `Several charts go into one PDF, a page each; ${target.format.toUpperCase()} holds one chart. Use format "pdf", or one make_chart call per ${target.format.toUpperCase()} chart.`,
-        );
-      }
+      const request = formatRequest(args);
+      const settled = settledOutputFormat(request, context);
+      if (settled) assertHoldsCharts(settled.format, captured.charts.length);
       const prepared = await prepareCharts(captured.charts, { theme, rowCap: limits.rowCap });
       const charts = prepared.charts;
-      const paths = await chooseChartPaths(target, charts);
 
       const verdict = await runSelfCheck(charts, theme, context);
       if (verdict && !verdict.passed && !retryAfterFailedCheck) {
@@ -116,7 +119,13 @@ export function createMakeChartTool(
       }
       retryAfterFailedCheck = false;
 
-      const rendered = await renderCharts(charts, theme, paths, context.signal);
+      // The user is asked last, once the charts are known to be good, so a chart that fails
+      // never costs them a question. Several charts are only offered formats that hold them.
+      const offered = charts.length > 1 ? severalChartFormats : chartOutputFormats;
+      const { format } = settled ?? (await askOutputFormat({ ...request, offered }, context));
+      const target = outputTarget(args, sources, context.workingDirectory);
+      const paths = await chooseChartPaths(target, format, charts);
+      const rendered = await writeChartFile(dependencies, charts, theme, paths, context.signal);
       const specs = charts.map((chart) => chart.spec);
       const companions = await writeCompanionFiles(paths, args.code, specs, sources);
       const notes = [
@@ -137,27 +146,6 @@ export function createMakeChartTool(
       return { text };
     },
   };
-
-  function renderCharts(
-    charts: PreparedChartPage[],
-    theme: Theme,
-    paths: ChartOutputPaths,
-    signal?: AbortSignal,
-  ): Promise<ChartRenderResult> {
-    const [only] = charts;
-    if (only && charts.length === 1) {
-      const request: ChartRenderRequest = {
-        spec: only.spec,
-        rows: only.rows,
-        theme,
-        format: paths.format,
-        outputPath: paths.chart,
-      };
-      if (only.summary) request.summary = only.summary;
-      return dependencies.renderChart(request, signal);
-    }
-    return dependencies.renderChartPages({ charts, theme, outputPath: paths.chart }, signal);
-  }
 
   /**
    * Checks each chart's preview in order and stops at the first failure, which names the
@@ -186,9 +174,28 @@ export function createMakeChartTool(
   }
 }
 
+/** What the call says about the format, for the one resolution order every tool uses (D85). */
+function formatRequest(args: MakeChartArguments): FormatRequest {
+  return {
+    what: "chart",
+    allowed: chartOutputFormats,
+    format: args.format,
+    outputPath: args.output_path,
+    unsupported: (format) =>
+      `${format.toUpperCase()} holds a table, not a chart. Use export_table to save rows as ${format}, or a chart format: ${formatList(chartOutputFormats)}.`,
+  };
+}
+
+function assertHoldsCharts(format: OutputFormat, chartCount: number): void {
+  if (chartCount <= 1 || holdsSeveralCharts(format)) return;
+  const name = format.toUpperCase();
+  throw new ToolError(
+    `${name} holds one chart, and the code rendered ${chartCount}. Use one make_chart call per ${name} chart, or a format that holds several: ${formatList(severalChartFormats)}.`,
+  );
+}
+
 interface OutputTarget {
   folder: string;
-  format: ChartFormat;
   /** Set when the model named the output file. */
   explicitPath?: string;
 }
@@ -204,21 +211,20 @@ function outputTarget(
 ): OutputTarget {
   if (args.output_path) {
     const explicitPath = resolveUserPath(args.output_path, workingDirectory);
-    const format = formatFromPath(explicitPath) ?? args.format ?? "pdf";
-    return { folder: dirname(explicitPath), format, explicitPath };
+    return { folder: dirname(explicitPath), explicitPath };
   }
   const firstDataFile = sources.dataFiles[0];
-  const folder = firstDataFile ? dirname(firstDataFile) : workingDirectory;
-  return { folder, format: args.format ?? "pdf" };
+  return { folder: firstDataFile ? dirname(firstDataFile) : workingDirectory };
 }
 
 /** Named from the first chart's title when no path was given. */
 function chooseChartPaths(
   target: OutputTarget,
+  format: OutputFormat,
   charts: PreparedChartPage[],
 ): Promise<ChartOutputPaths> {
   const baseName = target.explicitPath
     ? splitOutputPath(target.explicitPath).baseName
     : baseNameFromTitle(charts[0]?.spec);
-  return chooseOutputPaths(target.folder, baseName, target.format, charts.length);
+  return chooseOutputPaths(target.folder, baseName, format, charts.length);
 }

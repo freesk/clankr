@@ -93,6 +93,7 @@ The remaining contracts, each a small interface or type:
 | `ClankrPaths` | Every location under `~/.clankr/` and inside the current session directory |
 | `SlashCommand` | Name, help line, and handler, so parts register commands without editing the CLI |
 | `ChartRenderRequest` | Validated spec, rows, theme, output format, output path |
+| `OutputFormat`, `OutputFormatContext` | The one list of output formats, and what a tool is told about the format beyond its own arguments ([output.md](output.md)) |
 | `Config` | The zod schema for `~/.clankr/config.json` |
 
 ### 3. Config (`src/config/`)

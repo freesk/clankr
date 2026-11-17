@@ -95,3 +95,22 @@ describe("load settings (D78)", () => {
     expect(config.model.profiles["test/a"]?.load).toEqual({ parallel: 2 });
   });
 });
+
+describe("output settings (D85, D89)", () => {
+  it("has no default format, and caps tables at what a document or a sheet holds", async () => {
+    const { configSchema } = await import("./schema.ts");
+    expect(defaultConfig().output).toEqual({
+      maxDocumentTableRows: 2_000,
+      maxSheetRows: 1_048_575,
+    });
+    const config = configSchema.parse({ output: { defaultFormat: "docx", maxSheetRows: 500 } });
+    expect(config.output.defaultFormat).toBe("docx");
+    expect(config.output.maxSheetRows).toBe(500);
+  });
+
+  it("refuses an unknown format and a sheet larger than Excel allows", async () => {
+    const { configSchema } = await import("./schema.ts");
+    expect(configSchema.safeParse({ output: { defaultFormat: "pptx" } }).success).toBe(false);
+    expect(configSchema.safeParse({ output: { maxSheetRows: 1_048_576 } }).success).toBe(false);
+  });
+});

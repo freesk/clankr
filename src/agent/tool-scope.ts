@@ -102,7 +102,8 @@ export function turnsSinceCall(
   return undefined;
 }
 
-function lastUserText(history: readonly ChatMessage[]): string {
+/** The text of the user's latest message: the request the current turn is answering. */
+export function lastUserText(history: readonly ChatMessage[]): string {
   for (let index = history.length - 1; index >= 0; index--) {
     const message = history[index] as ChatMessage;
     if (message.role !== "user") continue;

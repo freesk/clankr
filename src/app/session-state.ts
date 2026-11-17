@@ -6,6 +6,7 @@ import type {
   ChatMessage,
   Config,
   LoadedModel,
+  OutputFormat,
   PermissionMode,
   ReasoningSetting,
   SessionState,
@@ -20,6 +21,7 @@ export interface NewSessionStateOptions {
   reasoning?: ReasoningSetting;
   messages?: ChatMessage[];
   activatedToolGroups?: ToolGroup[];
+  outputFormat?: OutputFormat | undefined;
 }
 
 export function createSessionState(options: NewSessionStateOptions): SessionState {
@@ -34,6 +36,7 @@ export function createSessionState(options: NewSessionStateOptions): SessionStat
     ephemeral: options.ephemeral,
   };
   if (options.activatedToolGroups) state.activatedToolGroups = [...options.activatedToolGroups];
+  if (options.outputFormat) state.outputFormat = options.outputFormat;
   return state;
 }
 

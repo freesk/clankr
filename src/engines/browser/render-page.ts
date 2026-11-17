@@ -51,6 +51,12 @@ p.text-block { font-size: 12px; line-height: 1.45; white-space: pre-wrap; }
 .chart-page + .chart-page { break-before: page; page-break-before: always; }
 .chart-page .chart { margin-bottom: 8px; }
 p.summary { font-size: 13px; line-height: 1.45; margin: 0; color: #222; white-space: normal; }
+table.data-table { border-collapse: collapse; width: 100%; font-size: 9px; line-height: 1.3; }
+.data-table thead { display: table-header-group; }
+.data-table tr { break-inside: avoid; page-break-inside: avoid; }
+.data-table th, .data-table td { border: 0.5px solid #999; padding: 2px 4px; text-align: left; vertical-align: top; overflow-wrap: anywhere; }
+.data-table th { background: #eee; font-weight: 600; }
+.data-table td.number { text-align: right; font-variant-numeric: tabular-nums; }
 `;
 
 const javascript = "text/javascript; charset=utf-8";

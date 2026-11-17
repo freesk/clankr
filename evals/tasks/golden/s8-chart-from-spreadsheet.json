@@ -124,5 +124,88 @@
       { "kind": "pdf-created", "directory": "." },
       { "kind": "chart-spec", "directory": ".", "mark": "arc", "fields": ["product"] }
     ]
+  },
+  {
+    "id": "s8-quantity-bar-word",
+    "scenario": "S8",
+    "title": "Bar chart saved as a Word document",
+    "requires": ["inspect_data", "query_sql", "make_chart"],
+    "chart": true,
+    "fixtures": [
+      {
+        "kind": "generated",
+        "generator": "csv",
+        "path": "sales.csv",
+        "options": {
+          "dataset": "sales",
+          "rows": 1000
+        }
+      }
+    ],
+    "steps": [
+      {
+        "prompt": "Chart total quantity by region from sales.csv as a bar chart and save it as a Word document."
+      }
+    ],
+    "assertions": [
+      {
+        "kind": "file-count",
+        "directory": ".",
+        "suffix": ".docx",
+        "count": 1
+      },
+      {
+        "kind": "chart-spec",
+        "directory": ".",
+        "mark": "bar",
+        "fields": ["region"]
+      }
+    ]
+  },
+  {
+    "id": "s8-session-format-png",
+    "scenario": "S8",
+    "title": "A chart request that names no format uses the session's /format",
+    "requires": ["inspect_data", "query_sql", "make_chart", "command:format"],
+    "chart": true,
+    "fixtures": [
+      {
+        "kind": "generated",
+        "generator": "csv",
+        "path": "sales.csv",
+        "options": {
+          "dataset": "sales",
+          "rows": 1000
+        }
+      }
+    ],
+    "steps": [
+      {
+        "command": "/format png"
+      },
+      {
+        "prompt": "Chart total quantity by region from sales.csv as a bar chart."
+      }
+    ],
+    "assertions": [
+      {
+        "kind": "file-count",
+        "directory": ".",
+        "suffix": ".png",
+        "count": 1
+      },
+      {
+        "kind": "file-count",
+        "directory": ".",
+        "suffix": ".pdf",
+        "count": 0
+      },
+      {
+        "kind": "chart-spec",
+        "directory": ".",
+        "mark": "bar",
+        "fields": ["region"]
+      }
+    ]
   }
 ]

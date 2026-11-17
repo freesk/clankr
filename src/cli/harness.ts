@@ -7,9 +7,11 @@ import type {
   ApprovalPrompter,
   Config,
   LmClient,
+  OutputFormat,
   ResultStore,
   SessionState,
   SlashCommand,
+  SlashCommandContext,
   TurnInputWithAttachments,
   UsageSnapshot,
   WipeReport,
@@ -21,6 +23,13 @@ export interface HarnessOptions {
   approvalPrompter: ApprovalPrompter;
   /** D74: one-shot `--allow-data`. Absent means false. */
   allowData?: boolean;
+  /** `--format`: the format files are saved in when a request names none (D85). */
+  outputFormat?: OutputFormat;
+  /**
+   * The REPL's picker, for a question a running tool has for the user (which output format,
+   * D85). Absent in one-shot mode, where nobody can be asked (D14).
+   */
+  choose?: NonNullable<SlashCommandContext["choose"]>;
   ephemeral: boolean;
   resume: boolean;
   workingDirectory: string;

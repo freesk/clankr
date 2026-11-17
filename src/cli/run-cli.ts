@@ -70,6 +70,7 @@ async function runOneShotSession(
       config,
       approvalPrompter: prompter,
       allowData: command.allowData,
+      ...(command.outputFormat ? { outputFormat: command.outputFormat } : {}),
       ephemeral: command.ephemeral,
       resume: command.resume,
       workingDirectory: environment.workingDirectory,

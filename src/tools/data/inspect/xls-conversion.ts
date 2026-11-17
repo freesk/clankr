@@ -9,6 +9,7 @@
 import { readFile } from "node:fs/promises";
 import * as XLSX from "xlsx";
 import { ToolError } from "../../../contracts/index.ts";
+import { serialToIsoDate } from "../../../shared/excel-dates.ts";
 import { type CellText, detectHeaderRow, headerSearchRows } from "./header-detection.ts";
 import { type CellValue, cellText, gridToRows, type RowGrid } from "./row-grid.ts";
 
@@ -16,11 +17,6 @@ export interface XlsSheet extends RowGrid {
   label: string;
   headerRow: number;
 }
-
-const millisecondsPerDay = 86_400_000;
-/** Days from Excel's 1900 epoch (as Excel counts, with its 1900 leap-year bug) to 1970-01-01. */
-const unixEpochSerial1900 = 25_569;
-const epochShift1904 = 1_462;
 
 /** `headerRowFor` returns the caller's header row for a sheet, if one was given. */
 export async function readXlsSheets(
@@ -70,14 +66,4 @@ function cellValue(cell: XLSX.CellObject | undefined, uses1904: boolean): CellVa
 function isDateFormat(format: XLSX.NumberFormat | undefined): boolean {
   if (format === undefined) return false;
   return XLSX.SSF.is_date(format) === true;
-}
-
-/** Whole days become "2024-01-15"; a time of day adds " 10:30:00". */
-export function serialToIsoDate(serial: number, uses1904: boolean): string {
-  const daysSince1970 = serial - unixEpochSerial1900 + (uses1904 ? epochShift1904 : 0);
-  const milliseconds = Math.round(daysSince1970 * millisecondsPerDay);
-  const iso = new Date(milliseconds).toISOString();
-  const date = iso.slice(0, 10);
-  const time = iso.slice(11, 19);
-  return time === "00:00:00" ? date : `${date} ${time}`;
 }

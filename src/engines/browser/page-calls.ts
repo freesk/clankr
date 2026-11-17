@@ -11,6 +11,7 @@ interface RenderPageApi {
     rows: Row[],
   ): Promise<{ viewId: number; warnings: string[] }>;
   addText(kind: TextBlockKind, text: string): void;
+  addTable(columns: string[], rows: string[][], numericColumns: boolean[]): void;
   startPage(): void;
   setTextFont(family: string): void;
   exportPng(viewId: number, scale: number): Promise<string>;
@@ -59,6 +60,19 @@ export async function addTextBlock(page: Page, kind: TextBlockKind, text: string
     kind,
     text,
   ] as const);
+}
+
+/** A table of text cells; columns marked numeric are right-aligned. */
+export async function addTable(
+  page: Page,
+  columns: string[],
+  cells: string[][],
+  numericColumns: boolean[],
+): Promise<void> {
+  await page.evaluate(
+    ([tableColumns, tableCells, numeric]) => clankr.addTable(tableColumns, tableCells, numeric),
+    [columns, cells, numericColumns] as const,
+  );
 }
 
 /** Starts a section that prints on a new page; the next chart and text go into it. */

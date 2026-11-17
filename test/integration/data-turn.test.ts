@@ -64,6 +64,8 @@ describe.skipIf(!(await isBrowserVendored()))("data turn", () => {
     const harness = await kit.composition.openHarness({
       config,
       approvalPrompter: prompter,
+      // As `clankr --format pdf`: the request below names no format (D85).
+      outputFormat: "pdf",
       ephemeral: false,
       resume: false,
       workingDirectory: kit.workingDirectory,

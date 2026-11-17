@@ -37,7 +37,8 @@ export async function findSessionToResume(root: string): Promise<SavedSession> {
 
 /**
  * The state a session starts with: a resumed session's history, or for `/clear` the previous
- * session's model, mode, and reasoning setting with an empty history.
+ * session's model, mode, reasoning setting, and output format with an empty history. A new
+ * or resumed session starts with the `--format` flag's format, if one was given.
  */
 export function initialSessionState(
   options: HarnessOptions,
@@ -50,6 +51,7 @@ export function initialSessionState(
     permissionMode: carryOver?.permissionMode ?? options.config.permissions.mode,
     ...(carryOver?.model ? { model: carryOver.model } : {}),
     ...(carryOver ? { reasoning: carryOver.reasoning } : {}),
+    outputFormat: carryOver ? carryOver.outputFormat : options.outputFormat,
     ...(saved ? { messages: saved.messages } : {}),
     ...(saved?.activatedToolGroups ? { activatedToolGroups: saved.activatedToolGroups } : {}),
   });
