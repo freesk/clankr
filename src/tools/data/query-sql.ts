@@ -23,10 +23,7 @@ import {
 } from "../../engines/duckdb/index.ts";
 
 const parameters = z.object({
-  sql: z
-    .string()
-    .min(1)
-    .describe("One SELECT over table names printed by inspect_data. Quote names with spaces."),
+  sql: z.string().min(1).describe("One SELECT; quote table names with spaces"),
 });
 
 type QuerySqlArguments = z.infer<typeof parameters>;
@@ -34,7 +31,7 @@ type QuerySqlArguments = z.infer<typeof parameters>;
 export const querySqlTool: ToolDefinition<typeof parameters> = {
   name: "query_sql",
   description:
-    "Run one read-only DuckDB SELECT over tables from inspect_data. Returns the first rows and a handle to the full result.",
+    "Run one read-only DuckDB SELECT over tables from inspect_data. Returns the first rows and a handle to all of them.",
   parameters,
   permission: "execute",
   resultTokenCap: 1_000,

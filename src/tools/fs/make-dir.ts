@@ -8,12 +8,12 @@ import { plural } from "./preview.ts";
 import { displayPath, resolveContentPath } from "./resolve-path.ts";
 
 const parameters = z.object({
-  path: z.string().describe("Folder to create."),
+  path: z.string(),
 });
 
 export const makeDirTool = plannedTool({
   name: "make_dir",
-  description: "Create a folder, including any missing folders above it.",
+  description: "Create a folder and any missing parent folders.",
   parameters,
   keyArgument: "path",
   plan: planMakeDir,

@@ -52,26 +52,21 @@ export const defaultExcludes: readonly string[] = [
   "/opt",
 ];
 
-/** The per-call override (SRCH-7), shared by every search tool's parameters. */
+/**
+ * The per-call override (SRCH-7), shared by the search tools' parameters. There is no
+ * switch to drop the defaults: a root inside an excluded folder is searched normally, so
+ * the model reaches node_modules or .git by naming it as the root. Leaving the switch out
+ * saves fixed overhead on every request (CTX-5).
+ */
 export const excludeParameters = {
-  default_excludes: z
-    .boolean()
-    .optional()
-    .describe("Set false to also search node_modules, .git, caches, and system folders."),
-  exclude: z
-    .array(z.string())
-    .optional()
-    .describe('More names or folders to skip, for example ["build", "Archive/2019"].'),
+  exclude: z.array(z.string()).optional().describe("More names or folders to skip"),
 };
 
 export function excludeRulesFor(
   root: string,
-  args: { default_excludes?: boolean | undefined; exclude?: string[] | undefined },
+  args: { exclude?: string[] | undefined },
 ): ExcludeRules {
-  return new ExcludeRules(root, {
-    useDefaults: args.default_excludes !== false,
-    extra: args.exclude ?? [],
-  });
+  return new ExcludeRules(root, { useDefaults: true, extra: args.exclude ?? [] });
 }
 
 export interface ExcludeOptions {

@@ -72,3 +72,29 @@ export function buildToolSet(options: ToolSetOptions): ToolSet {
   });
   return { tools: [...baseTools, delegate], toolReferences: [chartToolReference] };
 }
+
+/**
+ * The tool definitions alone, built with dependencies that must never be called. For
+ * measuring and listing what the model is offered (CTX-5), not for running tools.
+ */
+export function inspectToolDefinitions(config: Config): ToolDefinition[] {
+  const neverCalled = (): never => {
+    throw new Error("inspectToolDefinitions: these tools are for inspection only");
+  };
+  return buildToolSet({
+    config,
+    renderer: {} as ChartRenderer,
+    fileTools: { trash: neverCalled },
+    currentModel: () => undefined,
+    permissions: { check: neverCalled },
+    onSubAgentEvent: () => {},
+    currentAudit: neverCalled,
+  }).tools;
+}
+
+/** The tool sets scoping can offer (CTX-8, D15), each a filter over a tool's groups. */
+export const offeredToolSets: Record<string, (groups: readonly string[]) => boolean> = {
+  core: (groups) => groups.includes("core"),
+  "core+vision": (groups) => groups.some((group) => group === "core" || group === "vision"),
+  all: () => true,
+};

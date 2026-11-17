@@ -6,8 +6,24 @@ import type { ToolDefinition, ToolSchema } from "../contracts/index.ts";
 
 export type JsonSchemaObject = Record<string, unknown>;
 
-/** Keys zod adds that cost tokens and tell a small model nothing useful. */
-const noiseKeys = new Set(["$schema", "additionalProperties"]);
+/**
+ * Keys that cost tokens on every request and tell a small model little (CTX-5). Bounds and
+ * defaults stay enforced by zod, whose corrective error names them when a call breaks one;
+ * a default or range the model must know goes in the parameter's description instead.
+ */
+const noiseKeys = new Set([
+  "$schema",
+  "additionalProperties",
+  "default",
+  "minLength",
+  "maxLength",
+  "minItems",
+  "maxItems",
+  "minimum",
+  "maximum",
+  "exclusiveMinimum",
+  "exclusiveMaximum",
+]);
 
 export function buildToolSchema(tool: ToolDefinition): ToolSchema {
   return {
@@ -85,11 +101,21 @@ function findEnum(property: JsonSchemaObject): unknown[] | undefined {
   return undefined;
 }
 
+/** Removes noise keys from a schema node; `properties` maps parameter names, kept whole. */
 function removeNoise(schema: JsonSchemaObject): JsonSchemaObject {
   const cleaned: JsonSchemaObject = {};
   for (const [key, value] of Object.entries(schema)) {
-    if (noiseKeys.has(key) || isSafeIntegerBound(key, value)) continue;
-    cleaned[key] = cleanValue(value);
+    if (noiseKeys.has(key)) continue;
+    cleaned[key] =
+      key === "properties" ? cleanProperties(value as JsonSchemaObject) : cleanValue(value);
+  }
+  return cleaned;
+}
+
+function cleanProperties(properties: JsonSchemaObject): JsonSchemaObject {
+  const cleaned: JsonSchemaObject = {};
+  for (const [name, property] of Object.entries(properties)) {
+    cleaned[name] = removeNoise(property as JsonSchemaObject);
   }
   return cleaned;
 }
@@ -98,12 +124,4 @@ function cleanValue(value: unknown): unknown {
   if (Array.isArray(value)) return value.map(cleanValue);
   if (value !== null && typeof value === "object") return removeNoise(value as JsonSchemaObject);
   return value;
-}
-
-/** `z.number().int()` adds the safe-integer range as bounds; they are noise to the model. */
-function isSafeIntegerBound(key: string, value: unknown): boolean {
-  return (
-    (key === "maximum" && value === Number.MAX_SAFE_INTEGER) ||
-    (key === "minimum" && value === Number.MIN_SAFE_INTEGER)
-  );
 }

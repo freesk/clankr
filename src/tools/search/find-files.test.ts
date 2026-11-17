@@ -161,13 +161,13 @@ describe("find_files backends", () => {
 });
 
 describe("find_files excludes, denied paths, ranking, and the cap", () => {
-  it("skips default excludes unless told not to", async () => {
+  it("skips default excludes unless the root is inside one", async () => {
     expect(listedPaths((await find({ pattern: "index.js" }, unavailableIndex)).text)).toEqual([]);
-    const everything = await find(
-      { pattern: "index.js", default_excludes: false },
+    const inside = await find(
+      { pattern: "index.js", root: join(tree.root, "node_modules") },
       unavailableIndex,
     );
-    expect(listedPaths(everything.text)).toEqual(["node_modules/pkg/index.js"]);
+    expect(listedPaths(inside.text)).toEqual(["pkg/index.js"]);
   });
 
   it("applies extra excludes from the call", async () => {

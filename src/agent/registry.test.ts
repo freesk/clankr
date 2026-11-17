@@ -26,11 +26,15 @@ describe("ToolRegistry", () => {
       toolWith(
         "find",
         z.object({
-          pattern: z.string().describe("Glob"),
-          limit: z.number().int().positive().default(20),
+          pattern: z.string().min(1).describe("Glob"),
+          limit: z.number().int().positive().max(100).default(20),
+          tags: z.array(z.string()).min(1),
+          // A parameter may share its name with a dropped schema keyword.
+          default: z.boolean().optional(),
         }),
       ),
     ]);
+    // CTX-5: bounds and defaults are dropped from what the model sees; zod still enforces them.
     expect(registry.get("find")?.schema).toEqual({
       name: "find",
       description: "A test tool.",
@@ -38,11 +42,14 @@ describe("ToolRegistry", () => {
         type: "object",
         properties: {
           pattern: { type: "string", description: "Glob" },
-          limit: { type: "integer", default: 20, exclusiveMinimum: 0 },
+          limit: { type: "integer" },
+          tags: { type: "array", items: { type: "string" } },
+          default: { type: "boolean" },
         },
-        required: ["pattern"],
+        required: ["pattern", "tags"],
       },
     });
+    expect(() => registry.get("find")?.definition.parameters.parse({ pattern: "" })).toThrow();
   });
 
   it("refuses a shell tool (PERM-6)", () => {

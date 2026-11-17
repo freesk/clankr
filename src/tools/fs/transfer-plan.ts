@@ -9,13 +9,8 @@ import { plural } from "./preview.ts";
 import { displayPath, resolveContentPath, resolveEntryPath } from "./resolve-path.ts";
 
 export const transferParameters = z.object({
-  sources: z
-    .array(z.string())
-    .min(1)
-    .describe("One or more files or folders. Several sources go into the destination folder."),
-  destination: z
-    .string()
-    .describe("New path for a single source, or the folder that receives the sources."),
+  sources: z.array(z.string()).min(1),
+  destination: z.string().describe("New path for one source, or the folder for several"),
 });
 
 export type TransferArguments = z.infer<typeof transferParameters>;

@@ -16,9 +16,7 @@ import type { FileToolDependencies } from "./trash.ts";
 export function createMoveTool(dependencies: FileToolDependencies) {
   return plannedTool({
     name: "move",
-    description:
-      "Move or rename files and folders; several sources go into one destination folder. " +
-      "Never overwrites an existing file.",
+    description: "Move or rename files and folders. Never overwrites a file.",
     parameters: transferParameters,
     keyArgument: "destination",
     plan: (args, context) => planMove(args, context, dependencies),
